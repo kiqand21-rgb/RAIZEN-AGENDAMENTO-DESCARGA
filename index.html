@@ -22,16 +22,20 @@
         label { display: block; margin-top: 15px; font-weight: 600; color: #444; font-size: 14px; }
         input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #e1e1e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
-        .btn-enviar { width: 100%; padding: 16px; background-color: var(--cor-principal); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 15px 0; background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee; }
+        .checkbox-group input { width: auto; margin: 0; transform: scale(1.2); }
+
+        .btn-enviar { width: 100%; padding: 16px; background-color: var(--cor-principal); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         
-        #admin-panel { display: none; max-width: 98%; width: 1100px; }
+        #admin-panel { display: none; max-width: 98%; width: 1150px; }
         .search-box { margin-bottom: 15px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; width: 100%; box-sizing: border-box; }
         
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; font-size: 13px; }
         th { background: var(--cor-principal); color: white; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
         
-        .badge-coleta { background: #e3f2fd; color: #0d47a1; padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; border: 1px dashed #0d47a1; display: inline-block; }
+        .badge-coleta { background: #e3f2fd; color: #0d47a1; padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; border: 1px dashed #0d47a1; }
+        .badge-jornada { background: #fce4ec; color: #c2185b; padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         .badge-espera { background: #fff3cd; color: #856404; padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         
         .btn-zap { background:#25D366; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold; width: 100%; margin-bottom: 4px; display: block; text-decoration: none; text-align: center; }
@@ -66,10 +70,20 @@
         <label>WhatsApp (com DDD)</label>
         <input type="tel" id="telefone" placeholder="(19) 9 9999-9999" maxlength="16" required>
 
+        <div id="campo-hora">
+            <label>Fim da Jornada</label>
+            <input type="time" id="jornada">
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="jornada24">
+            <label for="jornada24">Trabalho em Jornada 24h</label>
+        </div>
+
         <button type="submit" class="btn-enviar" id="btnEnviar">REGISTRAR ENTRADA</button>
     </form>
     <div class="footer-link">
-        <button class="btn-admin-link" onclick="abrirAdmin()">Acesso Administrativo</button>
+        <button class="btn-admin-link" onclick="abrirAdmin()">Painel Administrativo</button>
     </div>
 </div>
 
@@ -83,6 +97,7 @@
                 <tr>
                     <th>Placa</th>
                     <th>Produto</th>
+                    <th>Fim Jornada</th>
                     <th>Agenda Coleta</th>
                     <th>No Pátio</th>
                     <th>Ações</th>
@@ -91,7 +106,7 @@
             <tbody></tbody>
         </table>
     </div>
-    <button class="btn-enviar" style="margin-top: 20px; background:#666;" onclick="window.location.reload()">SAIR</button>
+    <button class="btn-enviar" style="margin-top: 20px; background:#666;" onclick="window.location.reload()">SAIR / VOLTAR</button>
 </div>
 
 <script>
@@ -111,7 +126,11 @@
         e.target.value = v;
     });
 
-    // Envio do Motorista
+    document.getElementById('jornada24').addEventListener('change', function() {
+        document.getElementById('campo-hora').style.display = this.checked ? 'none' : 'block';
+    });
+
+    // Envio Motorista
     document.getElementById('formAgendamento').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
@@ -123,6 +142,7 @@
             "PLACA": document.getElementById('placa').value,
             "PRODUTO": document.getElementById('produto').value,
             "TELEFONE": document.getElementById('telefone').value,
+            "JORNADA": document.getElementById('jornada24').checked ? "24 Horas" : document.getElementById('jornada').value,
             "ENTRADA": agora.toLocaleString('pt-BR'),
             "TIMESTAMP": agora.getTime(),
             "COLETA": "Pendente",
@@ -134,7 +154,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: [dados] })
         }).then(() => {
-            alert("✅ Entrada Registrada com Sucesso!");
+            alert("✅ Entrada Registrada!");
             document.getElementById('formAgendamento').reset();
         }).finally(() => {
             btn.innerText = "REGISTRAR ENTRADA";
@@ -164,6 +184,7 @@
                     <tr>
                         <td style="font-weight:bold">${i.PLACA}</td>
                         <td>${i.PRODUTO}</td>
+                        <td><span class="badge-jornada">⏰ ${i.JORNADA}</span></td>
                         <td><span class="badge-coleta" onclick="editarColeta('${i.PLACA}')">🕒 ${coletaTexto}</span></td>
                         <td><span class="badge-espera">${minutosPátio} min</span></td>
                         <td>
@@ -175,11 +196,9 @@
         });
     }
 
-    // Função Administrativa para inserir horário do Coleta
     function editarColeta(placa) {
-        const novoHorario = prompt("Digite o horário agendado no Portal Coleta para a placa " + placa + ":");
+        const novoHorario = prompt("Horário no Portal Coleta para a placa " + placa + ":");
         if (novoHorario === null) return;
-
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -197,12 +216,12 @@
         const baia = prompt("Para qual BAIA o motorista "+placa+" deve ir?");
         if (!baia) return;
         const limpo = tel.replace(/\D/g, "");
-        const txt = encodeURIComponent(`*RAÍZEN PAULÍNIA*\n\nMotorista da placa *${placa}* (Agenda Coleta: ${agenda}), sua descarga está liberada na *BAIA ${baia}*.\n\nFavor deslocar-se agora.`);
+        const txt = encodeURIComponent(`*RAÍZEN PAULÍNIA*\n\nMotorista da placa *${placa}* (Agenda: ${agenda}), sua descarga está liberada na *BAIA ${baia}*.\n\nFavor deslocar-se agora.`);
         window.open(`https://web.whatsapp.com/send?phone=55${limpo}&text=${txt}`, '_blank');
     }
 
     function concluir(placa) {
-        if(!confirm("Deseja finalizar a descarga da placa " + placa + "?")) return;
+        if(!confirm("Finalizar descarga?")) return;
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
