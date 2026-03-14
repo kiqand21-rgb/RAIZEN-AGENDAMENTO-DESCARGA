@@ -20,11 +20,10 @@
         header h1 { color: var(--branco); margin: 0; font-size: 22px; text-transform: uppercase; }
         
         .container { width: 92%; max-width: 550px; margin: 20px auto; background: var(--branco); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        #admin-panel { display: none; max-width: 98%; width: 1350px; } /* Painel largo para a tabela */
+        #admin-panel { display: none; max-width: 98%; width: 1300px; }
 
         h2 { color: var(--cor-principal); text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        /* BOTÃO DE AÇÃO DA AGENDA */
         .btn-acao-agenda {
             padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;
             text-align: center; display: inline-block; border: 2px solid; transition: 0.3s;
@@ -32,7 +31,6 @@
         .agenda-vazia { background-color: #e3f2fd; color: #0d47a1; border-color: #0d47a1; }
         .agenda-existe { background-color: #f8f9fa; color: #333; border-color: #ccc; }
 
-        /* TABELA E STATUS */
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; font-size: 13px; }
         th { background: var(--cor-principal); color: white; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
@@ -63,7 +61,6 @@
     <form id="formAgendamento">
         <label style="display:block; margin-top:10px; font-weight:bold;">Placa do Veículo</label>
         <input type="text" id="placa" placeholder="ABC-1234" maxlength="8" required>
-        
         <label style="display:block; margin-top:10px; font-weight:bold;">Produto</label>
         <select id="produto" required>
             <option value="">Selecione o produto...</option>
@@ -73,13 +70,10 @@
             <option value="ANIDRO">ANIDRO</option>
             <option value="HIDRATADO">HIDRATADO</option>
         </select>
-
         <label style="display:block; margin-top:10px; font-weight:bold;">WhatsApp</label>
         <input type="tel" id="telefone" placeholder="(19) 99999-9999" required>
-
         <label style="display:block; margin-top:10px; font-weight:bold;">Fim da Jornada</label>
         <input type="time" id="jornada">
-
         <button type="submit" class="btn-enviar" id="btnEnviar">REGISTRAR ENTRADA</button>
     </form>
     <div style="text-align: center; margin-top: 20px;">
@@ -122,13 +116,6 @@
 <script>
     const API_URL = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
 
-    // Máscara de Placa
-    document.getElementById('placa').addEventListener('input', e => {
-        let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-        if (v.length > 3) v = v.substring(0,3) + "-" + v.substring(3,7);
-        e.target.value = v.substring(0,8);
-    });
-
     function abrirAdmin() {
         if (prompt("Senha:") === "raizen2026") {
             document.getElementById('tela-motorista').style.display = 'none';
@@ -138,6 +125,7 @@
     }
 
     function carregarAtivos() {
+        // O "?t=" força o navegador a buscar os dados mais recentes do Google Sheets
         fetch(API_URL + "?t=" + new Date().getTime())
         .then(res => res.json())
         .then(data => {
@@ -145,21 +133,20 @@
             tbody.innerHTML = "";
 
             data.filter(i => i.PLACA && !i.SAIDA).forEach(i => {
-                // --- TRATAMENTO DOS CAMPOS (Substitui undefined por traço) ---
                 const placa = i.PLACA || "—";
                 const tel = i.TELEFONE || "—";
                 const prod = (i.PRODUTO && i.PRODUTO !== "undefined") ? i.PRODUTO : "—";
                 
-                // --- LÓGICA DA NOVA COLUNA AGENDADO ---
-                const agendado = (i.COLETA && i.COLETA !== "undefined" && i.COLETA !== "") ? i.COLETA : "Pendente";
+                // PEGA A INFORMAÇÃO DA COLUNA "COLETA" DA PLANILHA
+                let infoColeta = i.COLETA || "";
+                let agendadoTxt = (infoColeta === "" || infoColeta === "undefined") ? "Pendente" : infoColeta;
                 
-                // Estilo visual da célula de agendamento
-                const estiloAgendado = agendado === "Pendente" 
+                const estiloAgendado = agendadoTxt === "Pendente" 
                     ? "color:#999; font-style:italic;" 
                     : "background:#d4edda; color:#155724; padding:6px 10px; border-radius:6px; font-weight:bold; border:1px solid #c3e6cb;";
 
-                const txtAcao = agendado === "Pendente" ? "📅 Agendar" : "🔄 Alterar";
-                const classeAcao = agendado === "Pendente" ? "agenda-vazia" : "agenda-existe";
+                const txtAcao = agendadoTxt === "Pendente" ? "📅 Agendar" : "🔄 Alterar";
+                const classeAcao = agendadoTxt === "Pendente" ? "agenda-vazia" : "agenda-existe";
 
                 tbody.innerHTML += `
                     <tr>
@@ -167,14 +154,41 @@
                         <td>${tel}</td>
                         <td>${prod}</td>
                         <td>${getStatusJornada(i.JORNADA)}</td>
-                        <td><span style="${estiloAgendado}">${agendado}</span></td>
+                        <td><span style="${estiloAgendado}">${agendadoTxt}</span></td>
                         <td><div class="btn-acao-agenda ${classeAcao}" onclick="abrirModalColeta('${placa}')">${txtAcao}</div></td>
                         <td>
-                            <button class="btn-zap" onclick="enviarZap('${tel}', '${placa}', '${agendado}')">📱 CHAMAR</button>
+                            <button class="btn-zap" onclick="enviarZap('${tel}', '${placa}', '${agendadoTxt}')">📱 CHAMAR</button>
                             <button class="btn-concluir" onclick="concluir('${placa}')">OK</button>
                         </td>
                     </tr>`;
             });
+        });
+    }
+
+    function salvarColeta() {
+        const placa = document.getElementById('placaAlvo').value;
+        const d = document.getElementById('inputData').value;
+        const h = document.getElementById('inputHora').value;
+        if(!d || !h) return alert("Preencha data e hora!");
+
+        // Formata data para DD/MM HH:MM
+        const dataBr = d.split('-')[2] + "/" + d.split('-')[1];
+        const infoFinal = dataBr + " " + h;
+        
+        document.getElementById('btnSalvarAgenda').innerText = "GRAVANDO...";
+
+        fetch(`${API_URL}/PLACA/${placa}`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ data: { "COLETA": infoFinal } })
+        }).then(res => {
+            if(res.ok) {
+                fecharModal();
+                // Aguarda 1.5s para o Google Sheets atualizar e recarrega a tabela
+                setTimeout(carregarAtivos, 1500);
+            }
+        }).finally(() => {
+            document.getElementById('btnSalvarAgenda').innerText = "SALVAR NA TABELA";
         });
     }
 
@@ -196,28 +210,13 @@
 
     function fecharModal() { document.getElementById('modalColeta').style.display = 'none'; }
 
-    function salvarColeta() {
-        const placa = document.getElementById('placaAlvo').value;
-        const d = document.getElementById('inputData').value;
-        const h = document.getElementById('inputHora').value;
-        if(!d || !h) return alert("Preencha data e hora!");
+    // Máscara e Registro (Motorista)
+    document.getElementById('placa').addEventListener('input', e => {
+        let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if (v.length > 3) v = v.substring(0,3) + "-" + v.substring(3,7);
+        e.target.value = v.substring(0,8);
+    });
 
-        const infoFinal = d.split('-')[2] + "/" + d.split('-')[1] + " " + h;
-        document.getElementById('btnSalvarAgenda').innerText = "GRAVANDO...";
-
-        fetch(`${API_URL}/PLACA/${placa}`, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ data: { "COLETA": infoFinal } })
-        }).then(() => {
-            fecharModal();
-            setTimeout(carregarAtivos, 1500);
-        }).finally(() => {
-            document.getElementById('btnSalvarAgenda').innerText = "SALVAR NA TABELA";
-        });
-    }
-
-    // Registro Motorista
     document.getElementById('formAgendamento').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
@@ -236,7 +235,7 @@
     });
 
     function enviarZap(tel, placa, agenda) {
-        const baia = prompt("Qual a BAIA de descarga?");
+        const baia = prompt("Qual a BAIA?");
         if(!baia) return;
         const limpo = tel.replace(/\D/g, "");
         const txt = encodeURIComponent(`*RAÍZEN*\nPlaca: ${placa}\nAgendado: ${agenda}\nBaia: ${baia}`);
