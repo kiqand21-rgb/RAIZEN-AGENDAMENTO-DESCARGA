@@ -27,14 +27,14 @@
 
         .btn-enviar { width: 100%; padding: 16px; background-color: var(--cor-principal); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         
-        #admin-panel { display: none; max-width: 98%; width: 1150px; }
+        #admin-panel { display: none; max-width: 98%; width: 1180px; }
         .search-box { margin-bottom: 15px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; width: 100%; box-sizing: border-box; }
         
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; font-size: 13px; }
         th { background: var(--cor-principal); color: white; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
         
-        .badge-coleta { background: #e3f2fd; color: #0d47a1; padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; border: 1px dashed #0d47a1; }
+        .badge-coleta { background: #e3f2fd; color: #0d47a1; padding: 6px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; border: 1px solid #0d47a1; display: inline-block; }
         .badge-jornada { background: #fce4ec; color: #c2185b; padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         .badge-espera { background: #fff3cd; color: #856404; padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         
@@ -52,12 +52,12 @@
 </header>
 
 <div class="container" id="tela-motorista">
-    <h2>Agendamento de Descarga</h2>
+    <h2>Entrada de Motorista</h2>
     <form id="formAgendamento">
         <label>Placa do Veículo</label>
         <input type="text" id="placa" placeholder="ABC-1234" maxlength="8" required>
 
-        <label>Produto para Descarga</label>
+        <label>Produto</label>
         <select id="produto" required>
             <option value="">Selecione o produto...</option>
             <option value="GASOLINA">GASOLINA</option>
@@ -71,7 +71,7 @@
         <input type="tel" id="telefone" placeholder="(19) 9 9999-9999" maxlength="16" required>
 
         <div id="campo-hora">
-            <label>Fim da Jornada</label>
+            <label>Horário Fim da Jornada</label>
             <input type="time" id="jornada">
         </div>
 
@@ -80,16 +80,16 @@
             <label for="jornada24">Trabalho em Jornada 24h</label>
         </div>
 
-        <button type="submit" class="btn-enviar" id="btnEnviar">REGISTRAR ENTRADA</button>
+        <button type="submit" class="btn-enviar" id="btnEnviar">ENVIAR DADOS</button>
     </form>
     <div class="footer-link">
-        <button class="btn-admin-link" onclick="abrirAdmin()">Painel Administrativo</button>
+        <button class="btn-admin-link" onclick="abrirAdmin()">Acesso Administrativo</button>
     </div>
 </div>
 
 <div class="container" id="admin-panel">
-    <h2>Gestão de Pátio</h2>
-    <input type="text" id="buscaPlaca" class="search-box" placeholder="🔎 Buscar placa..." onkeyup="filtrarTabela()">
+    <h2>Fila do Pátio</h2>
+    <input type="text" id="buscaPlaca" class="search-box" placeholder="🔎 Filtrar Placa..." onkeyup="filtrarTabela()">
     
     <div style="overflow-x: auto;">
         <table id="tabelaDados">
@@ -98,7 +98,7 @@
                     <th>Placa</th>
                     <th>Produto</th>
                     <th>Fim Jornada</th>
-                    <th>Agenda Coleta</th>
+                    <th>Agenda Coleta (Data/Hora)</th>
                     <th>No Pátio</th>
                     <th>Ações</th>
                 </tr>
@@ -112,7 +112,7 @@
 <script>
     const API_URL = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
 
-    // Máscaras e Controle de Tela
+    // Máscaras
     document.getElementById('placa').addEventListener('input', e => {
         let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
         if (v.length > 3) v = v.substring(0,3) + "-" + v.substring(3,7);
@@ -154,16 +154,16 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: [dados] })
         }).then(() => {
-            alert("✅ Entrada Registrada!");
+            alert("✅ Registrado com Sucesso!");
             document.getElementById('formAgendamento').reset();
         }).finally(() => {
-            btn.innerText = "REGISTRAR ENTRADA";
+            btn.innerText = "ENVIAR DADOS";
             btn.disabled = false;
         });
     });
 
     function abrirAdmin() {
-        if (prompt("Senha:") === "raizen2026") {
+        if (prompt("Senha de acesso:") === "raizen2026") {
             document.getElementById('tela-motorista').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
             carregarAtivos();
@@ -178,17 +178,17 @@
 
             data.filter(i => i.PLACA && !i.SAIDA).forEach(i => {
                 const minutosPatio = i.TIMESTAMP ? Math.floor((agora - i.TIMESTAMP) / 60000) : "?";
-                const coletaTexto = i.COLETA || "Pendente";
+                const coletaInfo = i.COLETA || "Pendente";
                 
                 tbody.innerHTML += `
                     <tr>
                         <td style="font-weight:bold">${i.PLACA}</td>
                         <td>${i.PRODUTO}</td>
                         <td><span class="badge-jornada">⏰ ${i.JORNADA}</span></td>
-                        <td><span class="badge-coleta" onclick="editarColeta('${i.PLACA}')">🕒 ${coletaTexto}</span></td>
+                        <td><span class="badge-coleta" onclick="editarColeta('${i.PLACA}')">📅 ${coletaInfo}</span></td>
                         <td><span class="badge-espera">${minutosPatio} min</span></td>
                         <td>
-                            <button class="btn-zap" onclick="enviarZap('${i.TELEFONE}', '${i.PLACA}', '${coletaTexto}')">📱 CHAMAR</button>
+                            <button class="btn-zap" onclick="enviarZap('${i.TELEFONE}', '${i.PLACA}', '${coletaInfo}')">📱 CHAMAR</button>
                             <button class="btn-concluir" onclick="concluir('${i.PLACA}')">CONCLUIR</button>
                         </td>
                     </tr>`;
@@ -196,14 +196,22 @@
         });
     }
 
+    // NOVA FUNÇÃO: Editar Data e Hora do Coleta
     function editarColeta(placa) {
-        const novoHorario = prompt("Horário no Portal Coleta para a placa " + placa + ":");
-        if (novoHorario === null) return;
+        const dataC = prompt("Data do Agendamento (Ex: 14/03):");
+        if (!dataC) return;
+        const horaC = prompt("Hora do Agendamento (Ex: 15:30):");
+        if (!horaC) return;
+
+        const infoFinal = dataC + " - " + horaC;
+
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: { "COLETA": novoHorario } })
-        }).then(() => carregarAtivos());
+            body: JSON.stringify({ data: { "COLETA": infoFinal } })
+        }).then(() => {
+            carregarAtivos(); // Recarrega a tabela para mostrar o valor novo
+        });
     }
 
     function filtrarTabela() {
@@ -213,15 +221,15 @@
     }
 
     function enviarZap(tel, placa, agenda) {
-        const baia = prompt("Para qual BAIA o motorista "+placa+" deve ir?");
+        const baia = prompt("Informe a BAIA para a placa " + placa);
         if (!baia) return;
         const limpo = tel.replace(/\D/g, "");
-        const txt = encodeURIComponent(`*RAÍZEN PAULÍNIA*\n\nMotorista da placa *${placa}* (Agenda Coleta: ${agenda}), sua descarga está liberada na *BAIA ${baia}*.\n\nFavor deslocar-se agora.`);
+        const txt = encodeURIComponent(`*RAÍZEN PAULÍNIA*\n\nMotorista da placa *${placa}* (Agendamento Coleta: ${agenda}), sua descarga está liberada na *BAIA ${baia}*.\n\nFavor deslocar-se imediatamente.`);
         window.open(`https://web.whatsapp.com/send?phone=55${limpo}&text=${txt}`, '_blank');
     }
 
     function concluir(placa) {
-        if(!confirm("Finalizar descarga?")) return;
+        if(!confirm("Deseja finalizar a placa " + placa + "?")) return;
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
