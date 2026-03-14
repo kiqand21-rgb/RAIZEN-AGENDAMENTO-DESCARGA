@@ -30,7 +30,6 @@
 
         .btn-enviar { width: 100%; padding: 16px; background-color: var(--cor-principal); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         
-        /* ADMIN */
         #admin-panel { display: none; max-width: 98%; width: 1250px; }
         .search-box { margin-bottom: 15px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; width: 100%; box-sizing: border-box; }
         
@@ -44,9 +43,7 @@
         
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        /* BADGE AGENDA - Melhorada para visualização direta */
-        .badge-coleta { background: #e3f2fd; color: #0d47a1; padding: 8px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; border: 2px solid #0d47a1; display: block; text-align: center; min-width: 100px; }
-        .badge-espera { background: #f0f0f0; color: #555; padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        .badge-coleta { background: #e3f2fd; color: #0d47a1; padding: 8px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; border: 2px solid #0d47a1; display: block; text-align: center; }
         
         .btn-zap { background:#25D366; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold; width: 100%; margin-bottom: 4px; display: block; text-decoration: none; text-align: center; font-size: 11px; }
         .btn-concluir { background:#007bff; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold; width: 100%; font-size: 11px; }
@@ -96,13 +93,13 @@
         <button type="submit" class="btn-enviar" id="btnEnviar">ENVIAR DADOS</button>
     </form>
     <div class="footer-link">
-        <button class="btn-admin-link" onclick="abrirAdmin()">Painel Administrativo</button>
+        <button class="btn-admin-link" onclick="abrirAdmin()">Acesso Administrativo</button>
     </div>
 </div>
 
 <div class="container" id="admin-panel">
-    <h2>Controle de Pátio</h2>
-    <input type="text" id="buscaPlaca" class="search-box" placeholder="🔎 Filtrar Placa..." onkeyup="filtrarTabela()">
+    <h2>Painel de Controle</h2>
+    <input type="text" id="buscaPlaca" class="search-box" placeholder="🔎 Buscar Placa..." onkeyup="filtrarTabela()">
     
     <div style="overflow-x: auto;">
         <table id="tabelaDados">
@@ -111,7 +108,7 @@
                     <th>Placa</th>
                     <th>Telefone</th>
                     <th>Produto</th>
-                    <th>Jornada</th>
+                    <th>Status Jornada</th>
                     <th>Agenda Coleta</th>
                     <th>Espera</th>
                     <th>Ações</th>
@@ -120,7 +117,7 @@
             <tbody></tbody>
         </table>
     </div>
-    <button class="btn-enviar" style="margin-top: 20px; background:#666;" onclick="window.location.reload()">SAIR</button>
+    <button class="btn-enviar" style="margin-top: 20px; background:#666;" onclick="window.location.reload()">VOLTAR</button>
 </div>
 
 <div id="modalColeta">
@@ -131,15 +128,15 @@
         <input type="date" id="inputData">
         <label>Hora:</label>
         <input type="time" id="inputHora">
-        <button class="btn-enviar" onclick="salvarColeta()">SALVAR AGENDA</button>
-        <button class="btn-enviar" style="background:#ccc; color:#333;" onclick="fecharModal()">CANCELAR</button>
+        <button class="btn-enviar" id="btnSalvarAgenda" onclick="salvarColeta()">SALVAR AGENDA</button>
+        <button class="btn-enviar" style="background:#ccc; color:#333; padding:10px; font-size:14px;" onclick="fecharModal()">FECHAR</button>
     </div>
 </div>
 
 <script>
     const API_URL = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
 
-    // UI Máscaras
+    // Máscaras e UI
     document.getElementById('placa').addEventListener('input', e => {
         let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
         if (v.length > 3) v = v.substring(0,3) + "-" + v.substring(3,7);
@@ -161,7 +158,6 @@
     document.getElementById('formAgendamento').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
-        const agora = new Date();
         btn.innerText = "ENVIANDO...";
         btn.disabled = true;
 
@@ -170,9 +166,9 @@
             "PRODUTO": document.getElementById('produto').value,
             "TELEFONE": document.getElementById('telefone').value,
             "JORNADA": document.getElementById('jornada24').checked ? "24 Horas" : document.getElementById('jornada').value,
-            "ENTRADA": agora.toLocaleString('pt-BR'),
-            "TIMESTAMP": agora.getTime(),
-            "COLETA": "", // Começa vazio para mostrar Pendente
+            "ENTRADA": new Date().toLocaleString('pt-BR'),
+            "TIMESTAMP": new Date().getTime(),
+            "COLETA": "", 
             "SAIDA": ""
         };
 
@@ -181,7 +177,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: [dados] })
         }).then(() => {
-            alert("✅ Registrado com sucesso!");
+            alert("✅ Registrado!");
             document.getElementById('formAgendamento').reset();
         }).finally(() => {
             btn.innerText = "ENVIAR DADOS";
@@ -211,32 +207,31 @@
     }
 
     function carregarAtivos() {
-        fetch(API_URL).then(res => res.json()).then(data => {
+        fetch(API_URL + "?timestamp=" + new Date().getTime()) // Anti-cache
+        .then(res => res.json())
+        .then(data => {
             const tbody = document.querySelector('#tabelaDados tbody');
             tbody.innerHTML = "";
             const agora = new Date().getTime();
 
             data.filter(i => i.PLACA && !i.SAIDA).forEach(i => {
                 const minutosPatio = i.TIMESTAMP ? Math.floor((agora - i.TIMESTAMP) / 60000) : "?";
-                const statusJornada = getStatusJornada(i.JORNADA);
-                
-                // Se i.COLETA estiver vazio ou nulo, mostra Pendente
-                const agendaVisual = (i.COLETA && i.COLETA !== "") ? i.COLETA : "📅 Pendente";
+                const agendaTxt = (i.COLETA && i.COLETA !== "") ? i.COLETA : "📅 Pendente";
                 
                 tbody.innerHTML += `
                     <tr>
                         <td style="font-weight:bold">${i.PLACA}</td>
                         <td style="color:#666">${i.TELEFONE}</td>
                         <td>${i.PRODUTO}</td>
-                        <td>${statusJornada}</td>
+                        <td>${getStatusJornada(i.JORNADA)}</td>
                         <td>
                             <span class="badge-coleta" onclick="abrirModalColeta('${i.PLACA}')">
-                                ${agendaVisual}
+                                ${agendaTxt}
                             </span>
                         </td>
-                        <td><span class="badge-espera">${minutosPatio} min</span></td>
+                        <td>${minutosPatio} min</td>
                         <td>
-                            <button class="btn-zap" onclick="enviarZap('${i.TELEFONE}', '${i.PLACA}', '${agendaVisual}')">📱 CHAMAR</button>
+                            <button class="btn-zap" onclick="enviarZap('${i.TELEFONE}', '${i.PLACA}', '${agendaTxt}')">📱 CHAMAR</button>
                             <button class="btn-concluir" onclick="concluir('${i.PLACA}')">CONCLUIR</button>
                         </td>
                     </tr>`;
@@ -251,26 +246,40 @@
 
     function fecharModal() {
         document.getElementById('modalColeta').style.display = 'none';
-        document.getElementById('inputData').value = "";
-        document.getElementById('inputHora').value = "";
     }
 
+    // AQUI ESTÁ A CORREÇÃO PRINCIPAL
     function salvarColeta() {
         const placa = document.getElementById('placaAlvo').value;
-        const dataInput = document.getElementById('inputData').value;
-        const horaInput = document.getElementById('inputHora').value;
-        if(!dataInput || !horaInput) return alert("Por favor, preencha Data e Hora!");
+        const dataIn = document.getElementById('inputData').value;
+        const horaIn = document.getElementById('inputHora').value;
+        const btnS = document.getElementById('btnSalvarAgenda');
 
-        const d = dataInput.split('-');
-        const infoFinal = d[2] + "/" + d[1] + " - " + horaInput;
+        if(!dataIn || !horaIn) return alert("Preencha data e hora!");
+
+        btnS.innerText = "SALVANDO...";
+        btnS.disabled = true;
+
+        const d = dataIn.split('-');
+        const textoAgenda = d[2] + "/" + d[1] + " - " + horaIn;
 
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: { "COLETA": infoFinal } })
-        }).then(() => {
-            fecharModal();
-            carregarAtivos();
+            body: JSON.stringify({ data: { "COLETA": textoAgenda } })
+        })
+        .then(res => {
+            if(res.ok) {
+                console.log("Sucesso ao salvar");
+                fecharModal();
+                // Pequena pausa para o Google Sheets processar e a gente puxar o dado novo
+                setTimeout(carregarAtivos, 1000); 
+            }
+        })
+        .catch(err => alert("Erro ao salvar. Tente novamente."))
+        .finally(() => {
+            btnS.innerText = "SALVAR AGENDA";
+            btnS.disabled = false;
         });
     }
 
@@ -281,15 +290,15 @@
     }
 
     function enviarZap(tel, placa, agenda) {
-        const baia = prompt("Informe a BAIA para a placa " + placa);
+        const baia = prompt("Qual a BAIA?");
         if (!baia) return;
         const limpo = tel.replace(/\D/g, "");
-        const txt = encodeURIComponent(`*RAÍZEN PAULÍNIA*\n\nMotorista da placa *${placa}* (Agenda Coleta: ${agenda}), descarga liberada na *BAIA ${baia}*.\n\nFavor deslocar-se imediatamente.`);
+        const txt = encodeURIComponent(`*RAÍZEN PAULÍNIA*\n\nMotorista *${placa}* (Agenda: ${agenda}), descarga na *BAIA ${baia}*.\nFavor deslocar-se.`);
         window.open(`https://web.whatsapp.com/send?phone=55${limpo}&text=${txt}`, '_blank');
     }
 
     function concluir(placa) {
-        if(!confirm("Concluir descarga desta placa?")) return;
+        if(!confirm("Finalizar placa " + placa + "?")) return;
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -299,3 +308,4 @@
 </script>
 </body>
 </html>
+
