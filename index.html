@@ -20,19 +20,19 @@
         header h1 { color: var(--branco); margin: 0; letter-spacing: 1px; font-size: 22px; text-transform: uppercase; }
         
         .container { width: 92%; max-width: 550px; margin: 20px auto; background: var(--branco); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        #admin-panel { display: none; max-width: 98%; width: 1280px; }
+        #admin-panel { display: none; max-width: 98%; width: 1350px; }
 
         h2 { color: var(--cor-principal); text-align: center; margin-bottom: 20px; font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
         label { display: block; margin-top: 15px; font-weight: 600; color: #444; font-size: 14px; }
         input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #e1e1e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
-        /* ESTILO DA AGENDA NA TABELA */
+        /* BOTÃO DE AGENDA DINÂMICO */
         .btn-agenda {
             padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer;
-            text-align: center; display: block; min-width: 140px; transition: 0.3s; border: 2px solid;
+            text-align: center; display: block; min-width: 145px; border: 2px solid; transition: 0.3s;
         }
-        .agenda-pendente { background-color: #e3f2fd; color: #0d47a1; border-color: #0d47a1; }
+        .agenda-pendente { background-color: #e3f2fd !important; color: #0d47a1 !important; border-color: #0d47a1 !important; }
         .agenda-salva { background-color: #d4edda !important; color: #155724 !important; border-color: #28a745 !important; }
 
         /* TABELA E STATUS */
@@ -60,9 +60,7 @@
 </head>
 <body>
 
-<header>
-    <h1>RAÍZEN - TERMINAL PAULÍNIA</h1>
-</header>
+<header><h1>RAÍZEN - TERMINAL PAULÍNIA</h1></header>
 
 <div class="container" id="tela-motorista">
     <h2>Entrada de Motorista</h2>
@@ -86,16 +84,16 @@
         <label>Horário Fim da Jornada</label>
         <input type="time" id="jornada">
 
-        <button type="submit" class="btn-enviar" id="btnEnviar">ENVIAR DADOS</button>
+        <button type="submit" class="btn-enviar" id="btnEnviar">REGISTRAR ENTRADA</button>
     </form>
     <div class="footer-link">
-        <button class="btn-admin-link" onclick="abrirAdmin()">Acesso Administrativo</button>
+        <button class="btn-admin-link" onclick="abrirAdmin()">Painel de Controle</button>
     </div>
 </div>
 
 <div class="container" id="admin-panel">
     <h2>Controle de Pátio</h2>
-    <input type="text" id="buscaPlaca" style="width:100%; padding:10px; margin-bottom:15px;" placeholder="🔎 Filtrar por Placa..." onkeyup="filtrarTabela()">
+    <input type="text" id="buscaPlaca" style="width:100%; padding:10px; margin-bottom:15px;" placeholder="🔎 Filtrar Placa..." onkeyup="filtrarTabela()">
     
     <div style="overflow-x: auto;">
         <table id="tabelaDados">
@@ -106,24 +104,22 @@
                     <th>Produto</th>
                     <th>Status Jornada</th>
                     <th>Agenda Coleta</th>
-                    <th>Tempo Pátio</th>
+                    <th>Pátio</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
-    <button class="btn-enviar" style="background:#666;" onclick="window.location.reload()">SAIR</button>
+    <button class="btn-enviar" style="background:#666; margin-top:20px;" onclick="window.location.reload()">VOLTAR</button>
 </div>
 
 <div id="modalColeta">
     <div class="modal-content">
-        <h3>Definir Coleta</h3>
+        <h3>Agendar Coleta</h3>
         <input type="hidden" id="placaAlvo">
-        <label>Data:</label>
-        <input type="date" id="inputData">
-        <label>Hora:</label>
-        <input type="time" id="inputHora">
+        <label>Data:</label><input type="date" id="inputData">
+        <label>Hora:</label><input type="time" id="inputHora">
         <button class="btn-enviar" id="btnSalvarAgenda" onclick="salvarColeta()">SALVAR AGENDA</button>
         <button onclick="fecharModal()" style="margin-top:10px; background:none; border:none; color:red; cursor:pointer;">Cancelar</button>
     </div>
@@ -132,11 +128,29 @@
 <script>
     const API_URL = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
 
-    // Máscara de Placa
+    // Máscara de Placa ABC-1234
     document.getElementById('placa').addEventListener('input', e => {
         let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
         if (v.length > 3) v = v.substring(0,3) + "-" + v.substring(3,7);
         e.target.value = v.substring(0,8);
+    });
+
+    // Envio do Motorista
+    document.getElementById('formAgendamento').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnEnviar');
+        btn.innerText = "REGISTRANDO...";
+        const dados = {
+            "PLACA": document.getElementById('placa').value,
+            "PRODUTO": document.getElementById('produto').value,
+            "TELEFONE": document.getElementById('telefone').value,
+            "JORNADA": document.getElementById('jornada').value || "24 Horas",
+            "ENTRADA": new Date().toLocaleString('pt-BR'),
+            "TIMESTAMP": new Date().getTime(),
+            "COLETA": "", "SAIDA": ""
+        };
+        fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: [dados]}) })
+        .then(() => { alert("✅ Entrada registrada!"); this.reset(); }).finally(() => btn.innerText = "REGISTRAR ENTRADA");
     });
 
     // Login Admin
@@ -148,24 +162,21 @@
         }
     }
 
-    // Lógica da Jornada com Horário Visível
+    // Status da Jornada (Verde/Amarelo/Vermelho)
     function getStatusJornada(horaFim) {
-        if (!horaFim) return "<span>-</span>";
+        if (!horaFim || horaFim === "24 Horas") return "<span class='status-badge bg-ok'>24 HORAS</span>";
         const agora = new Date();
         const [h, m] = horaFim.split(':');
-        const dataFim = new Date();
-        dataFim.setHours(h, m, 0);
-        
-        const diff = (dataFim - agora) / 60000;
-        
+        const dF = new Date(); dF.setHours(h, m, 0);
+        const diff = (dF - agora) / 60000;
         if (diff < 0) return `<span class="status-badge bg-vencido">VENCIDA (${horaFim})</span>`;
         if (diff <= 60) return `<span class="status-badge bg-alerta">ALERTA (${horaFim})</span>`;
         return `<span class="status-badge bg-ok">EM DIA (${horaFim})</span>`;
     }
 
-    // Carregar Tabela
+    // Carregar Tabela com Visão Instantânea da Agenda
     function carregarAtivos() {
-        fetch(API_URL + "?timestamp=" + new Date().getTime())
+        fetch(API_URL + "?t=" + new Date().getTime())
         .then(res => res.json())
         .then(data => {
             const tbody = document.querySelector('#tabelaDados tbody');
@@ -175,9 +186,10 @@
             data.filter(i => i.PLACA && !i.SAIDA).forEach(i => {
                 const tempo = i.TIMESTAMP ? Math.floor((agora - i.TIMESTAMP) / 60000) : "?";
                 
-                // AJUSTE DA AGENDA: VERDE SE TIVER DADO SALVO
-                const temAgenda = (i.COLETA && i.COLETA.trim() !== "" && i.COLETA !== "undefined");
-                const textoBtn = temAgenda ? "📅 " + i.COLETA : "📅 Pendente";
+                // Lógica da Agenda: Verde se tiver texto, Azul se vazio
+                const valorColeta = i.COLETA ? i.COLETA.toString().trim() : "";
+                const temAgenda = (valorColeta !== "" && valorColeta !== "Pendente");
+                const txtBtn = temAgenda ? "📅 " + valorColeta : "📅 Pendente";
                 const corBtn = temAgenda ? "agenda-salva" : "agenda-pendente";
 
                 tbody.innerHTML += `
@@ -186,10 +198,10 @@
                         <td>${i.TELEFONE}</td>
                         <td>${i.PRODUTO}</td>
                         <td>${getStatusJornada(i.JORNADA)}</td>
-                        <td><div class="btn-agenda ${corBtn}" onclick="abrirModalColeta('${i.PLACA}')">${textoBtn}</div></td>
+                        <td><div class="btn-agenda ${corBtn}" onclick="abrirModalColeta('${i.PLACA}')">${txtBtn}</div></td>
                         <td>${tempo} min</td>
                         <td>
-                            <button class="btn-zap" onclick="enviarZap('${i.TELEFONE}', '${i.PLACA}', '${textoBtn}')">📱 CHAMAR</button>
+                            <button class="btn-zap" onclick="enviarZap('${i.TELEFONE}', '${i.PLACA}', '${txtBtn}')">📱 CHAMAR</button>
                             <button class="btn-concluir" onclick="concluir('${i.PLACA}')">OK</button>
                         </td>
                     </tr>`;
@@ -215,32 +227,31 @@
 
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ data: { "COLETA": formatada } })
         }).then(() => {
             fecharModal();
-            setTimeout(carregarAtivos, 1000); // Atualiza a visão instantaneamente
+            setTimeout(carregarAtivos, 1500); // Recarrega para assumir o verde
         }).finally(() => {
             document.getElementById('btnSalvarAgenda').innerText = "SALVAR AGENDA";
         });
     }
 
-    // Restante das funções (Zap, Filtro, Concluir, Cadastro)
-    function enviarZap(tel, placa, agenda) {
-        const baia = prompt("BAIA?");
-        if(!baia) return;
-        const limpo = tel.replace(/\D/g, "");
-        const txt = encodeURIComponent(`*RAÍZEN*\nPlaca: ${placa}\nAgenda: ${agenda}\nBaia: ${baia}`);
-        window.open(`https://web.whatsapp.com/send?phone=55${limpo}&text=${txt}`);
-    }
-
     function concluir(placa) {
-        if(!confirm("Concluir?")) return;
+        if(!confirm("Deseja concluir a saída desta placa?")) return;
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ data: { "SAIDA": new Date().toLocaleString() } })
         }).then(() => carregarAtivos());
+    }
+
+    function enviarZap(tel, placa, agenda) {
+        const baia = prompt("Qual a BAIA de descarga?");
+        if(!baia) return;
+        const limpo = tel.replace(/\D/g, "");
+        const txt = encodeURIComponent(`*RAÍZEN - TERMINAL PAULÍNIA*\nPlaca: ${placa}\nAgenda: ${agenda}\nBaia: ${baia}`);
+        window.open(`https://web.whatsapp.com/send?phone=55${limpo}&text=${txt}`);
     }
 
     function filtrarTabela() {
@@ -248,23 +259,6 @@
         let trs = document.querySelectorAll("#tabelaDados tbody tr");
         trs.forEach(tr => tr.style.display = tr.innerText.toUpperCase().includes(input) ? "" : "none");
     }
-
-    document.getElementById('formAgendamento').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btnEnviar');
-        btn.innerText = "ENVIANDO...";
-        const dados = {
-            "PLACA": document.getElementById('placa').value,
-            "PRODUTO": document.getElementById('produto').value,
-            "TELEFONE": document.getElementById('telefone').value,
-            "JORNADA": document.getElementById('jornada').value,
-            "ENTRADA": new Date().toLocaleString('pt-BR'),
-            "TIMESTAMP": new Date().getTime(),
-            "COLETA": "", "SAIDA": ""
-        };
-        fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: [dados] }) })
-        .then(() => { alert("✅ Sucesso!"); this.reset(); }).finally(() => btn.innerText = "ENVIAR DADOS");
-    });
 </script>
 </body>
 </html>
