@@ -25,11 +25,24 @@
         label { display: block; margin-top: 15px; font-weight: 600; color: #444; font-size: 14px; }
         input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #e1e1e1; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
-        .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 15px 0; background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee; }
-        .checkbox-group input { width: auto; margin: 0; transform: scale(1.2); }
+        /* BOTÃO DE AGENDA NA TABELA */
+        .badge-coleta { 
+            background: #e3f2fd; 
+            color: #0d47a1; 
+            padding: 10px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 13px; 
+            cursor: pointer; 
+            border: 2px solid #0d47a1; 
+            display: inline-block;
+            min-width: 120px;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .badge-coleta:hover { background: #bbdefb; }
 
-        .btn-enviar { width: 100%; padding: 16px; background-color: var(--cor-principal); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        
+        /* ADMIN */
         #admin-panel { display: none; max-width: 98%; width: 1250px; }
         .search-box { margin-bottom: 15px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; width: 100%; box-sizing: border-box; }
         
@@ -43,14 +56,13 @@
         
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        .badge-coleta { background: #e3f2fd; color: #0d47a1; padding: 8px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; border: 2px solid #0d47a1; display: block; text-align: center; }
-        
         .btn-zap { background:#25D366; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold; width: 100%; margin-bottom: 4px; display: block; text-decoration: none; text-align: center; font-size: 11px; }
         .btn-concluir { background:#007bff; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold; width: 100%; font-size: 11px; }
         
         #modalColeta { display:none; position:fixed; z-index:999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
-        .modal-content { background:white; margin:15% auto; padding:25px; border-radius:15px; width:300px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .modal-content { background:white; margin:10% auto; padding:25px; border-radius:15px; width:300px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
 
+        .btn-enviar { width: 100%; padding: 15px; background: var(--cor-principal); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .footer-link { text-align: center; margin-top: 20px; }
         .btn-admin-link { background: none; border: none; color: #999; text-decoration: underline; cursor: pointer; }
     </style>
@@ -66,31 +78,17 @@
     <form id="formAgendamento">
         <label>Placa do Veículo</label>
         <input type="text" id="placa" placeholder="ABC-1234" maxlength="8" required>
-
         <label>Produto</label>
         <select id="produto" required>
-            <option value="">Selecione o produto...</option>
             <option value="GASOLINA">GASOLINA</option>
-            <option value="BIODIESEL (B100)">BIODIESEL (B100)</option>
             <option value="S10">S10</option>
-            <option value="ANIDRO">ANIDRO</option>
             <option value="HIDRATADO">HIDRATADO</option>
         </select>
-
-        <label>WhatsApp (com DDD)</label>
-        <input type="tel" id="telefone" placeholder="(19) 9 9999-9999" maxlength="16" required>
-
-        <div id="campo-hora">
-            <label>Horário Fim da Jornada</label>
-            <input type="time" id="jornada">
-        </div>
-
-        <div class="checkbox-group">
-            <input type="checkbox" id="jornada24">
-            <label for="jornada24">Trabalho em Jornada 24h</label>
-        </div>
-
-        <button type="submit" class="btn-enviar" id="btnEnviar">ENVIAR DADOS</button>
+        <label>WhatsApp</label>
+        <input type="tel" id="telefone" placeholder="(19) 99999-9999" required>
+        <label>Fim da Jornada</label>
+        <input type="time" id="jornada">
+        <button type="submit" class="btn-enviar" id="btnEnviar">REGISTRAR ENTRADA</button>
     </form>
     <div class="footer-link">
         <button class="btn-admin-link" onclick="abrirAdmin()">Acesso Administrativo</button>
@@ -98,8 +96,8 @@
 </div>
 
 <div class="container" id="admin-panel">
-    <h2>Painel de Controle</h2>
-    <input type="text" id="buscaPlaca" class="search-box" placeholder="🔎 Buscar Placa..." onkeyup="filtrarTabela()">
+    <h2>Controle de Pátio</h2>
+    <input type="text" id="buscaPlaca" class="search-box" placeholder="🔎 Filtrar Placa..." onkeyup="filtrarTabela()">
     
     <div style="overflow-x: auto;">
         <table id="tabelaDados">
@@ -107,7 +105,6 @@
                 <tr>
                     <th>Placa</th>
                     <th>Telefone</th>
-                    <th>Produto</th>
                     <th>Status Jornada</th>
                     <th>Agenda Coleta</th>
                     <th>Espera</th>
@@ -117,74 +114,26 @@
             <tbody></tbody>
         </table>
     </div>
-    <button class="btn-enviar" style="margin-top: 20px; background:#666;" onclick="window.location.reload()">VOLTAR</button>
+    <button class="btn-enviar" style="background:#666;" onclick="window.location.reload()">VOLTAR</button>
 </div>
 
 <div id="modalColeta">
     <div class="modal-content">
-        <h3>Agendar Coleta</h3>
+        <h3>Definir Agenda</h3>
         <input type="hidden" id="placaAlvo">
         <label>Data:</label>
         <input type="date" id="inputData">
         <label>Hora:</label>
         <input type="time" id="inputHora">
-        <button class="btn-enviar" id="btnSalvarAgenda" onclick="salvarColeta()">SALVAR AGENDA</button>
-        <button class="btn-enviar" style="background:#ccc; color:#333; padding:10px; font-size:14px;" onclick="fecharModal()">FECHAR</button>
+        <button class="btn-enviar" id="btnSalvar" onclick="salvarColeta()">SALVAR NA TABELA</button>
+        <button onclick="fecharModal()" style="width:100%; background:none; border:none; color:red; cursor:pointer; margin-top:10px;">Cancelar</button>
     </div>
 </div>
 
 <script>
     const API_URL = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
 
-    // Máscaras e UI
-    document.getElementById('placa').addEventListener('input', e => {
-        let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-        if (v.length > 3) v = v.substring(0,3) + "-" + v.substring(3,7);
-        e.target.value = v.substring(0,8);
-    });
-
-    document.getElementById('telefone').addEventListener('input', e => {
-        let v = e.target.value.replace(/\D/g, "");
-        v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-        v = v.replace(/(\d)(\d{4})$/, "$1-$2");
-        e.target.value = v;
-    });
-
-    document.getElementById('jornada24').addEventListener('change', function() {
-        document.getElementById('campo-hora').style.display = this.checked ? 'none' : 'block';
-    });
-
-    // Envio Motorista
-    document.getElementById('formAgendamento').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btnEnviar');
-        btn.innerText = "ENVIANDO...";
-        btn.disabled = true;
-
-        const dados = {
-            "PLACA": document.getElementById('placa').value,
-            "PRODUTO": document.getElementById('produto').value,
-            "TELEFONE": document.getElementById('telefone').value,
-            "JORNADA": document.getElementById('jornada24').checked ? "24 Horas" : document.getElementById('jornada').value,
-            "ENTRADA": new Date().toLocaleString('pt-BR'),
-            "TIMESTAMP": new Date().getTime(),
-            "COLETA": "", 
-            "SAIDA": ""
-        };
-
-        fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: [dados] })
-        }).then(() => {
-            alert("✅ Registrado!");
-            document.getElementById('formAgendamento').reset();
-        }).finally(() => {
-            btn.innerText = "ENVIAR DADOS";
-            btn.disabled = false;
-        });
-    });
-
+    // Funções de Interface
     function abrirAdmin() {
         if (prompt("Senha:") === "raizen2026") {
             document.getElementById('tela-motorista').style.display = 'none';
@@ -194,20 +143,19 @@
     }
 
     function getStatusJornada(horaJornada) {
-        if (!horaJornada || horaJornada === "24 Horas") return "<span>24 Horas</span>";
+        if (!horaJornada) return "<span>-</span>";
         const agora = new Date();
-        const [horas, minutos] = horaJornada.split(':');
-        const dataJornada = new Date();
-        dataJornada.setHours(horas, minutos, 0);
-        const diffMinutos = (dataJornada - agora) / (1000 * 60);
-
-        if (diffMinutos < 0) return `<span class="status-vencido">VENCIDA (${horaJornada})</span>`;
-        if (diffMinutos <= 60) return `<span class="status-alerta">ALERTA (${horaJornada})</span>`;
-        return `<span class="status-ok">EM DIA (${horaJornada})</span>`;
+        const [h, m] = horaJornada.split(':');
+        const dJ = new Date(); dJ.setHours(h, m, 0);
+        const diff = (dJ - agora) / 60000;
+        if (diff < 0) return `<span class="status-vencido">VENCIDA</span>`;
+        if (diff <= 60) return `<span class="status-alerta">ALERTA</span>`;
+        return `<span class="status-ok">EM DIA</span>`;
     }
 
+    // CARREGAR DADOS NA TABELA
     function carregarAtivos() {
-        fetch(API_URL + "?timestamp=" + new Date().getTime()) // Anti-cache
+        fetch(API_URL + "?timestamp=" + new Date().getTime())
         .then(res => res.json())
         .then(data => {
             const tbody = document.querySelector('#tabelaDados tbody');
@@ -216,23 +164,25 @@
 
             data.filter(i => i.PLACA && !i.SAIDA).forEach(i => {
                 const minutosPatio = i.TIMESTAMP ? Math.floor((agora - i.TIMESTAMP) / 60000) : "?";
-                const agendaTxt = (i.COLETA && i.COLETA !== "") ? i.COLETA : "📅 Pendente";
                 
+                // LÓGICA DE VISUALIZAÇÃO DO CAMPO QUE VOCÊ MOSTROU NA FOTO
+                // Se a coluna COLETA tiver valor, mostra o valor. Se não, mostra o botão Pendente.
+                const valorAgenda = (i.COLETA && i.COLETA.trim() !== "") ? i.COLETA : "📅 Pendente";
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="font-weight:bold">${i.PLACA}</td>
-                        <td style="color:#666">${i.TELEFONE}</td>
-                        <td>${i.PRODUTO}</td>
+                        <td>${i.TELEFONE}</td>
                         <td>${getStatusJornada(i.JORNADA)}</td>
                         <td>
-                            <span class="badge-coleta" onclick="abrirModalColeta('${i.PLACA}')">
-                                ${agendaTxt}
-                            </span>
+                            <div class="badge-coleta" onclick="abrirModalColeta('${i.PLACA}')">
+                                ${valorAgenda}
+                            </div>
                         </td>
                         <td>${minutosPatio} min</td>
                         <td>
-                            <button class="btn-zap" onclick="enviarZap('${i.TELEFONE}', '${i.PLACA}', '${agendaTxt}')">📱 CHAMAR</button>
-                            <button class="btn-concluir" onclick="concluir('${i.PLACA}')">CONCLUIR</button>
+                            <button class="btn-zap" onclick="enviarZap('${i.TELEFONE}', '${i.PLACA}', '${valorAgenda}')">📱 CHAMAR</button>
+                            <button class="btn-concluir" onclick="concluir('${i.PLACA}')">OK</button>
                         </td>
                     </tr>`;
             });
@@ -248,62 +198,58 @@
         document.getElementById('modalColeta').style.display = 'none';
     }
 
-    // AQUI ESTÁ A CORREÇÃO PRINCIPAL
     function salvarColeta() {
         const placa = document.getElementById('placaAlvo').value;
-        const dataIn = document.getElementById('inputData').value;
-        const horaIn = document.getElementById('inputHora').value;
-        const btnS = document.getElementById('btnSalvarAgenda');
+        const dIn = document.getElementById('inputData').value;
+        const hIn = document.getElementById('inputHora').value;
+        const btn = document.getElementById('btnSalvar');
 
-        if(!dataIn || !horaIn) return alert("Preencha data e hora!");
+        if(!dIn || !hIn) return alert("Escolha data e hora!");
 
-        btnS.innerText = "SALVANDO...";
-        btnS.disabled = true;
+        btn.innerText = "ATUALIZANDO...";
+        btn.disabled = true;
 
-        const d = dataIn.split('-');
-        const textoAgenda = d[2] + "/" + d[1] + " - " + horaIn;
+        const d = dIn.split('-');
+        const dataFormatada = d[2] + "/" + d[1] + " " + hIn;
 
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: { "COLETA": textoAgenda } })
+            body: JSON.stringify({ data: { "COLETA": dataFormatada } })
         })
         .then(res => {
             if(res.ok) {
-                console.log("Sucesso ao salvar");
                 fecharModal();
-                // Pequena pausa para o Google Sheets processar e a gente puxar o dado novo
-                setTimeout(carregarAtivos, 1000); 
+                // O segredo está aqui: recarregar a tabela após 1 segundo
+                setTimeout(carregarAtivos, 1200);
             }
         })
-        .catch(err => alert("Erro ao salvar. Tente novamente."))
         .finally(() => {
-            btnS.innerText = "SALVAR AGENDA";
-            btnS.disabled = false;
+            btn.innerText = "SALVAR NA TABELA";
+            btn.disabled = false;
         });
     }
 
+    // Funções auxiliares mantidas para funcionamento
     function filtrarTabela() {
         let input = document.getElementById("buscaPlaca").value.toUpperCase();
         let trs = document.querySelectorAll("#tabelaDados tbody tr");
         trs.forEach(tr => tr.style.display = tr.innerText.toUpperCase().includes(input) ? "" : "none");
     }
 
-    function enviarZap(tel, placa, agenda) {
-        const baia = prompt("Qual a BAIA?");
-        if (!baia) return;
-        const limpo = tel.replace(/\D/g, "");
-        const txt = encodeURIComponent(`*RAÍZEN PAULÍNIA*\n\nMotorista *${placa}* (Agenda: ${agenda}), descarga na *BAIA ${baia}*.\nFavor deslocar-se.`);
-        window.open(`https://web.whatsapp.com/send?phone=55${limpo}&text=${txt}`, '_blank');
-    }
-
     function concluir(placa) {
-        if(!confirm("Finalizar placa " + placa + "?")) return;
         fetch(`${API_URL}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: { "SAIDA": new Date().toLocaleString('pt-BR') } })
+            body: JSON.stringify({ data: { "SAIDA": new Date().toLocaleString() } })
         }).then(() => carregarAtivos());
+    }
+
+    function enviarZap(tel, placa, agenda) {
+        const baia = prompt("BAIA?");
+        const limpo = tel.replace(/\D/g, "");
+        const txt = encodeURIComponent(`*RAÍZEN*\nPlaca: ${placa}\nAgenda: ${agenda}\nBaia: ${baia}`);
+        window.open(`https://web.whatsapp.com/send?phone=55${limpo}&text=${txt}`);
     }
 </script>
 </body>
