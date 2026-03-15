@@ -248,7 +248,7 @@
 
     <div class="wrapper-busca">
         <label>🔍 <strong>FILTRAR:</strong></label>
-        <input type="text" id="buscaAdmin" placeholder="Digite a placa..." onkeyup="filtrarTabela()">
+        <input type="text" id="buscaAdmin" placeholder="Busque por Placa, Produto ou Jornada..." onkeyup="filtrarTabela()">
     </div>
 
     <div class="tabela-container">
@@ -283,15 +283,12 @@
         e.target.value = v.substring(0,8);
     });
 
-   function filtrarTabela() {
+    function filtrarTabela() {
         const termo = document.getElementById("buscaAdmin").value.toUpperCase();
         const linhas = document.querySelectorAll("#tabelaDados tbody tr");
         
         linhas.forEach(linha => {
-            // Pega o texto de todas as colunas da linha e junta em uma string só
             const conteudoLinha = linha.textContent.toUpperCase();
-            
-            // Se o termo de busca estiver em qualquer lugar da linha, ela aparece
             if (conteudoLinha.includes(termo)) {
                 linha.style.display = "";
             } else {
@@ -346,7 +343,6 @@
         return df > 60 ? Math.floor(df/60)+"h "+(df%60)+"m" : df+"m";
     }
 
-    // ENVIO DO FORMULÁRIO COM FEEDBACK DE SUCESSO
     document.getElementById('formularioRaizen').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
