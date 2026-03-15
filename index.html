@@ -283,12 +283,20 @@
         e.target.value = v.substring(0,8);
     });
 
-    function filtrarTabela() {
+   function filtrarTabela() {
         const termo = document.getElementById("buscaAdmin").value.toUpperCase();
         const linhas = document.querySelectorAll("#tabelaDados tbody tr");
-        linhas.forEach(l => {
-            const p = l.cells[0].textContent.toUpperCase();
-            l.style.display = p.includes(termo) ? "" : "none";
+        
+        linhas.forEach(linha => {
+            // Pega o texto de todas as colunas da linha e junta em uma string só
+            const conteudoLinha = linha.textContent.toUpperCase();
+            
+            // Se o termo de busca estiver em qualquer lugar da linha, ela aparece
+            if (conteudoLinha.includes(termo)) {
+                linha.style.display = "";
+            } else {
+                linha.style.display = "none";
+            }
         });
     }
 
