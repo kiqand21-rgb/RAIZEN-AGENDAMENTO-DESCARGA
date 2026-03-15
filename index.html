@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAÍZEN - SISTEMA ROBUSTO DE GESTÃO DE PÁTIO - V3.1</title>
+    <title>RAÍZEN - GESTÃO DE PÁTIO PAULÍNIA V3.2 - ROBUSTO</title>
     
     <style>
         :root {
@@ -50,8 +50,8 @@
         }
         
         .caixa-principal { 
-            width: 90%; 
-            max-width: 750px; 
+            width: 95%; 
+            max-width: 800px; 
             margin: 60px auto; 
             background: var(--branco); 
             padding: 50px; 
@@ -63,7 +63,7 @@
         #painel-gestao-admin { 
             display: none; 
             max-width: 98%; 
-            width: 1750px; 
+            width: 1780px; 
             margin-top: 40px;
         }
 
@@ -119,12 +119,12 @@
             border: 1px solid #ddd;
         }
         
-        table { width: 100%; border-collapse: collapse; min-width: 1300px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1400px; }
         
         th { 
             background: var(--verde-raizen); 
             color: white; 
-            padding: 30px 20px; 
+            padding: 30px 15px; 
             text-align: center; 
             font-size: 14px; 
             text-transform: uppercase;
@@ -133,46 +133,44 @@
         th.coluna-agendamento { background: #856404; border-left: 4px solid var(--amarelo-raizen); }
         
         td { 
-            padding: 25px 20px; 
+            padding: 22px 12px; 
             border-bottom: 1px solid #f0f0f0; 
             text-align: center; 
             font-size: 17px; 
             font-weight: 700; 
         }
 
-        /* ESTILO DOS CAMPOS DE DATA E HORA NA TABELA */
+        /* CONTAINER DOS INPUTS DE AGENDAMENTO */
         .wrapper-inputs-agendamento {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
             align-items: center;
         }
 
         .input-data-tabela, .input-hora-tabela {
-            width: 150px;
+            width: 140px;
             padding: 8px;
             border: 2px solid var(--amarelo-raizen);
             border-radius: 10px;
             font-weight: 900;
             text-align: center;
             background: #fffde7;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .btn-salvar-agendamento {
             background: var(--verde-raizen);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            margin-top: 5px;
             width: 100%;
-            transition: 0.2s;
+            font-size: 11px;
+            text-transform: uppercase;
         }
-
-        .btn-salvar-agendamento:hover { background: #3d5a4d; transform: scale(1.05); }
 
         .etiqueta-prod { 
             padding: 10px 18px; 
@@ -189,9 +187,9 @@
         .cor-s10 { background: #6c757d; }
 
         .btn-geral { 
-            border: none; border-radius: 15px; padding: 18px; font-weight: bold; cursor: pointer; font-size: 12px; 
-            width: 100%; margin-bottom: 12px; color: white; text-transform: uppercase; 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+            border: none; border-radius: 15px; padding: 18px; font-weight: bold; cursor: pointer; font-size: 11px; 
+            width: 100%; margin-bottom: 10px; color: white; text-transform: uppercase; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .btn-whats { background: #25D366; }
         .btn-concluir { background: var(--cor-info); }
@@ -222,11 +220,15 @@
 <div class="caixa-principal" id="container-motorista">
     <h2>REGISTRO DE DESCARGA</h2>
     <form id="formularioRaizen">
-        <div class="grupo-campo"><label>Placa do Veículo</label><input type="text" id="inputPlaca" placeholder="ABC-1234" maxlength="8" required></div>
+        <div class="grupo-campo">
+            <label>Placa do Veículo</label>
+            <input type="text" id="inputPlaca" placeholder="ABC-1234" maxlength="8" required>
+        </div>
+        
         <div class="grupo-campo">
             <label>Produto para Descarga</label>
             <select id="inputProduto" required>
-                <option value="">Selecione...</option>
+                <option value="">Selecione o produto...</option>
                 <option value="GASOLINA">GASOLINA</option>
                 <option value="BIODIESEL (B100)">BIODIESEL (B100)</option>
                 <option value="S10">S10</option>
@@ -234,23 +236,40 @@
                 <option value="HIDRATADO">HIDRATADO</option>
             </select>
         </div>
-        <div class="grupo-campo"><label>WhatsApp para Contato</label><input type="tel" id="inputZap" placeholder="(19) 99999-9999" maxlength="15" required></div>
+
+        <div class="grupo-campo">
+            <label>WhatsApp para Contato</label>
+            <input type="tel" id="inputZap" placeholder="(19) 99999-9999" maxlength="15" required>
+        </div>
+
         <div style="background:#f8f9fa; padding:40px; border-radius:30px; border:2px dashed #ccc;">
-            <div id="boxRelogio"><label>Horário Fim de Jornada:</label><input type="time" id="inputHoraJornada" required></div>
+            <div id="boxRelogio">
+                <label>Horário Fim de Jornada:</label>
+                <input type="time" id="inputHoraJornada" required>
+            </div>
             <label style="display:flex; align-items:center; gap:20px; margin-top:30px; cursor:pointer;">
-                <input type="checkbox" id="chk24" style="width:30px; height:30px;" onchange="document.getElementById('boxRelogio').style.display = this.checked ? 'none' : 'block';">
+                <input type="checkbox" id="chk24" style="width:30px; height:30px;" onchange="document.getElementById('boxRelogio').style.display = this.checked ? 'none' : 'block'; document.getElementById('inputHoraJornada').required = !this.checked;">
                 <span style="font-weight:900; color:var(--verde-raizen); font-size:18px;">Minha jornada é de 24 Horas</span>
             </label>
         </div>
+
         <button type="submit" class="btn-principal-form" id="btnEnviar">REGISTRAR ENTRADA</button>
         <div id="msgSucesso">✅ AGENDAMENTO REALIZADO COM SUCESSO!</div>
     </form>
-    <div style="text-align:center; margin-top:40px;"><button onclick="validaAcessoAdmin()" style="background:none; border:none; color:#bbb; text-decoration:underline; cursor:pointer;">Área Administrativa</button></div>
+    
+    <div style="text-align:center; margin-top:40px;">
+        <button onclick="validaAcessoAdmin()" style="background:none; border:none; color:#bbb; text-decoration:underline; cursor:pointer; font-size:16px;">Área Administrativa</button>
+    </div>
 </div>
 
 <div class="caixa-principal" id="painel-gestao-admin">
     <h2>GERENCIAMENTO DE PÁTIO - ÁREA 2</h2>
-    <div class="wrapper-busca"><label>🔍 <strong>FILTRAR:</strong></label><input type="text" id="buscaAdmin" placeholder="Busque por Placa ou Produto..." onkeyup="filtrarTabela()"></div>
+
+    <div class="wrapper-busca">
+        <label>🔍 <strong>FILTRAR:</strong></label>
+        <input type="text" id="buscaAdmin" placeholder="Busque por Placa ou Produto..." onkeyup="filtrarTabela()">
+    </div>
+
     <div class="tabela-container">
         <table id="tabelaDados">
             <thead>
@@ -258,9 +277,9 @@
                     <th>Placa</th>
                     <th>Produto</th>
                     <th>WhatsApp</th>
-                    <th>Jornada</th>
-                    <th>Tempo</th>
-                    <th class="coluna-agendamento">AGENDAMENTO NO COLETA</th>
+                    <th>Jornada Limite</th>
+                    <th>Permanência</th>
+                    <th class="coluna-agendamento">AGENDAMENTO NO COLETA (DATA/HORA)</th>
                     <th style="width: 190px;">Ações</th>
                 </tr>
             </thead>
@@ -274,7 +293,7 @@
     const SHEET_API = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
     const NOME_COLUNA_AGENDAMENTO = "AGENDAMENTO NO COLETA";
 
-    // MÁSCARAS
+    // MASCARAS DE ENTRADA
     document.getElementById('inputZap').addEventListener('input', (e) => {
         let v = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
         e.target.value = !v[2] ? v[1] : '(' + v[1] + ') ' + v[2] + (v[3] ? '-' + v[3] : '');
@@ -288,19 +307,22 @@
     function filtrarTabela() {
         const termo = document.getElementById("buscaAdmin").value.toUpperCase();
         const linhas = document.querySelectorAll("#tabelaDados tbody tr");
-        linhas.forEach(linha => { linha.style.display = linha.textContent.toUpperCase().includes(termo) ? "" : "none"; });
+        linhas.forEach(linha => {
+            linha.style.display = linha.textContent.toUpperCase().includes(termo) ? "" : "none";
+        });
     }
 
+    // FUNÇÃO PARA ATUALIZAR PAINEL E MANTER OS DADOS
     function atualizarPainel() {
         const corpo = document.querySelector('#tabelaDados tbody');
-        corpo.innerHTML = "<tr><td colspan='7'>Carregando dados da Raízen...</td></tr>";
+        corpo.innerHTML = "<tr><td colspan='7' style='padding:40px;'>Sincronizando com Banco de Dados Raízen...</td></tr>";
 
         fetch(SHEET_API + "?t=" + new Date().getTime())
         .then(r => r.json())
         .then(dados => {
             corpo.innerHTML = "";
             
-            // Ordenação por Data/Hora de Agendamento
+            // ORDENAÇÃO POR AGENDAMENTO (DATA E HORA)
             const ordenados = dados.filter(f => f.PLACA && !f.SAIDA).sort((a, b) => {
                 let valA = a[NOME_COLUNA_AGENDAMENTO] || "9999-99-99 99:99";
                 let valB = b[NOME_COLUNA_AGENDAMENTO] || "9999-99-99 99:99";
@@ -313,66 +335,78 @@
                 if(i.PRODUTO.includes("B100")) cProd = "cor-biodiesel";
                 if(i.PRODUTO.includes("HIDRATADO") || i.PRODUTO.includes("ANIDRO")) cProd = "cor-etanol";
 
-                // Divide o valor da planilha em Data e Hora para os inputs
-                let [dataAg, horaAg] = (i[NOME_COLUNA_AGENDAMENTO] || " ").split(" ");
+                // Recupera data e hora salvos para preencher os inputs
+                let [dataSalva, horaSalva] = (i[NOME_COLUNA_AGENDAMENTO] || " ").split(" ");
 
                 corpo.innerHTML += `
                     <tr>
-                        <td>${i.PLACA}</td>
+                        <td style="font-size:19px;">${i.PLACA}</td>
                         <td><span class="etiqueta-prod ${cProd}">${i.PRODUTO}</span></td>
                         <td>${i.TELEFONE}</td>
-                        <td>${calcJornada(i.JORNADA)}</td>
-                        <td style="font-size:12px; color:#999;">${calcEspera(i.ENTRADA)}</td>
+                        <td>${calcJornadaCompleta(i.JORNADA)}</td>
+                        <td style="font-size:12px; color:#888;">${calcTempoPátio(i.ENTRADA)}</td>
                         <td style="background: #fffde7; border-left: 2px solid #ffcd00;">
                             <div class="wrapper-inputs-agendamento">
-                                <input type="date" class="input-data-tabela" id="date-${i.PLACA}" value="${dataAg || ''}">
-                                <input type="time" class="input-hora-tabela" id="time-${i.PLACA}" value="${horaAg || ''}">
-                                <button class="btn-salvar-agendamento" onclick="salvarAgendamentoCompleto('${i.PLACA}')">SALVAR</button>
+                                <input type="date" class="input-data-tabela" id="date-${i.PLACA}" value="${dataSalva || ''}">
+                                <input type="time" class="input-hora-tabela" id="time-${i.PLACA}" value="${horaSalva || ''}">
+                                <button class="btn-salvar-agendamento" onclick="salvarAgendamentoFull('${i.PLACA}')">SALVAR PORTAL</button>
                             </div>
                         </td>
                         <td>
                             <button class="btn-geral btn-whats" onclick="chamarZap('${i.TELEFONE}', '${i.PLACA}', '${i[NOME_COLUNA_AGENDAMENTO]}')">📱 WHATSAPP</button>
-                            <button class="btn-geral btn-concluir" onclick="finaliza('${i.PLACA}')">✅ CONCLUIR</button>
+                            <button class="btn-geral btn-concluir" onclick="finalizaDescarga('${i.PLACA}')">✅ CONCLUIR</button>
                         </td>
                     </tr>`;
             });
         });
     }
 
-    function salvarAgendamentoCompleto(placa) {
-        const dataVal = document.getElementById(`date-${placa}`).value;
-        const horaVal = document.getElementById(`time-${placa}`).value;
+    // SALVA DATA E HORA NO COLETA
+    function salvarAgendamentoFull(placa) {
+        const d = document.getElementById(`date-${placa}`).value;
+        const h = document.getElementById(`time-${placa}`).value;
 
-        if(!dataVal || !horaVal) return alert("Preencha DATA e HORA do agendamento!");
+        if(!d || !h) return alert("Erro: Preencha Data e Hora!");
 
-        let updateObj = {};
-        updateObj[NOME_COLUNA_AGENDAMENTO] = `${dataVal} ${horaVal}`;
+        let jsonUpdate = {};
+        jsonUpdate[NOME_COLUNA_AGENDAMENTO] = `${d} ${h}`;
 
         fetch(`${SHEET_API}/PLACA/${placa}`, {
             method: 'PATCH',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(updateObj)
+            body: JSON.stringify(jsonUpdate)
         }).then(res => {
-            if(res.ok) { alert("Agendamento atualizado!"); atualizarPainel(); }
+            if(res.ok) { 
+                alert("Sincronizado!"); 
+                atualizarPainel(); 
+            }
         });
     }
 
-    function calcJornada(j) {
-        if(j === "24 Horas") return '<span style="color:green">24H</span>';
-        const [h,m] = j.split(':'); const d = new Date(); d.setHours(h,m,0);
-        return (d < new Date()) ? '<span style="color:red">VENCIDA</span>' : '<span style="color:green">OK</span>';
+    // EXIBE JORNADA COM O HORÁRIO (COMO ESTAVA ANTES)
+    function calcJornadaCompleta(j) {
+        if(j === "24 Horas") return '<span style="color:green">LIVRE (24H)</span>';
+        const [h,m] = j.split(':'); 
+        const d = new Date(); 
+        d.setHours(h,m,0);
+        const status = (d < new Date()) ? 'VENCIDA' : 'OK';
+        const cor = (d < new Date()) ? 'red' : 'green';
+        return `<span style="color:${cor}">${status} (${j})</span>`;
     }
 
-    function calcEspera(e) {
+    function calcTempoPátio(e) {
         if(!e) return "-";
         try {
-            const p = e.split(', '); const d = p[0].split('/'); const h = p[1].split(':');
-            const dIn = new Date(d[2], d[1]-1, d[0], h[0], h[1]);
-            const df = Math.floor((new Date() - dIn) / 60000);
-            return df > 60 ? Math.floor(df/60)+"h "+(df%60)+"m" : df+"m";
+            const partes = e.split(', ');
+            const dataP = partes[0].split('/');
+            const horaP = partes[1].split(':');
+            const dIn = new Date(dataP[2], dataP[1]-1, dataP[0], horaP[0], horaP[1]);
+            const diff = Math.floor((new Date() - dIn) / 60000);
+            return diff > 60 ? Math.floor(diff/60)+"h "+(diff%60)+"m" : diff+"m";
         } catch(err) { return "Erro"; }
     }
 
+    // SUBMISSÃO DO FORMULÁRIO
     document.getElementById('formularioRaizen').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
@@ -396,15 +430,15 @@
     });
 
     function validaAcessoAdmin() {
-        if(prompt("Senha:") === "raizen2026") {
+        if(prompt("Senha Administrativa:") === "raizen2026") {
             document.getElementById('container-motorista').style.display='none';
             document.getElementById('painel-gestao-admin').style.display='block';
             atualizarPainel();
         }
     }
 
-    function finaliza(p) {
-        if(confirm("Concluir descarga?")) {
+    function finalizaDescarga(p) {
+        if(confirm("Deseja confirmar a saída deste veículo?")) {
             fetch(`${SHEET_API}/PLACA/${p}`, {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
@@ -414,10 +448,10 @@
     }
 
     function chamarZap(tel, p, ag) {
-        const b = prompt("QUAL A BAIA?");
+        const b = prompt("QUAL A BAIA DE DESCARGA?");
         if(b) {
-            const msg = `*RAÍZEN*%0APLACA: *${p}*%0AAGENDAMENTO: *${ag || 'Pendente'}*%0ABAIA: *${b}*%0A%0A_Favor iniciar descarga._`;
-            window.open(`https://web.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=${msg}`);
+            const m = `*RAÍZEN - TERMINAL PAULÍNIA*%0APLACA: *${p}*%0AAGENDAMENTO: *${ag || 'Verificar'}*%0A%0A*BAIA LIBERADA: ${b}*%0A_Favor deslocar-se para o ponto de descarga._`;
+            window.open(`https://web.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=${m}`);
         }
     }
 </script>
