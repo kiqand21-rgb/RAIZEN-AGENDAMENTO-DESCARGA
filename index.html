@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raízen - SISTEMA DE GESTÃO DE DESCARGA - ÁREA 2</title>
+    <title>RAÍZEN - SISTEMA ROBUSTO DE GESTÃO DE PÁTIO - V3.0</title>
     
     <style>
         :root {
@@ -27,6 +27,7 @@
             align-items: center; 
         }
         
+        /* HEADER COM FIXAÇÃO NO TOPO */
         header { 
             background-color: var(--verde-raizen); 
             width: 100%; 
@@ -60,6 +61,7 @@
             border: 1px solid #e0e0e0;
         }
 
+        /* PAINEL ADMINISTRATIVO EXPANDIDO */
         #painel-gestao-admin { 
             display: none; 
             max-width: 98%; 
@@ -106,6 +108,7 @@
             box-shadow: 0 0 15px rgba(77,109,93,0.15); 
         }
 
+        /* ÁREA DE FILTRO */
         .wrapper-busca {
             background: #e9ecef;
             padding: 35px;
@@ -119,6 +122,7 @@
         .wrapper-busca label { margin-bottom: 0; min-width: 180px; color: var(--verde-raizen); font-size: 20px; }
         .wrapper-busca input { background: white; border: 2.5px solid var(--verde-raizen); }
 
+        /* ESTILO DA TABELA */
         .tabela-container { 
             overflow-x: auto; 
             background: white; 
@@ -136,6 +140,9 @@
             font-size: 14px; 
             text-transform: uppercase;
         }
+
+        /* COLUNA DE DESTAQUE DO PORTAL COLETA */
+        th.coluna-agendamento { background: #856404; border-left: 4px solid var(--amarelo-raizen); }
         
         td { 
             padding: 25px 20px; 
@@ -145,6 +152,30 @@
             font-weight: 700; 
         }
 
+        /* CAMPO DE EDIÇÃO DE HORÁRIO NA TABELA */
+        .input-agendamento-tabela {
+            width: 110px;
+            padding: 10px;
+            border: 2px solid var(--amarelo-raizen);
+            border-radius: 12px;
+            font-weight: 900;
+            text-align: center;
+            background: #fffde7;
+            font-size: 16px;
+        }
+
+        .btn-salvar-agendamento {
+            background: var(--verde-raizen);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        /* ETIQUETAS DE PRODUTO */
         .etiqueta-prod { 
             padding: 10px 18px; 
             border-radius: 12px; 
@@ -159,6 +190,7 @@
         .cor-etanol { background: #28a745; }
         .cor-s10 { background: #6c757d; }
 
+        /* BOTÕES DE AÇÃO */
         .btn-geral { 
             border: none; border-radius: 15px; padding: 18px; font-weight: bold; cursor: pointer; font-size: 12px; 
             width: 100%; margin-bottom: 12px; color: white; text-transform: uppercase; 
@@ -184,13 +216,6 @@
             font-size: 22px;
             text-align: center;
             border: 3px solid #c3e6cb;
-            animation: bounceIn 0.5s;
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            70% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -259,20 +284,24 @@
                     <th>Produto</th>
                     <th>WhatsApp</th>
                     <th>Jornada</th>
-                    <th>Tempo</th>
+                    <th>Tempo de Pátio</th>
+                    <th class="coluna-agendamento">AGENDAMENTO NO COLETA</th>
                     <th style="width: 190px;">Ações</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                </tbody>
         </table>
     </div>
     <button class="btn-principal-form" style="background:#666;" onclick="window.location.reload()">VOLTAR PARA ENTRADA</button>
 </div>
 
 <script>
+    // Configurações Globais
     const SHEET_API = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
+    const NOME_COLUNA_AGENDAMENTO = "AGENDAMENTO NO COLETA"; // Exatamente como na planilha
 
-    // MASCARAS
+    // Máscara de Telefone e Placa (Segurança de entrada de dados)
     document.getElementById('inputZap').addEventListener('input', (e) => {
         let v = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
         e.target.value = !v[2] ? v[1] : '(' + v[1] + ') ' + v[2] + (v[3] ? '-' + v[3] : '');
@@ -283,34 +312,41 @@
         e.target.value = v.substring(0,8);
     });
 
+    // Filtro de Busca Robusto
     function filtrarTabela() {
         const termo = document.getElementById("buscaAdmin").value.toUpperCase();
         const linhas = document.querySelectorAll("#tabelaDados tbody tr");
-        
         linhas.forEach(linha => {
-            const conteudoLinha = linha.textContent.toUpperCase();
-            if (conteudoLinha.includes(termo)) {
-                linha.style.display = "";
-            } else {
-                linha.style.display = "none";
-            }
+            const conteudo = linha.textContent.toUpperCase();
+            linha.style.display = conteudo.includes(termo) ? "" : "none";
         });
     }
 
+    // Função de Carregamento e Sincronização
     function atualizarPainel() {
         const corpo = document.querySelector('#tabelaDados tbody');
-        corpo.innerHTML = "<tr><td colspan='6'>Carregando banco de dados Raízen...</td></tr>";
+        corpo.innerHTML = "<tr><td colspan='7' style='padding:50px;'>⏳ Sincronizando com Banco de Dados Raízen...</td></tr>";
 
         fetch(SHEET_API + "?t=" + new Date().getTime())
         .then(r => r.json())
         .then(dados => {
             corpo.innerHTML = "";
-            dados.filter(f => f.PLACA && !f.SAIDA).forEach(i => {
+            
+            // Lógica de Ordenação: Prioriza quem tem agendamento preenchido
+            const dadosFiltrados = dados.filter(f => f.PLACA && !f.SAIDA).sort((a, b) => {
+                let horaA = a[NOME_COLUNA_AGENDAMENTO] || "99:99";
+                let horaB = b[NOME_COLUNA_AGENDAMENTO] || "99:99";
+                return horaA.localeCompare(horaB);
+            });
+
+            dadosFiltrados.forEach(i => {
+                // Definição de Cores por Produto
                 let cProd = "cor-s10";
                 if(i.PRODUTO.includes("GASOLINA")) cProd = "cor-gasolina";
                 if(i.PRODUTO.includes("B100")) cProd = "cor-biodiesel";
                 if(i.PRODUTO.includes("HIDRATADO") || i.PRODUTO.includes("ANIDRO")) cProd = "cor-etanol";
 
+                // Montagem da Linha da Tabela
                 corpo.innerHTML += `
                     <tr>
                         <td style="font-size:18px;">${i.PLACA}</td>
@@ -318,8 +354,12 @@
                         <td>${i.TELEFONE}</td>
                         <td>${calcJornada(i.JORNADA)}</td>
                         <td style="font-size:13px; color:#999;">${calcEspera(i.ENTRADA)}</td>
+                        <td style="background: #fffde7; border-left: 2px solid #ffcd00;">
+                            <input type="time" class="input-agendamento-tabela" id="time-${i.PLACA}" value="${i[NOME_COLUNA_AGENDAMENTO] || ''}">
+                            <button class="btn-salvar-agendamento" onclick="salvarNovoAgendamento('${i.PLACA}')">SALVAR</button>
+                        </td>
                         <td>
-                            <button class="btn-geral btn-whats" onclick="chamarZap('${i.TELEFONE}', '${i.PLACA}', '${i.COLETA}')">📱 WHATSAPP</button>
+                            <button class="btn-geral btn-whats" onclick="chamarZap('${i.TELEFONE}', '${i.PLACA}', '${i[NOME_COLUNA_AGENDAMENTO]}')">📱 WHATSAPP</button>
                             <button class="btn-geral btn-concluir" onclick="finaliza('${i.PLACA}')">✅ CONCLUIR</button>
                         </td>
                     </tr>`;
@@ -327,28 +367,54 @@
         });
     }
 
+    // Função de Update Manual para o Agendamento do Portal
+    function salvarNovoAgendamento(placa) {
+        const novoHorario = document.getElementById(`time-${placa}`).value;
+        if(!novoHorario) return alert("Por favor, informe o horário!");
+
+        let corpoUpdate = {};
+        corpoUpdate[NOME_COLUNA_AGENDAMENTO] = novoHorario;
+
+        fetch(`${SHEET_API}/PLACA/${placa}`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(corpoUpdate)
+        })
+        .then(res => {
+            if(res.ok) {
+                alert("Horário de agendamento salvo com sucesso!");
+                atualizarPainel(); // Recarrega para aplicar a ordem
+            }
+        });
+    }
+
+    // Cálculos de Tempo e Jornada
     function calcJornada(j) {
         if(j === "24 Horas") return '<span style="color:green">LIVRE (24H)</span>';
-        const [h,m] = j.split(':'); const d = new Date(); d.setHours(h,m,0);
-        return (d < new Date()) 
-            ? `<span style="color:red">VENCIDA (${j})</span>` 
-            : `<span style="color:green">OK (${j})</span>`;
+        const [h,m] = j.split(':'); 
+        const d = new Date(); 
+        d.setHours(h,m,0);
+        return (d < new Date()) ? `<span style="color:red">VENCIDA</span>` : `<span style="color:green">OK</span>`;
     }
 
-    function calcEspera(e) {
-        if(!e) return "-";
-        const pt = e.split(', '); const d = pt[0].split('/'); const h = pt[1].split(':');
-        const dIn = new Date(d[2], d[1]-1, d[0], h[0], h[1]);
-        const df = Math.floor((new Date() - dIn) / 60000);
-        return df > 60 ? Math.floor(df/60)+"h "+(df%60)+"m" : df+"m";
+    function calcEspera(entradaStr) {
+        if(!entradaStr) return "-";
+        try {
+            const partes = entradaStr.split(', ');
+            const dataP = partes[0].split('/');
+            const horaP = partes[1].split(':');
+            const dataEntrada = new Date(dataP[2], dataP[1]-1, dataP[0], horaP[0], horaP[1]);
+            const diffMs = (new Date() - dataEntrada);
+            const diffMin = Math.floor(diffMs / 60000);
+            return diffMin > 60 ? Math.floor(diffMin/60)+"h "+(diffMin%60)+"m" : diffMin+"m";
+        } catch(e) { return "Erro data"; }
     }
 
+    // Submissão do Formulário
     document.getElementById('formularioRaizen').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
-        const msg = document.getElementById('msgSucesso');
-        
-        btn.innerText = "PROCESSANDO...";
+        btn.innerText = "ENVIANDO DADOS...";
         btn.disabled = true;
 
         const payload = {
@@ -357,22 +423,26 @@
             "TELEFONE": document.getElementById('inputZap').value,
             "JORNADA": document.getElementById('chk24').checked ? "24 Horas" : document.getElementById('inputHoraJornada').value,
             "ENTRADA": new Date().toLocaleString('pt-BR'),
-            "COLETA": "", "SAIDA": ""
+            "SAIDA": ""
         };
+        payload[NOME_COLUNA_AGENDAMENTO] = "";
 
-        fetch(SHEET_API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([payload]) })
+        fetch(SHEET_API, { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify([payload]) 
+        })
         .then(response => {
             if(response.ok) {
-                btn.style.backgroundColor = "#28a745";
-                btn.innerText = "✅ ENVIADO!";
-                msg.style.display = "block";
-                setTimeout(() => { location.reload(); }, 3500);
+                document.getElementById('msgSucesso').style.display = "block";
+                setTimeout(() => { location.reload(); }, 3000);
             }
         });
     });
 
+    // Funções de Interface Admin
     function validaAcessoAdmin() {
-        if(prompt("Senha:") === "raizen2026") {
+        if(prompt("Senha de Acesso Terminal:") === "raizen2026") {
             document.getElementById('container-motorista').style.display='none';
             document.getElementById('painel-gestao-admin').style.display='block';
             atualizarPainel();
@@ -380,7 +450,7 @@
     }
 
     function finaliza(p) {
-        if(confirm("Concluir descarga?")) {
+        if(confirm("Deseja concluir o processo deste veículo?")) {
             fetch(`${SHEET_API}/PLACA/${p}`, {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
@@ -389,11 +459,11 @@
         }
     }
 
-    function chamarZap(tel, p, c) {
-        const b = prompt("QUAL A BAIA?");
-        if(b) {
-            const m = `*RAÍZEN*%0APLACA: *${p}*%0ACOLETA: *${c || 'Pendente'}*%0ABAIA: *${b}*%0A%0AEntrada liberada!`;
-            window.open(`https://web.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=${m}`);
+    function chamarZap(tel, p, coleta) {
+        const baia = prompt("INFORME A BAIA DE DESCARGA:");
+        if(baia) {
+            const msg = `*RAÍZEN - INFORMATIVO*%0A%0AVeículo: *${p}*%0AAgendamento Portal: *${coleta || 'N/A'}*%0A*LIBERADO PARA BAIA ${baia}*%0A%0A_Favor dirigir-se ao ponto de descarga._`;
+            window.open(`https://web.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=${msg}`);
         }
     }
 </script>
