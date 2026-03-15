@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RAÍZEN - GESTÃO OPERACIONAL V35.0</title>
+    <title>RAÍZEN - GESTÃO OPERACIONAL V40.0</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
@@ -129,8 +129,6 @@
         .led-r { background: #ef4444; box-shadow: 0 0 12px #ef4444; }
 
         .btn-principal { width: 100%; padding: 30px; background: var(--roxo-raizen); color: white; border: none; border-radius: 25px; font-size: 24px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-        
-        /* BOTÃO REABRIR - DESIGN RAÍZEN */
         .btn-reabrir-jornada { background: var(--verde-raizen); margin-top: 25px; }
 
         .btn-w-whatsapp { background: #22c55e; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 8px; font-weight: 900; font-size: 13px; }
@@ -153,7 +151,7 @@
         <form id="formDescarga">
             <div class="wrapper-campo">
                 <label><i class="fa-solid fa-truck-front"></i> PLACA DO VEÍCULO</label>
-                <input type="text" id="campo_placa" placeholder="ABC-1234" maxlength="8" required>
+                <input type="text" id="campo_placa" placeholder="ABC-1234" maxlength="8" required oninput="formatarPlaca(this)">
             </div>
             <div class="wrapper-campo">
                 <label><i class="fa-solid fa-droplet"></i> PRODUTO CARREGADO</label>
@@ -189,7 +187,7 @@
         <h2 style="color:var(--verde-raizen)"><i class="fa-solid fa-clock"></i> REABRIR JORNADA</h2>
         <div class="wrapper-campo">
             <label>CONFIRME SUA PLACA</label>
-            <input type="text" id="reabrir_placa" placeholder="ABC-1234" maxlength="8">
+            <input type="text" id="reabrir_placa" placeholder="ABC-1234" maxlength="8" oninput="formatarPlaca(this)">
         </div>
         <div class="wrapper-campo">
             <label>NOVA HORA DE TÉRMINO</label>
@@ -238,11 +236,16 @@
     const API_URL = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
     const SENHA_OP = 'raizen2026';
 
-    // TROCA DE TELAS MOTORISTA
+    // MÁSCARA DE PLACA (IGUAL AO REGISTRO INICIAL)
+    function formatarPlaca(input) {
+        let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if (v.length > 3 && !isNaN(v[3])) v = v.substring(0,3) + "-" + v.substring(3,7);
+        input.value = v.substring(0,8);
+    }
+
     function mudarParaReabrir() { document.getElementById('container-normal').style.display='none'; document.getElementById('container-reabrir').style.display='block'; }
     function mudarParaNormal() { document.getElementById('container-normal').style.display='block'; document.getElementById('container-reabrir').style.display='none'; }
 
-    // SALVAR REABERTURA
     async function salvarReabertura() {
         const placa = document.getElementById('reabrir_placa').value.toUpperCase();
         const hora = document.getElementById('reabrir_hora').value;
@@ -257,10 +260,9 @@
         if (this.checked) { boxHora.style.display = 'none'; } else { boxHora.style.display = 'block'; }
     });
 
-    document.getElementById('campo_placa').oninput = e => {
-        let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-        if (v.length > 3 && !isNaN(v[3])) v = v.substring(0,3) + "-" + v.substring(3,7);
-        e.target.value = v.substring(0,8);
+    document.getElementById('campo_whatsapp').oninput = e => {
+        let v = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+        e.target.value = !v[2] ? v[1] : '(' + v[1] + ') ' + v[2] + (v[3] ? '-' + v[3] : '');
     };
 
     function chamarMotorista(tel, placa) {
