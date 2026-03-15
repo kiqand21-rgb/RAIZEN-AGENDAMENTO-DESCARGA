@@ -374,9 +374,12 @@
     }
 
     function calcJornada(j) {
-        if(j === "24 Horas") return '<span style="color:green">LIVRE</span>';
+        if(j === "24 Horas") return '<span style="color:green">LIVRE (24H)</span>';
         const [h,m] = j.split(':'); const d = new Date(); d.setHours(h,m,0);
-        return (d < new Date()) ? '<span style="color:red">VENCIDA</span>' : '<span style="color:green">OK</span>';
+        // Retorna o status junto com o horário digitado (Ex: OK - 18:30)
+        return (d < new Date()) 
+            ? `<span style="color:red">VENCIDA (${j})</span>` 
+            : `<span style="color:green">OK (${j})</span>`;
     }
 
     function calcEspera(e) {
