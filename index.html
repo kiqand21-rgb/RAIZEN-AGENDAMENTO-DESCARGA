@@ -69,15 +69,17 @@
             position: relative;
         }
 
+        /* AJUSTE PARA TELA DO CELULAR NO PAINEL ADM */
         #secao-operador { 
             display: none; 
-            width: 98%; 
-            max-width: 2200px; 
-            margin: 40px auto;
+            width: 100%; 
+            max-width: 100%; 
+            margin: 0 auto;
             background: var(--branco);
-            padding: 60px;
-            border-radius: 50px;
+            padding: 15px; /* Reduzido para caber mais */
+            border-radius: 20px;
             box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+            zoom: 0.8; /* Diminui a escala geral para caber tudo */
         }
 
         h2 { 
@@ -143,31 +145,36 @@
 
         .txt-check { font-weight: 900; color: var(--cor-alerta); font-size: 22px; }
 
-        .moldura-tabela { overflow-x: auto; border-radius: 50px; border: 4px solid #e2e8f0; }
+        /* AJUSTE NA TABELA PARA REDUZIR ROLAGEM */
+        .moldura-tabela { 
+            overflow-x: auto; 
+            border-radius: 20px; 
+            border: 2px solid #e2e8f0; 
+        }
 
-        table { width: 100%; border-collapse: collapse; min-width: 2100px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1200px; } /* Reduzi a min-width para forçar compressão */
         
         th { 
             background: #0f172a; 
             color: #ffffff; 
-            padding: 35px; 
-            font-size: 15px; 
+            padding: 15px; 
+            font-size: 12px; 
             text-transform: uppercase; 
-            letter-spacing: 4px;
+            letter-spacing: 2px;
         }
 
-        td { padding: 30px; border-bottom: 4px solid #f1f5f9; text-align: center; font-weight: 800; font-size: 22px; }
+        td { padding: 15px; border-bottom: 4px solid #f1f5f9; text-align: center; font-weight: 800; font-size: 16px; }
 
         .tag-prod {
-            padding: 18px 30px;
-            border-radius: 25px;
-            font-size: 16px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 12px;
             font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            min-width: 260px;
+            gap: 5px;
+            min-width: 180px;
             text-transform: uppercase;
         }
         
@@ -178,45 +185,44 @@
         .tag-s10 { background: #ffffff; color: #5d4037; border: 5px solid #5d4037; } 
 
         .box-semaforo {
-            padding: 18px 25px;
-            border-radius: 60px;
-            font-size: 18px;
+            padding: 10px 15px;
+            border-radius: 30px;
+            font-size: 13px;
             font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 8px;
             text-transform: uppercase;
         }
         .semaforo-verde { background: #dcfce7; color: #166534; border: 3px solid var(--cor-sucesso); }
         .semaforo-vermelho { background: #fee2e2; color: #991b1b; border: 3px solid var(--cor-alerta); }
-        .circulo-led { width: 20px; height: 20px; border-radius: 50%; }
+        .circulo-led { width: 12px; height: 12px; border-radius: 50%; }
         .led-g { background: #10b981; box-shadow: 0 0 12px #10b981; }
         .led-r { background: #ef4444; box-shadow: 0 0 12px #ef4444; }
 
         .btn-principal { 
             width: 100%; 
-            padding: 40px; 
+            padding: 30px; 
             background: var(--roxo-raizen); 
             color: white; 
             border: none; 
-            border-radius: 35px; 
-            font-size: 30px; 
+            border-radius: 25px; 
+            font-size: 24px; 
             font-weight: 900; 
             cursor: pointer; 
             text-transform: uppercase;
-            box-shadow: 0 25px 50px rgba(132, 32, 125, 0.4);
         }
 
-        .btn-w-whatsapp { background: #22c55e; color: white; border: none; padding: 22px; border-radius: 20px; width: 100%; cursor: pointer; margin-bottom: 12px; font-weight: 900; font-size: 15px; }
-        .btn-f-finalizar { background: #3b82f6; color: white; border: none; padding: 22px; border-radius: 20px; width: 100%; cursor: pointer; font-weight: 900; font-size: 15px; }
+        .btn-w-whatsapp { background: #22c55e; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 8px; font-weight: 900; font-size: 13px; }
+        .btn-f-finalizar { background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 900; font-size: 13px; }
 
         .loader-raizen {
-            border: 10px solid rgba(255,255,255,0.2);
-            border-top: 10px solid #ffffff;
+            border: 6px solid rgba(255,255,255,0.2);
+            border-top: 6px solid #ffffff;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
             display: inline-block;
         }
@@ -242,7 +248,7 @@
             <label><i class="fa-solid fa-droplet"></i> PRODUTO CARREGADO</label>
             <select id="campo_produto" required>
                 <option value="">-- SELECIONE O PRODUTO --</option>
-                <option value="GASOLINA">GASOLINA COMUM / ADITIVADA</option>
+                <option value="GASOLINA COMUM / ADITIVADA">GASOLINA COMUM / ADITIVADA</option>
                 <option value="BIODIESEL (B100)">BIODIESEL (B100)</option>
                 <option value="ETANOL ANIDRO">ETANOL ANIDRO</option>
                 <option value="ETANOL HIDRATADO">ETANOL HIDRATADO</option>
@@ -274,32 +280,32 @@
 
 <div id="secao-operador">
     <h2><i class="fa-solid fa-list-check"></i> FILA DE DESCARGA - ÁREA 02</h2>
-    <div style="margin-bottom:50px;">
+    <div style="margin-bottom:30px;">
         <div style="position:relative;">
-            <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:30px; top:35px; font-size:30px; color:var(--roxo-raizen);"></i>
-            <input type="text" id="filtroFila" placeholder="FILTRAR POR PLACA, PRODUTO OU JORNADA..." onkeyup="filtrarTabela()" style="padding-left:85px; border:6px solid var(--roxo-raizen);">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:20px; top:25px; font-size:20px; color:var(--roxo-raizen);"></i>
+            <input type="text" id="filtroFila" placeholder="FILTRAR..." onkeyup="filtrarTabela()" style="padding-left:55px; border:4px solid var(--roxo-raizen); padding: 15px 15px 15px 55px; font-size: 18px;">
         </div>
     </div>
     <div class="moldura-tabela">
         <table id="tabelaMaster">
             <thead>
                 <tr>
-                    <th><i class="fa-solid fa-hashtag"></i> PLACA</th>
-                    <th><i class="fa-solid fa-flask-vial"></i> PRODUTO</th>
-                    <th><i class="fa-solid fa-phone"></i> CONTATO</th>
-                    <th><i class="fa-solid fa-traffic-light"></i> STATUS JORNADA</th>
-                    <th><i class="fa-solid fa-calendar-check"></i> ENTRADA</th>
-                    <th style="background:#fff9c4; color:#000;">AGENDAMENTO COLETA</th>
-                    <th><i class="fa-solid fa-gears"></i> AÇÕES</th>
+                    <th>PLACA</th>
+                    <th>PRODUTO</th>
+                    <th>CONTATO</th>
+                    <th>JORNADA</th>
+                    <th>ENTRADA</th>
+                    <th style="background:#fff9c4; color:#000;">AGENDAMENTO</th>
+                    <th>AÇÕES</th>
                 </tr>
             </thead>
             <tbody id="dadosFila"></tbody>
         </table>
     </div>
 
-    <div style="margin-top:80px; display:flex; gap:50px;">
-        <button class="btn-principal" style="background:#475569;" onclick="location.reload()">SAIR</button>
-        <button class="btn-principal" style="background:var(--verde-raizen);" onclick="sincronizarFila()">ATUALIZAR PAINEL ADM</button>
+    <div style="margin-top:40px; display:flex; gap:20px;">
+        <button class="btn-principal" style="background:#475569; padding: 20px; font-size: 18px;" onclick="location.reload()">SAIR</button>
+        <button class="btn-principal" style="background:var(--verde-raizen); padding: 20px; font-size: 18px;" onclick="sincronizarFila()">ATUALIZAR</button>
     </div>
 </div>
 
@@ -340,25 +346,23 @@
         }
     }
 
-    // SEMÁFORO CORRIGIDO - HORÁRIO VISÍVEL
     function gerarSemaforo(valor) {
-        if(valor === "24 HORAS") return `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> 24 HORAS</div>`;
+        if(valor === "24 HORAS") return `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> 24H</div>`;
         const agora = new Date();
         const t = valor.split(':');
         if(t.length < 2) return valor;
         const limite = new Date(); 
         limite.setHours(t[0], t[1], 0);
-        
         if(agora > limite) {
-            return `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> ${valor} (EXPIRADO)</div>`;
+            return `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> ${valor}</div>`;
         }
-        return `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> ${valor} (DENTRO DA JORNADA)</div>`;
+        return `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> ${valor}</div>`;
     }
 
     document.getElementById('formDescarga').onsubmit = async e => {
         e.preventDefault();
         const btn = document.getElementById('btn_registrar');
-        btn.innerHTML = '<span class="loader-raizen"></span> REGISTRANDO...';
+        btn.innerHTML = '<span class="loader-raizen"></span>...';
         btn.disabled = true;
         const dados = {
             "PLACA": document.getElementById('campo_placa').value,
@@ -370,47 +374,40 @@
             "AGENDAMENTO NO COLETA": ""
         };
         await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([dados]) });
-        alert("REGISTRO NO PÁTIO EFETUADO COM SUCESSO!");
+        alert("REGISTRADO!");
         location.reload();
     };
 
     async function sincronizarFila() {
         const corpo = document.getElementById('dadosFila');
-        corpo.innerHTML = "<tr><td colspan='7'>ATUALIZANDO PAINEL...</td></tr>";
+        corpo.innerHTML = "<tr><td colspan='7'>...</td></tr>";
         const res = await fetch(API_URL + "?t=" + Date.now());
         const json = await res.json();
-        
         let ativos = json.filter(x => x.PLACA && !x.SAIDA);
-        
-        ativos.sort((a, b) => {
-            let agendaA = a['AGENDAMENTO NO COLETA'] || '9999-99-99T99:99';
-            let agendaB = b['AGENDAMENTO NO COLETA'] || '9999-99-99T99:99';
-            return agendaA.localeCompare(agendaB);
-        });
-
+        ativos.sort((a, b) => (a['AGENDAMENTO NO COLETA'] || '9').localeCompare(b['AGENDAMENTO NO COLETA'] || '9'));
         corpo.innerHTML = "";
         ativos.forEach(item => {
             let classeProd = "";
-            if(item.PRODUTO === "GASOLINA COMUM / ADITIVADA") classeProd = "tag-gasosa";
-            else if(item.PRODUTO === "BIODIESEL (B100)") classeProd = "tag-b100";
-            else if(item.PRODUTO === "ETANOL ANIDRO") classeProd = "tag-anidro";
-            else if(item.PRODUTO === "ETANOL HIDRATADO") classeProd = "tag-hidratado";
-            else if(item.PRODUTO === "DIESEL S10") classeProd = "tag-s10";
+            if(item.PRODUTO.includes("GASOLINA")) classeProd = "tag-gasosa";
+            else if(item.PRODUTO.includes("BIODIESEL")) classeProd = "tag-b100";
+            else if(item.PRODUTO.includes("ANIDRO")) classeProd = "tag-anidro";
+            else if(item.PRODUTO.includes("HIDRATADO")) classeProd = "tag-hidratado";
+            else if(item.PRODUTO.includes("DIESEL")) classeProd = "tag-s10";
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="color:var(--roxo-raizen); font-size:32px;">${item.PLACA}</td>
+                <td style="color:var(--roxo-raizen); font-size:20px;">${item.PLACA}</td>
                 <td><span class="tag-prod ${classeProd}">${item.PRODUTO}</span></td>
-                <td>${item.TELEFONE}</td>
+                <td style="font-size:14px;">${item.TELEFONE}</td>
                 <td>${gerarSemaforo(item.JORNADA)}</td>
-                <td>${item.ENTRADA}</td>
+                <td style="font-size:14px;">${item.ENTRADA}</td>
                 <td style="background:#fffde7;">
-                    <input type="datetime-local" id="ag-${item.PLACA}" value="${item['AGENDAMENTO NO COLETA'] || ''}" style="width:auto; font-size:16px;">
-                    <button onclick="salvarAgenda('${item.PLACA}')" style="background:var(--verde-raizen); color:white; border:none; padding:10px; border-radius:10px; cursor:pointer;">FIXAR</button>
+                    <input type="datetime-local" id="ag-${item.PLACA}" value="${item['AGENDAMENTO NO COLETA'] || ''}" style="width:130px; font-size:12px; padding:10px;">
+                    <button onclick="salvarAgenda('${item.PLACA}')" style="background:var(--verde-raizen); color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;">OK</button>
                 </td>
                 <td>
                     <button class="btn-w-whatsapp" onclick="chamarMotorista('${item.TELEFONE}','${item.PLACA}')">CONVOCAR</button>
-                    <button class="btn-f-finalizar" onclick="finalizar('${item.PLACA}')">FINALIZAR</button>
+                    <button class="btn-f-finalizar" onclick="finalizar('${item.PLACA}')">FIM</button>
                 </td>
             `;
             corpo.appendChild(tr);
@@ -420,23 +417,23 @@
     async function salvarAgenda(placa) {
         const val = document.getElementById(`ag-${placa}`).value;
         await fetch(`${API_URL}/PLACA/${placa}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({"AGENDAMENTO NO COLETA": val}) });
-        alert("PRIORIDADE ATUALIZADA NO COLETA!");
+        alert("OK!");
         sincronizarFila();
     }
 
     async function finalizar(placa) {
-        if(confirm("FINALIZAR OPERAÇÃO DO VEÍCULO " + placa + "?")) {
+        if(confirm("FINALIZAR " + placa + "?")) {
             await fetch(`${API_URL}/PLACA/${placa}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({"SAIDA": new Date().toLocaleString('pt-BR')}) });
             sincronizarFila();
         }
     }
 
     function acessoOperador() {
-        if(prompt("SENHA OPERACIONAL:") === SENHA_OP) {
+        if(prompt("SENHA:") === SENHA_OP) {
             document.getElementById('modulo-entrada').style.display = 'none';
             document.getElementById('secao-operador').style.display = 'block';
             sincronizarFila();
-        } else { alert("SENHA INCORRETA!"); }
+        } else { alert("ERRO!"); }
     }
 </script>
 </body>
