@@ -31,7 +31,7 @@
             padding-bottom: 100px;
         }
 
-        /* HEADER ROBUSTO */
+        /* --- ESTILO DO HEADER (VOLTOU AO ORIGINAL) --- */
         header { 
             background: linear-gradient(135deg, var(--verde-raizen) 0%, #1a241f 100%); 
             padding: 90px 20px; 
@@ -58,7 +58,7 @@
             text-transform: uppercase;
         }
 
-        /* CARD MOTORISTA (COMO ESTAVA ANTES) */
+        /* --- CARD DO MOTORISTA (VOLTOU AO ORIGINAL GIGANTE) --- */
         .card-industrial { 
             width: 94%; 
             max-width: 1100px; 
@@ -69,6 +69,17 @@
             box-shadow: 0 40px 80px rgba(0,0,0,0.2); 
             border-left: 35px solid var(--roxo-raizen);
             position: relative;
+        }
+
+        h2 { 
+            color: var(--roxo-raizen); 
+            text-align: center; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            margin-bottom: 50px; 
+            font-size: 38px;
+            border-bottom: 12px solid #f1f5f9;
+            padding-bottom: 30px;
         }
 
         .wrapper-campo { margin-bottom: 40px; position: relative; }
@@ -85,6 +96,8 @@
             gap: 12px;
         }
 
+        label i { color: var(--roxo-raizen); font-size: 20px; }
+
         input, select { 
             width: 100%; 
             padding: 28px; 
@@ -93,6 +106,8 @@
             font-size: 24px; 
             font-weight: 700;
             background: #f8fafc;
+            color: #334155;
+            transition: all 0.3s;
         }
 
         .container-jornada-exp {
@@ -114,17 +129,18 @@
             font-weight: 900; 
             cursor: pointer; 
             text-transform: uppercase;
+            box-shadow: 0 25px 50px rgba(132, 32, 125, 0.4);
         }
 
-        /* PAINEL ADM - AJUSTADO PARA NÃO ROLAR */
+        /* --- PAINEL ADM AJUSTADO (SÓ AQUI MUDA) --- */
         #secao-operador { 
             display: none; 
             width: 98%; 
+            max-width: 2200px; 
             margin: 20px auto;
             background: var(--branco);
             padding: 20px;
             border-radius: 40px;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.2);
         }
 
         .moldura-tabela { 
@@ -136,25 +152,54 @@
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
         th { background: #0f172a; color: white; padding: 15px 2px; font-size: 10px; text-transform: uppercase; }
-        td { padding: 15px 2px; border-bottom: 2px solid #f1f5f9; text-align: center; font-weight: 800; font-size: 12px; word-wrap: break-word; }
+        
+        td { 
+            padding: 15px 2px; 
+            border-bottom: 2px solid #f1f5f9; 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 12px; 
+            word-wrap: break-word; 
+        }
 
         .tag-prod {
-            padding: 6px; border-radius: 10px; font-size: 9px; font-weight: 900; display: block;
+            padding: 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 900;
+            display: block;
+            text-transform: uppercase;
         }
         .tag-gasosa { background: #ff8c00; color: #fff; } 
         .tag-b100 { background: #5d4037; color: #fff; } 
         .tag-anidro { background: #0056b3; color: #fff; } 
         .tag-hidratado { border: 2px solid #0056b3; color: #0056b3; } 
-        .tag-s10 { border: 2px solid #334155; color: #334155; } 
+        .tag-s10 { border: 2px solid #5d4037; color: #5d4037; } 
 
         .box-semaforo {
-            padding: 6px; border-radius: 10px; font-size: 9px; display: flex; align-items: center; justify-content: center; gap: 4px;
+            padding: 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
         .semaforo-verde { background: #dcfce7; color: #166534; }
         .semaforo-vermelho { background: #fee2e2; color: #991b1b; }
         .led { width: 10px; height: 10px; border-radius: 50%; }
 
-        .btn-acao { width: 100%; padding: 12px 2px; border-radius: 10px; border: none; color: white; font-weight: 900; font-size: 10px; margin-bottom: 5px; cursor: pointer; }
+        .btn-acao { 
+            width: 100%; 
+            padding: 12px 2px; 
+            border-radius: 10px; 
+            border: none; 
+            color: white; 
+            font-weight: 900; 
+            font-size: 10px; 
+            margin-bottom: 5px; 
+            cursor: pointer; 
+        }
 
     </style>
 </head>
@@ -162,7 +207,7 @@
 
 <header>
     <div class="logo-raizen-master">RAÍZEN</div>
-    <h1>CONTROLE DE DESCARGAS | ÁREA 02</h1>
+    <h1>CONTROLE DE DESCARGAS | TERMINAL PAULÍNIA</h1>
 </header>
 
 <div class="card-industrial" id="modulo-entrada">
@@ -184,7 +229,7 @@
             </select>
         </div>
         <div class="wrapper-campo">
-            <label><i class="fa-brands fa-whatsapp"></i> WHATSAPP</label>
+            <label><i class="fa-brands fa-whatsapp"></i> NÚMERO DO WHATSAPP</label>
             <input type="tel" id="campo_whatsapp" placeholder="(19) 99999-9999" required>
         </div>
         <div class="container-jornada-exp">
@@ -193,13 +238,15 @@
                 <input type="time" id="campo_hora_limite">
             </div>
         </div>
-        <button type="submit" class="btn-principal" id="btn_registrar">REGISTRAR NO PÁTIO</button>
+        <button type="submit" class="btn-principal" id="btn_registrar">EFETUAR REGISTRO NO PÁTIO</button>
     </form>
-    <button onclick="acessoOperador()" style="margin-top:40px; background:none; border:none; color:var(--roxo-raizen); text-decoration:underline; width:100%; font-weight:900;">MÓDULO OPERADOR</button>
+    <div style="text-align:center; margin-top:60px;">
+        <button onclick="acessoOperador()" style="background:none; border:none; color:var(--roxo-raizen); font-weight:900; cursor:pointer; font-size:18px; text-decoration:underline;">MÓDULO DE GESTÃO DO OPERADOR</button>
+    </div>
 </div>
 
 <div id="secao-operador">
-    <h2><i class="fa-solid fa-list-check"></i> FILA DE DESCARGA</h2>
+    <h2><i class="fa-solid fa-list-check"></i> FILA DE DESCARGA - ÁREA 02</h2>
     <div class="moldura-tabela">
         <table>
             <thead>
@@ -214,7 +261,10 @@
             <tbody id="dadosFila"></tbody>
         </table>
     </div>
-    <button class="btn-principal" style="margin-top:30px; background:#475569;" onclick="location.reload()">SAIR</button>
+    <div style="margin-top:30px; display:flex; gap:20px;">
+        <button class="btn-principal" style="background:#475569; font-size: 20px; padding: 20px;" onclick="location.reload()">SAIR</button>
+        <button class="btn-principal" style="background:var(--verde-raizen); font-size: 20px; padding: 20px;" onclick="sincronizarFila()">ATUALIZAR</button>
+    </div>
 </div>
 
 <script>
@@ -222,7 +272,7 @@
     const SENHA_OP = 'raizen2026';
 
     function gerarSemaforo(valor) {
-        if(!valor || valor === "24 HORAS") return `<div class="box-semaforo semaforo-vermelho"><span class="led led-r" style="background:red"></span> 24H</div>`;
+        if(!valor || valor === "24 HORAS") return `<div class="box-semaforo semaforo-vermelho"><span class="led" style="background:red"></span> 24H</div>`;
         const agora = new Date();
         const t = valor.split(':');
         const limite = new Date(); limite.setHours(t[0], t[1], 0);
@@ -232,7 +282,7 @@
 
     async function sincronizarFila() {
         const corpo = document.getElementById('dadosFila');
-        corpo.innerHTML = "<tr><td colspan='5'>CARREGANDO...</td></tr>";
+        corpo.innerHTML = "<tr><td colspan='5'>BUSCANDO...</td></tr>";
         const res = await fetch(API_URL + "?t=" + Date.now());
         const json = await res.json();
         let ativos = json.filter(x => x.PLACA && !x.SAIDA);
@@ -243,7 +293,7 @@
         ativos.forEach(item => {
             const tr = document.createElement('tr');
             const classeProd = "tag-" + item.PRODUTO.split(' ')[0].toLowerCase();
-            const agenda = item['AGENDAMENTO NO COLETA'] ? item['AGENDAMENTO NO COLETA'].split('T')[1] || item['AGENDAMENTO NO COLETA'] : 'S/AG';
+            const agenda = item['AGENDAMENTO NO COLETA'] ? (item['AGENDAMENTO NO COLETA'].split('T')[1] || item['AGENDAMENTO NO COLETA']) : 'S/AG';
 
             tr.innerHTML = `
                 <td style="color:var(--roxo-raizen);">${item.PLACA}</td>
