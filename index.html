@@ -58,11 +58,10 @@
             box-shadow: var(--sombra-forte); 
         }
 
-        /* CONFIGURAÇÃO DO PAINEL ADMIN */
         #admin-panel { 
             display: none; 
             max-width: 98%; 
-            width: 1600px; 
+            width: 1700px; 
         }
 
         h2 { 
@@ -74,13 +73,7 @@
             text-transform: uppercase;
         }
         
-        label { 
-            display: block; 
-            margin-top: 25px; 
-            font-weight: 800; 
-            color: #333; 
-            font-size: 17px; 
-        }
+        label { display: block; margin-top: 25px; font-weight: 800; color: #333; font-size: 17px; }
 
         input, select { 
             width: 100%; 
@@ -95,9 +88,6 @@
         }
         input:focus { border-color: var(--verde-raizen); outline: none; }
 
-        /* ==========================================================================
-           BOX DE BUSCA DE PLACA (RESTAURADO)
-           ========================================================================== */
         .area-busca {
             background: #e9ecef;
             padding: 30px;
@@ -134,76 +124,42 @@
         .check-estilizado span { font-size: 18px; font-weight: bold; color: var(--verde-raizen); }
 
         .btn-acao-principal { 
-            width: 100%; 
-            padding: 25px; 
-            background-color: var(--verde-raizen); 
-            color: white; 
-            border: none; 
-            border-radius: 18px; 
-            font-size: 24px; 
-            font-weight: 900; 
-            cursor: pointer; 
-            margin-top: 40px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            width: 100%; padding: 25px; background-color: var(--verde-raizen); color: white; border: none; border-radius: 18px; font-size: 24px; font-weight: 900; cursor: pointer; margin-top: 40px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        /* ==========================================================================
-           TABELA E LÓGICA VISUAL DO AGENDAMENTO
-           ========================================================================== */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 20px; overflow: hidden; }
-        th { background: var(--verde-raizen); color: white; padding: 25px; text-align: center; font-size: 14px; text-transform: uppercase; }
-        td { padding: 22px; border-bottom: 1px solid #eee; text-align: center; font-size: 16px; font-weight: 700; }
+        /* TABELA */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 20px; overflow: hidden; min-width: 1400px;}
+        th { background: var(--verde-raizen); color: white; padding: 25px; text-align: center; font-size: 13px; text-transform: uppercase; }
+        td { padding: 20px; border-bottom: 1px solid #eee; text-align: center; font-size: 16px; font-weight: 700; }
         
-        /* STATUS: QUANDO ESTÁ PENDENTE */
+        /* BADGES DE PRODUTO */
+        .badge-prod { padding: 8px 12px; border-radius: 8px; color: white; font-size: 12px; text-transform: uppercase; min-width: 100px; display: inline-block;}
+        .cor-gasolina { background: #ffc107; color: #000; }
+        .cor-etanol { background: #28a745; }
+        .cor-diesel { background: #343a40; }
+        .cor-s10 { background: #6c757d; }
+
         .alerta-pendente { 
-            color: #721c24; 
-            background: #f8d7da; 
-            padding: 12px 20px; 
-            border-radius: 10px; 
-            font-weight: 900; 
-            border: 2px solid #f5c6cb; 
-            display: inline-block;
-            animation: pulse-alerta 1.5s infinite;
+            color: #fff; background: var(--cor-erro); padding: 12px 20px; border-radius: 10px; font-weight: 900; display: inline-block; animation: pulse-alerta 1.5s infinite;
         }
-        /* STATUS: QUANDO É AGENDADO (SOME O PENDENTE) */
         .confirmado-agendado { 
-            color: #155724; 
-            background: #d4edda; 
-            padding: 15px; 
-            border-radius: 12px; 
-            border: 3px solid #c3e6cb; 
-            display: block;
-            font-size: 16px;
+            color: #155724; background: #d4edda; padding: 15px; border-radius: 12px; border: 3px solid #c3e6cb; display: block; font-size: 16px;
         }
 
         @keyframes pulse-alerta { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
         .btn-tabela { 
-            border: none; border-radius: 10px; padding: 15px; font-weight: bold; cursor: pointer; font-size: 11px; 
-            width: 100%; margin-bottom: 10px; color: white; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;
+            border: none; border-radius: 10px; padding: 12px; font-weight: bold; cursor: pointer; font-size: 11px; width: 100%; margin-bottom: 8px; color: white; text-transform: uppercase;
         }
         .btn-cor-agendar { background: white; color: var(--cor-informativa); border: 2px solid var(--cor-informativa); }
         .btn-cor-whats { background: #25D366; }
         .btn-cor-ok { background: var(--cor-informativa); }
 
-        /* MODAL EXPANDIDO */
         #modalAgendamentoGlobal { 
-            display:none; 
-            position:fixed; 
-            z-index:9999; 
-            left:0; top:0; 
-            width:100%; height:100%; 
-            background:rgba(0,0,0,0.85); 
-            backdrop-filter: blur(10px); 
+            display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter: blur(10px); 
         }
         .modal-container-content { 
-            background:white; 
-            margin:5% auto; 
-            padding:50px; 
-            border-radius:40px; 
-            width:500px; 
-            text-align: center; 
-            box-shadow: 0 50px 100px rgba(0,0,0,0.6); 
+            background:white; margin:5% auto; padding:50px; border-radius:40px; width:500px; text-align: center; box-shadow: 0 50px 100px rgba(0,0,0,0.6); 
         }
     </style>
 </head>
@@ -261,11 +217,12 @@
             <thead>
                 <tr>
                     <th>Placa</th>
+                    <th>Produto</th>
                     <th>WhatsApp</th>
                     <th>Jornada</th>
-                    <th style="background:#2d4a3e; color:white; width: 250px;">AGENDAMENTO COLETAS:</th>
-                    <th>Tempo Espera</th>
-                    <th style="width: 190px;">Ações</th>
+                    <th style="background:#2d4a3e; color:white; width: 250px;">STATUS AGENDAMENTO:</th>
+                    <th>Espera</th>
+                    <th style="width: 180px;">Ações</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -276,32 +233,26 @@
 
 <div id="modalAgendamentoGlobal">
     <div class="modal-container-content">
-        <h3 style="margin-top:0; font-size:26px;">Agendar Coleta</h3>
+        <h3 style="margin-top:0">Agendar Coleta</h3>
         <p id="txtPlacaModal" style="font-weight:900; font-size:28px; color:var(--verde-raizen); margin-bottom:30px;"></p>
         <input type="hidden" id="inputPlacaOculta">
-        
-        <label>Data Programada:</label>
-        <input type="date" id="inputDataModal">
-        
-        <label>Hora Programada:</label>
-        <input type="time" id="inputHoraModal">
-        
+        <label>Data:</label><input type="date" id="inputDataModal">
+        <label>Hora:</label><input type="time" id="inputHoraModal">
         <button class="btn-acao-principal" id="btnSalvarModalPlanilha" onclick="processarAgendamento()">GRAVAR NA PLANILHA</button>
-        <button onclick="fecharModal()" style="margin-top:25px; border:none; background:none; color:red; font-weight:bold; cursor:pointer; font-size:16px;">CANCELAR</button>
+        <button onclick="fecharModal()" style="margin-top:20px; border:none; background:none; color:red; font-weight:bold; cursor:pointer;">CANCELAR</button>
     </div>
 </div>
 
 <script>
     const ENDPOINT = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
 
-    // 1. COMPORTAMENTO DA INTERFACE
     function controlarRelogio() {
         const isLivre = document.getElementById('checkLivre').checked;
         document.getElementById('secaoHora').style.display = isLivre ? 'none' : 'block';
         document.getElementById('horaFimJornada').required = !isLivre;
     }
 
-    // 2. MÁSCARAS DE DADOS
+    // MÁSCARAS
     document.getElementById('whatsappVeiculo').addEventListener('input', (e) => {
         let v = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
         e.target.value = !v[2] ? v[1] : '(' + v[1] + ') ' + v[2] + (v[3] ? '-' + v[3] : '');
@@ -312,23 +263,18 @@
         e.target.value = v.substring(0,8);
     });
 
-    // 3. FUNÇÃO DE BUSCA (RESTAURADA)
     function funcaoFiltrar() {
         const busca = document.getElementById("inputFiltroPlaca").value.toUpperCase();
-        const linhas = document.getElementById("tabelaMestra").getElementsByTagName("tr");
-        for (let i = 1; i < linhas.length; i++) {
-            let td = linhas[i].getElementsByTagName("td")[0];
-            if (td) {
-                let texto = td.textContent || td.innerText;
-                linhas[i].style.display = texto.toUpperCase().indexOf(busca) > -1 ? "" : "none";
-            }
-        }
+        const linhas = document.querySelectorAll("#tabelaMestra tbody tr");
+        linhas.forEach(linha => {
+            let placa = linha.cells[0].textContent.toUpperCase();
+            linha.style.display = placa.indexOf(busca) > -1 ? "" : "none";
+        });
     }
 
-    // 4. ATUALIZAÇÃO DA TABELA COM LÓGICA DE SUMIR O PENDENTE
     function recarregarDadosTabela() {
         const corpoTabela = document.querySelector('#tabelaMestra tbody');
-        corpoTabela.innerHTML = "<tr><td colspan='6'>Buscando dados na Planilha...</td></tr>";
+        corpoTabela.innerHTML = "<tr><td colspan='7'>Buscando dados...</td></tr>";
 
         fetch(ENDPOINT + "?t=" + new Date().getTime())
         .then(res => res.json())
@@ -336,21 +282,25 @@
             corpoTabela.innerHTML = "";
             data.filter(item => item.PLACA && !item.SAIDA).forEach(item => {
                 
-                // LÓGICA DO PENDENTE: SE COLETA TIVER CONTEÚDO, O AVISO VERMELHO SOME
-                let blocoAgendamento = "";
-                if (item.COLETA && item.COLETA.trim() !== "" && item.COLETA !== "undefined" && item.COLETA !== "null") {
-                    blocoAgendamento = `<span class="confirmado-agendado">📅 ${item.COLETA}</span>`;
-                } else {
-                    blocoAgendamento = `<span class="alerta-pendente">⚠️ PENDENTE</span>`;
-                }
+                // LÓGICA DE SUMIR O PENDENTE
+                let statusHtml = (item.COLETA && item.COLETA.trim() !== "" && item.COLETA !== "undefined") 
+                    ? `<span class="confirmado-agendado">📅 ${item.COLETA}</span>` 
+                    : `<span class="alerta-pendente">⚠️ PENDENTE</span>`;
+
+                // CORES POR PRODUTO
+                let classeCor = "cor-s10";
+                if(item.PRODUTO.includes("GASOLINA")) classeCor = "cor-gasolina";
+                if(item.PRODUTO.includes("B100")) classeCor = "cor-diesel";
+                if(item.PRODUTO.includes("HIDRATADO") || item.PRODUTO.includes("ANIDRO")) classeCor = "cor-etanol";
 
                 corpoTabela.innerHTML += `
                     <tr>
                         <td style="font-size:18px;">${item.PLACA}</td>
+                        <td><span class="badge-prod ${classeCor}">${item.PRODUTO}</span></td>
                         <td>${item.TELEFONE}</td>
                         <td>${verificarStatusJornada(item.JORNADA)}</td>
-                        <td style="background:#fcfcfc">${blocoAgendamento}</td>
-                        <td style="color:#666;">${calcularDiferencaTempo(item.ENTRADA)}</td>
+                        <td style="background:#fcfcfc">${statusHtml}</td>
+                        <td style="color:#666; font-size:13px;">${calcularDiferencaTempo(item.ENTRADA)}</td>
                         <td>
                             <button class="btn-tabela btn-cor-agendar" onclick="abrirModal('${item.PLACA}')">📅 AGENDAR</button>
                             <button class="btn-tabela btn-cor-whats" onclick="mandarWhatsApp('${item.TELEFONE}', '${item.PLACA}', '${item.COLETA}')">📱 WHATSAPP</button>
@@ -361,24 +311,21 @@
         });
     }
 
-    // 5. FUNÇÕES DE CÁLCULO
     function verificarStatusJornada(fim) {
-        if (!fim || fim === "24 Horas") return '<span style="color:green">● JORNADA 24H</span>';
+        if (!fim || fim === "24 Horas") return '<span style="color:green">● 24H</span>';
         const [h, m] = fim.split(':');
         const dt = new Date(); dt.setHours(h, m, 0);
-        return (dt < new Date()) ? `<span style="color:red">● VENCIDA (${fim})</span>` : `<span style="color:green">● EM DIA (${fim})</span>`;
+        return (dt < new Date()) ? `<span style="color:red">● VENCIDA</span>` : `<span style="color:green">● OK</span>`;
     }
 
     function calcularDiferencaTempo(entrada) {
         if(!entrada) return "0m";
-        const p = entrada.split(', ');
-        const d = p[0].split('/'); const h = p[1].split(':');
+        const p = entrada.split(', '); const d = p[0].split('/'); const h = p[1].split(':');
         const dIn = new Date(d[2], d[1]-1, d[0], h[0], h[1]);
         const diff = Math.floor((new Date() - dIn) / 60000);
         return diff > 60 ? Math.floor(diff/60) + "h " + (diff%60) + "m" : diff + " min";
     }
 
-    // 6. FUNÇÕES DO MODAL
     function abrirModal(placa) {
         document.getElementById('inputPlacaOculta').value = placa;
         document.getElementById('txtPlacaModal').innerText = "PLACA: " + placa;
@@ -406,11 +353,10 @@
         });
     }
 
-    // 7. ENVIO DO FORMULÁRIO DO MOTORISTA
     document.getElementById('formCadastro').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnSalvarTudo');
-        btn.innerText = "ENVIANDO DADOS...";
+        btn.innerText = "ENVIANDO...";
 
         const payload = {
             "PLACA": document.getElementById('placaVeiculo').value,
@@ -428,7 +374,7 @@
     function acessoAdmin() { if (prompt("Senha Raízen:") === "raizen2026") { document.getElementById('tela-entrada-motorista').style.display='none'; document.getElementById('admin-panel').style.display='block'; recarregarDadosTabela(); } }
     
     function concluirOperacao(placa) { 
-        if(confirm("Deseja finalizar a descarga deste veículo?")) {
+        if(confirm("Deseja finalizar a descarga?")) {
             fetch(`${ENDPOINT}/PLACA/${placa}`, { 
                 method: 'PATCH', 
                 headers: {'Content-Type': 'application/json'}, 
@@ -440,7 +386,7 @@
     function mandarWhatsApp(tel, placa, coleta) {
         const baia = prompt("Informe a BAIA de descarga:");
         if(baia) {
-            const mensagem = `*RAÍZEN - ÁREA 2*%0APLACA: *${placa}*%0ACOLETA: *${coleta || 'Pendente'}*%0ABAIA: *${baia}*%0A%0AFavor entrar para descarga imediatamente.`;
+            const mensagem = `*RAÍZEN - ÁREA 2*%0APLACA: *${placa}*%0ACOLETA: *${coleta || 'Pendente'}*%0ABAIA: *${baia}*%0A%0AFavor entrar para descarga.`;
             window.open(`https://web.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=${mensagem}`);
         }
     }
