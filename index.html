@@ -2,474 +2,326 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RAÍZEN | GESTÃO TÉCNICA DE TERMINAIS</title>
+    <title>RAÍZEN - PORTAL COLETA V9.0</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* CONFIGURAÇÕES GLOBAIS DE DESIGN */
         :root {
-            --raizen-green: #4d6d5d;
-            --raizen-purple: #84207d;
-            --raizen-gold: #ffc107;
-            --danger: #e74c3c;
-            --success: #27ae60;
-            --bg-body: #f4f7f6;
-            --white: #ffffff;
-            --shadow-premium: 0 15px 35px rgba(0,0,0,0.15);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --verde-raizen: #4d6d5d;
+            --roxo-raizen: #84207d;
+            --ouro-raizen: #ffc107;
+            --fundo: #f0f2f5;
+            --branco: #ffffff;
+            --shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
 
         body { 
-            font-family: 'Montserrat', sans-serif; 
-            background-color: var(--bg-body); 
+            background-color: var(--fundo); 
             margin: 0; 
-            padding: 0;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh;
-            color: #333;
-        }
-
-        /* HEADER ULTRA ROBUSTO */
-        header { 
-            background-color: var(--raizen-green); 
-            width: 100%; 
-            padding: 45px 0; 
-            text-align: center; 
-            border-bottom: 12px solid var(--raizen-purple); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 100;
-        }
-
-        .header-content {
+            padding-bottom: 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
         }
 
-        .svg-container {
+        /* HEADER COM IDENTIDADE VISUAL */
+        header { 
+            background: linear-gradient(135deg, var(--verde-raizen) 0%, #2d3e35 100%); 
+            width: 100%; 
+            padding: 40px 0; 
+            text-align: center; 
+            border-bottom: 12px solid var(--roxo-raizen); 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .logo-container {
             background: rgba(255,255,255,0.1);
-            padding: 15px 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(5px);
+            display: inline-block;
+            padding: 20px 40px;
+            border-radius: 25px;
+            backdrop-filter: blur(8px);
+            margin-bottom: 15px;
         }
 
-        header h1 { 
-            color: var(--white); 
-            margin: 0; 
-            font-size: 24px; 
-            text-transform: uppercase; 
-            letter-spacing: 6px; 
-            font-weight: 300;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+        header h1 { color: var(--branco); margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 4px; font-weight: 400; }
 
-        /* ESTRUTURA DOS CARDS */
-        .container-master { 
-            width: 94%; 
+        /* CARD MASTER */
+        .card-sistema { 
+            width: 95%; 
             max-width: 850px; 
-            margin: 40px auto; 
-            background: var(--white); 
+            margin: 30px auto; 
+            background: var(--branco); 
             padding: 45px; 
             border-radius: 40px; 
-            box-shadow: var(--shadow-premium); 
-            border-left: 15px solid var(--raizen-purple);
+            box-shadow: var(--shadow); 
+            border-left: 15px solid var(--roxo-raizen);
             position: relative;
-            overflow: hidden;
         }
 
-        /* PAINEL ADMIN COM LARGURA DINÂMICA PARA MONITORES GRANDES */
-        #painel-operacional-admin { 
-            display: none; 
-            width: 98%; 
-            max-width: 1800px; 
-            margin: 20px auto;
-        }
+        #painel-admin-full { display: none; width: 98%; max-width: 1780px; }
 
-        h2 { 
-            color: var(--raizen-purple); 
-            text-align: center; 
-            font-size: 30px; 
-            font-weight: 800;
-            margin-bottom: 35px;
-            text-transform: uppercase;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
-        }
+        h2 { color: var(--roxo-raizen); text-align: center; font-weight: 900; text-transform: uppercase; border-bottom: 3px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 35px; }
 
-        /* ESTILIZAÇÃO DE INPUTS E FORMULÁRIOS */
-        .form-group { margin-bottom: 25px; position: relative; }
+        /* FORMULÁRIO TÉCNICO */
+        .campo-caixa { margin-bottom: 25px; }
         
-        label { 
-            display: block; 
-            margin-bottom: 10px; 
-            font-weight: 700; 
-            color: var(--raizen-green); 
-            font-size: 13px; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        label { display: block; margin-bottom: 10px; font-weight: 700; color: var(--verde-raizen); font-size: 13px; text-transform: uppercase; }
 
         input, select { 
             width: 100%; 
             padding: 20px; 
-            border: 2px solid #e0e0e0; 
+            border: 2px solid #e2e8f0; 
             border-radius: 18px; 
             font-size: 18px; 
-            background: #fafafa;
-            color: #2c3e50;
-            font-weight: 600;
-            transition: var(--transition);
+            background: #f8fafc;
+            font-weight: 700;
         }
 
-        input:focus, select:focus { 
-            border-color: var(--raizen-purple); 
-            background: #fff; 
-            outline: none; 
-            box-shadow: 0 0 15px rgba(132, 32, 125, 0.1);
-        }
+        input:focus { border-color: var(--roxo-raizen); outline: none; background: #fff; }
 
         .btn-confirmar { 
             width: 100%; 
             padding: 25px; 
-            background: linear-gradient(135deg, var(--raizen-purple) 0%, #63175d 100%);
+            background: var(--roxo-raizen); 
             color: white; 
             border: none; 
-            border-radius: 20px; 
-            font-size: 24px; 
-            font-weight: 800; 
+            border-radius: 22px; 
+            font-size: 22px; 
+            font-weight: 900; 
             cursor: pointer; 
-            box-shadow: 0 8px 20px rgba(132, 32, 125, 0.3);
             text-transform: uppercase;
-            margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(132, 32, 125, 0.3);
         }
 
-        /* TABELA DE GESTÃO TÉCNICA */
-        .overflow-control { 
-            overflow-x: auto; 
-            border-radius: 25px; 
-            border: 1px solid #ddd; 
-            background: #fff;
-            margin-top: 20px;
-        }
-
+        /* TABELA DE OPERAÇÃO */
+        .tabela-alinhada { overflow-x: auto; border-radius: 25px; border: 1px solid #ddd; background: #fff; }
         table { width: 100%; border-collapse: collapse; min-width: 1500px; }
-        
-        th { 
-            background: var(--raizen-green); 
-            color: white; 
-            padding: 25px 15px; 
-            text-transform: uppercase; 
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
+        th { background: #1e293b; color: white; padding: 22px; font-size: 12px; text-transform: uppercase; }
+        td { padding: 18px; border-bottom: 1px solid #eee; text-align: center; font-weight: 700; font-size: 16px; }
 
-        td { 
-            padding: 22px 15px; 
-            border-bottom: 1px solid #eee; 
-            text-align: center; 
-            font-weight: 700; 
-            font-size: 16px; 
-        }
+        /* BADGES */
+        .badge { padding: 8px 15px; border-radius: 10px; color: white; font-size: 11px; display: inline-block; min-width: 110px; }
+        .b-gas { background: #f39c12; color: #000; }
+        .b-bio { background: #000; }
+        .b-eta { background: #27ae60; }
 
-        /* BADGES DE PRODUTO */
-        .status-badge { 
-            padding: 10px 18px; 
-            border-radius: 12px; 
-            color: white; 
-            font-size: 11px; 
-            font-weight: 800; 
-            display: inline-block; 
-            min-width: 110px;
-        }
-        .bg-gasolina { background: #f39c12; color: #000; }
-        .bg-biodiesel { background: #1a1a1a; }
-        .bg-etanol { background: #27ae60; }
-        .bg-s10 { background: #7f8c8d; }
+        .btn-tab { border: none; border-radius: 12px; padding: 14px; font-weight: 900; cursor: pointer; width: 100%; color: white; text-transform: uppercase; font-size: 10px; margin-bottom: 5px; }
+        .btn-zap { background: #25D366; }
+        .btn-checkout { background: #3498db; }
 
-        /* BOTÕES DE AÇÃO NA TABELA */
-        .btn-action { 
-            border: none; 
-            border-radius: 12px; 
-            padding: 15px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            width: 100%; 
-            color: white; 
-            text-transform: uppercase; 
-            font-size: 11px; 
-            margin-bottom: 6px;
-            transition: var(--transition);
-        }
-        .btn-zap-green { background: #25D366; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2); }
-        .btn-out-blue { background: #3498db; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2); }
-
-        /* ACESSO AO OPERADOR - ALTA VISIBILIDADE */
-        .admin-link-box {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            border-top: 1px dashed #ccc;
-        }
-
-        .admin-link-box button {
-            background: #eee;
-            color: var(--raizen-purple);
-            border: 2px solid var(--raizen-purple);
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-weight: 800;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-size: 13px;
-            transition: var(--transition);
-        }
-
-        .admin-link-box button:hover {
-            background: var(--raizen-purple);
-            color: white;
-        }
-
-        /* ANIMAÇÃO DE LOADING */
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--raizen-purple); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: inline-block; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* ACESSO OPERADOR */
+        .link-operador { margin-top: 40px; text-align: center; padding-top: 20px; border-top: 1px dashed #ccc; }
+        .link-operador button { background: none; border: 2px solid var(--roxo-raizen); color: var(--roxo-raizen); padding: 15px 35px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-content">
-        <div class="svg-container">
-            <svg width="220" height="55" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
-                <path d="M25.2 20.5c0 14.1-11.5 25.6-25.6 25.6h-2.1v12.8h-11.8V20.5h39.5zm-25.6 13.9c7.7 0 13.9-6.2 13.9-13.9s-6.2-13.9-13.9-13.9h-2.1v27.8h2.1zM65.4 58.9l-3.8-10.4H45.8l-3.8 10.4h-12.2l15.8-38.4h12.5l15.8 38.4H65.4zm-15.6-32.3l-8.2 21.9h16.4l-8.2-21.9zM88.5 20.5v38.4H76.7V20.5h11.8zM128.5 20.5L108.2 58.9h-12.5l15.8-38.4h12.5l12.5 38.4h-12.2l-3.3-10.4h-15.8l-3.3 10.4h-12.2l15.8-38.4h12.5zM140.5 20.5h32.5v10.4h-20.7v5.5h18.2v10.4h-18.2v6.6h20.7v10.4h-32.5V20.5zM180.5 20.5l25.5 28.5V20.5h11.8v38.4h-9.5l-27.8-31.5v31.5h-11.8V20.5h11.8z" fill="#ffffff"/>
-                <circle cx="275" cy="40" r="28" fill="#ffc107"/>
-            </svg>
-        </div>
-        <h1>TERMINAL PAULÍNIA | PORTAL COLETA</h1>
+    <div class="logo-container">
+        <svg width="220" height="55" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+            <path d="M25.2 20.5c0 14.1-11.5 25.6-25.6 25.6h-2.1v12.8h-11.8V20.5h39.5zm-25.6 13.9c7.7 0 13.9-6.2 13.9-13.9s-6.2-13.9-13.9-13.9h-2.1v27.8h2.1zM65.4 58.9l-3.8-10.4H45.8l-3.8 10.4h-12.2l15.8-38.4h12.5l15.8 38.4H65.4zm-15.6-32.3l-8.2 21.9h16.4l-8.2-21.9zM88.5 20.5v38.4H76.7V20.5h11.8zM128.5 20.5L108.2 58.9h-12.5l15.8-38.4h12.5l12.5 38.4h-12.2l-3.3-10.4h-15.8l-3.3 10.4h-12.2l15.8-38.4h12.5zM140.5 20.5h32.5v10.4h-20.7v5.5h18.2v10.4h-18.2v6.6h20.7v10.4h-32.5V20.5zM180.5 20.5l25.5 28.5V20.5h11.8v38.4h-9.5l-27.8-31.5v31.5h-11.8V20.5h11.8z" fill="#ffffff"/>
+            <circle cx="275" cy="40" r="28" fill="#ffc107"/>
+        </svg>
     </div>
+    <h1>TERMINAL PAULÍNIA | PORTAL COLETA</h1>
 </header>
 
-<div class="container-master" id="view-motorista">
-    <h2><i class="fa-solid fa-file-signature"></i> REGISTRO DE DESCARGA</h2>
-    <form id="formRegistroPrincipal">
-        <div class="form-group">
-            <label><i class="fa-solid fa-car-rear"></i> Placa do Caminhão / Bitrem</label>
-            <input type="text" id="reg_placa" placeholder="ABC-1234" maxlength="8" required>
+<div class="card-sistema" id="view-motorista">
+    <h2>REGISTRO DE DESCARGA</h2>
+    <form id="formularioPrincipal">
+        <div class="campo-caixa">
+            <label>Placa do Veículo</label>
+            <input type="text" id="placa" placeholder="ABC-1234" maxlength="8" required>
         </div>
 
-        <div class="form-group">
-            <label><i class="fa-solid fa-droplet"></i> Produto Carregado</label>
-            <select id="reg_produto" required>
-                <option value="">Selecione o combustível...</option>
+        <div class="campo-caixa">
+            <label>Produto</label>
+            <select id="produto" required>
+                <option value="">Selecione o produto...</option>
                 <option value="GASOLINA">GASOLINA</option>
                 <option value="BIODIESEL (B100)">BIODIESEL (B100)</option>
-                <option value="ETANOL">ETANOL (ANIDRO/HIDRATADO)</option>
+                <option value="ETANOL">ETANOL</option>
                 <option value="S10">DIESEL S10</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label><i class="fa-brands fa-whatsapp"></i> WhatsApp do Condutor (Contato)</label>
-            <input type="tel" id="reg_zap" placeholder="(19) 99999-9999" maxlength="15" required>
+        <div class="campo-caixa">
+            <label>WhatsApp (Com DDD)</label>
+            <input type="tel" id="zap" placeholder="(19) 99999-9999" maxlength="15" required>
         </div>
 
-        <div class="form-group" style="background:#fff9c4; padding:25px; border-radius:20px; border: 1px solid #fbc02d;">
-            <label><i class="fa-solid fa-clock"></i> Horário de Término da Jornada</label>
-            <input type="time" id="reg_hora" required>
-            <div style="margin-top:15px; display:flex; align-items:center; gap:12px;">
-                <input type="checkbox" id="reg_24h" style="width:22px; height:22px;">
-                <span style="font-weight:bold; color:#d32f2f; font-size:14px;">DECLARO JORNADA 24 HORAS</span>
+        <div class="campo-caixa" style="background:#fff9c4; padding:25px; border-radius:20px; border: 2px solid #fbc02d;">
+            <label>Fim da Jornada</label>
+            <input type="time" id="hora_jornada">
+            <div style="margin-top:15px; display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" id="jornada_24h" style="width:25px; height:25px;">
+                <span style="font-weight:900; color:#d32f2f;">ESTOU EM JORNADA 24 HORAS</span>
             </div>
         </div>
 
-        <button type="submit" class="btn-confirmar" id="btn_submit_global">REGISTRAR ENTRADA NO PÁTIO</button>
+        <button type="submit" class="btn-confirmar" id="btn_enviar">CONCLUIR REGISTRO</button>
     </form>
     
-    <div class="admin-link-box">
-        <button onclick="autenticarOperador()">PAINEL DE GESTÃO OPERACIONAL / OPERADOR</button>
+    <div class="link-operador">
+        <button onclick="liberarPainel()">ACESSO OPERADOR</button>
     </div>
 </div>
 
-<div class="container-master" id="painel-operacional-admin">
-    <h2><i class="fa-solid fa-tower-observation"></i> CONTROLE DE PÁTIO - ÁREA 2</h2>
-    <div class="overflow-control">
-        <table id="tabelaMaster">
+<div class="card-sistema" id="painel-admin-full">
+    <h2>PAINEL DE CONTROLE ÁREA 02</h2>
+    <div class="tabela-alinhada">
+        <table id="tabelaDados">
             <thead>
                 <tr>
                     <th>Placa</th>
                     <th>Produto</th>
                     <th>WhatsApp</th>
                     <th>Jornada</th>
-                    <th>Permanência</th>
-                    <th style="background:#fff9c4; color:#000;">AGENDAMENTO COLETA</th>
-                    <th>Ações Disponíveis</th>
+                    <th>Entrada</th>
+                    <th style="background:#fff9c4; color:black;">AGENDAMENTO COLETA</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
-            <tbody id="corpoTabela">
-                </tbody>
+            <tbody id="corpoTabela"></tbody>
         </table>
     </div>
-    <div style="margin-top:30px; display:flex; gap:20px;">
-        <button class="btn-confirmar" style="background:#2d3436; flex:1;" onclick="location.reload()">SAIR DO PAINEL</button>
-        <button class="btn-confirmar" style="background:var(--raizen-green); flex:1;" onclick="carregarDadosDaTabela()">ATUALIZAR DADOS</button>
-    </div>
+    <button class="btn-confirmar" style="background:#444; margin-top:30px;" onclick="location.reload()">VOLTAR</button>
 </div>
 
 <script>
-    /* CONFIGURAÇÕES TÉCNICAS DA API SHEETDB */
-    const CONFIG = {
-        API_BASE: 'https://sheetdb.io/api/v1/p9z83v5m0dxq5',
-        AUTH_PASS: 'raizen2026'
-    };
+    const API = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
 
-    /* MÁSCARAS DE ENTRADA (MANTIDAS CONFORME V3.7) */
-    document.getElementById('reg_placa').oninput = (e) => {
+    /* TRAVAS DE MÁSCARA - NÃO REMOVER */
+    document.getElementById('placa').oninput = e => {
         let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
         if (v.length > 3 && !isNaN(v[3])) v = v.substring(0,3) + "-" + v.substring(3,7);
         e.target.value = v.substring(0,8);
     };
 
-    document.getElementById('reg_zap').oninput = (e) => {
+    document.getElementById('zap').oninput = e => {
         let r = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
         e.target.value = !r[2] ? r[1] : '(' + r[1] + ') ' + r[2] + (r[3] ? '-' + r[3] : '');
     };
 
-    /* LÓGICA DE ENVIO DE DADOS (POST) */
-    document.getElementById('formRegistroPrincipal').onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btn_submit_global');
-        btn.innerHTML = '<span class="loader"></span> PROCESSANDO...';
-        btn.disabled = true;
+    /* LÓGICA DE WHATSAPP COM TRAVA DE SEGURANÇA (RECUPERADA) */
+    function acionarMotorista(telefone) {
+        // LIMPEZA TOTAL PARA GARANTIR APENAS NÚMEROS
+        const foneLimpo = telefone.replace(/\D/g, "");
+        
+        // TRAVA: Se não tiver 11 dígitos, impede o envio para não dar erro de número inválido
+        if(foneLimpo.length < 11) {
+            alert("ERRO: Este número está incompleto (" + foneLimpo.length + " dígitos). Corrija no cadastro.");
+            return;
+        }
 
-        const dadosParaEnvio = {
-            "PLACA": document.getElementById('reg_placa').value,
-            "PRODUTO": document.getElementById('reg_produto').value,
-            "TELEFONE": document.getElementById('reg_zap').value,
-            "JORNADA": document.getElementById('reg_24h').checked ? "24 HORAS" : document.getElementById('reg_hora').value,
+        const baia = prompt("PARA QUAL BAIA O MOTORISTA DEVE IR?");
+        if(!baia) return;
+
+        const msg = `Olá%0AMotorista vamos descarregar?%0ABaia *${baia}* - Área 02%0AObrigado!%0A%0A_Obs: aguarde a instrução do operador para entrar na baia!_`;
+        
+        // Protocolo wa.me ou api.whatsapp para forçar abertura no APP do celular
+        const url = `https://api.whatsapp.com/send?phone=55${foneLimpo}&text=${msg}`;
+        window.open(url, '_blank');
+    }
+
+    /* ENVIO DE DADOS COM VALIDAÇÃO DE JORNADA */
+    document.getElementById('formularioPrincipal').onsubmit = async e => {
+        e.preventDefault();
+        
+        // TRAVA DE WHATSAPP NO FORMULÁRIO
+        const zapVal = document.getElementById('zap').value.replace(/\D/g, "");
+        if(zapVal.length < 11) {
+            alert("TELEFONE INVÁLIDO! Use DDD + 9 + NÚMERO.");
+            return;
+        }
+
+        document.getElementById('btn_enviar').innerText = "ENVIANDO...";
+        
+        const payload = {
+            "PLACA": document.getElementById('placa').value,
+            "PRODUTO": document.getElementById('produto').value,
+            "TELEFONE": document.getElementById('zap').value,
+            "JORNADA": document.getElementById('jornada_24h').checked ? "24 HORAS" : document.getElementById('hora_jornada').value,
             "ENTRADA": new Date().toLocaleString('pt-BR'),
             "SAIDA": "",
             "AGENDAMENTO NO COLETA": ""
         };
 
-        try {
-            const response = await fetch(CONFIG.API_BASE, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify([dadosParaEnvio])
-            });
-            if(response.ok) {
-                alert("REGISTRO REALIZADO COM SUCESSO! AGUARDE NO PÁTIO.");
-                location.reload();
-            }
-        } catch (error) {
-            alert("ERRO DE CONEXÃO. TENTE NOVAMENTE.");
-            btn.disabled = false;
-            btn.innerText = "REGISTRAR ENTRADA NO PÁTIO";
-        }
+        await fetch(API, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify([payload])
+        });
+        
+        alert("REGISTRADO COM SUCESSO!");
+        location.reload();
     };
 
-    /* LÓGICA DE CHAMADA WHATSAPP - CORREÇÃO DE REDIRECIONAMENTO */
-    function chamarNoWhatsapp(tel) {
-        const baia = prompt("INFORME A BAIA DE DESCARGA (ÁREA 2):");
-        if(!baia) return;
+    /* FUNÇÕES DO PAINEL ADMIN */
+    async function carregarTabela() {
+        const corpo = document.getElementById('corpoTabela');
+        corpo.innerHTML = "<tr><td colspan='7'>Sincronizando...</td></tr>";
 
-        const foneLimpo = tel.replace(/\D/g, "");
-        const textoMsg = `Olá%0AMotorista vamos descarregar?%0ABaia *${baia}* - Área 02%0AObrigado!%0A%0A_Obs: aguarde a instrução do operador para entrar na baia!_`;
-        
-        // Protocolo api.whatsapp garante a abertura do APP e não da WEB no Android/iOS
-        const linkFinal = `https://api.whatsapp.com/send?phone=55${foneLimpo}&text=${textoMsg}`;
-        window.open(linkFinal, '_blank');
+        const res = await fetch(API + "?t=" + Date.now());
+        const dados = await res.json();
+        corpo.innerHTML = "";
+
+        dados.filter(f => f.PLACA && !f.SAIDA).forEach(i => {
+            let cBadge = i.PRODUTO.includes("GAS") ? "b-gas" : (i.PRODUTO.includes("B100") ? "b-bio" : "b-eta");
+            corpo.innerHTML += `
+                <tr>
+                    <td style="color:var(--roxo-raizen); font-size:20px;">${i.PLACA}</td>
+                    <td><span class="badge ${cBadge}">${i.PRODUTO}</span></td>
+                    <td>${i.TELEFONE}</td>
+                    <td style="color:${i.JORNADA === '24 HORAS' ? 'red' : 'black'}">${i.JORNADA}</td>
+                    <td>${i.ENTRADA.split(',')[1] || i.ENTRADA}</td>
+                    <td style="background:#fffde7;">
+                        <input type="datetime-local" id="col-${i.PLACA}" value="${i['AGENDAMENTO NO COLETA'] || ''}" style="font-size:11px; padding:5px;">
+                        <button onclick="salvarColeta('${i.PLACA}')" style="width:100%; background:var(--verde-raizen); color:white; border:none; margin-top:5px; padding:5px; border-radius:5px; cursor:pointer;">OK</button>
+                    </td>
+                    <td>
+                        <button class="btn-tab btn-zap" onclick="acionarMotorista('${i.TELEFONE}')">WHATSAPP</button>
+                        <button class="btn-tab btn-checkout" onclick="finalizar('${i.PLACA}')">SAÍDA</button>
+                    </td>
+                </tr>`;
+        });
     }
 
-    /* LÓGICA DE AGENDAMENTO NO PORTAL COLETA (PATCH) */
-    async function salvarAgendamentoColeta(placa) {
-        const valorData = document.getElementById(`coleta-${placa}`).value;
-        if(!valorData) return alert("SELECIONE UMA DATA/HORA!");
-
-        try {
-            await fetch(`${CONFIG.API_BASE}/PLACA/${placa}`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({"AGENDAMENTO NO COLETA": valorData})
-            });
-            alert("AGENDAMENTO REGISTRADO NO SISTEMA!");
-            carregarDadosDaTabela();
-        } catch (e) { alert("FALHA AO SALVAR."); }
+    async function salvarColeta(placa) {
+        const val = document.getElementById(`col-${placa}`).value;
+        await fetch(`${API}/PLACA/${placa}`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({"AGENDAMENTO NO COLETA": val})
+        });
+        alert("Agendamento Salvo!");
+        carregarTabela();
     }
 
-    /* LÓGICA DE FINALIZAÇÃO DE CARGA (PATCH) */
-    async function finalizarDescarga(placa) {
-        if(confirm(`CONFIRMAR SAÍDA DO VEÍCULO ${placa}?`)) {
-            await fetch(`${CONFIG.API_BASE}/PLACA/${placa}`, {
+    async function finalizar(placa) {
+        if(confirm("Confirmar saída do veículo " + placa + "?")) {
+            await fetch(`${API}/PLACA/${placa}`, {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({"SAIDA": new Date().toLocaleString('pt-BR')})
             });
-            carregarDadosDaTabela();
+            carregarTabela();
         }
     }
 
-    /* CARREGAMENTO DINÂMICO DA TABELA */
-    async function carregarDadosDaTabela() {
-        const corpo = document.getElementById('corpoTabela');
-        corpo.innerHTML = "<tr><td colspan='7'><span class="loader"></span> BUSCANDO DADOS NA PLANILHA...</td></tr>";
-
-        try {
-            const res = await fetch(`${CONFIG.API_BASE}?t=${Date.now()}`);
-            const baseDados = await res.json();
-            corpo.innerHTML = "";
-
-            baseDados.filter(i => i.PLACA && !i.SAIDA).forEach(item => {
-                let classeBadge = item.PRODUTO.includes("GASOLINA") ? "bg-gasolina" : 
-                                 (item.PRODUTO.includes("B100") ? "bg-biodiesel" : 
-                                 (item.PRODUTO.includes("S10") ? "bg-s10" : "bg-etanol"));
-                
-                const linha = document.createElement('tr');
-                linha.innerHTML = `
-                    <td style="color:var(--raizen-purple); font-size:18px;">${item.PLACA}</td>
-                    <td><span class="status-badge ${classeBadge}">${item.PRODUTO}</span></td>
-                    <td>${item.TELEFONE}</td>
-                    <td>${item.JORNADA}</td>
-                    <td style="font-size:12px;">${item.ENTRADA.split(',')[1] || item.ENTRADA}</td>
-                    <td style="background:#fffde7;">
-                        <input type="datetime-local" id="coleta-${item.PLACA}" value="${item['AGENDAMENTO NO COLETA'] || ''}" style="padding:8px; font-size:11px; border-radius:10px;">
-                        <button onclick="salvarAgendamentoColeta('${item.PLACA}')" style="width:100%; margin-top:5px; padding:8px; background:var(--raizen-green); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">SALVAR</button>
-                    </td>
-                    <td>
-                        <button class="btn-action btn-zap-green" onclick="chamarNoWhatsapp('${item.TELEFONE}')"><i class="fa-brands fa-whatsapp"></i> CHAMAR ZAP</button>
-                        <button class="btn-action btn-out-blue" onclick="finalizarDescarga('${item.PLACA}')"><i class="fa-solid fa-check"></i> CONCLUIR</button>
-                    </td>
-                `;
-                corpo.appendChild(linha);
-            });
-        } catch (err) {
-            corpo.innerHTML = "<tr><td colspan='7'>ERRO AO SINCRONIZAR DADOS.</td></tr>";
-        }
-    }
-
-    /* AUTENTICAÇÃO DE ACESSO */
-    function autenticarOperador() {
-        const pass = prompt("DIGITE A SENHA OPERACIONAL RAÍZEN:");
-        if(pass === CONFIG.AUTH_PASS) {
+    function liberarPainel() {
+        if(prompt("Senha:") === "raizen2026") {
             document.getElementById('view-motorista').style.display = 'none';
-            document.getElementById('painel-operacional-admin').style.display = 'block';
-            carregarDadosDaTabela();
-        } else {
-            alert("ACESSO NEGADO.");
+            document.getElementById('painel-admin-full').style.display = 'block';
+            carregarTabela();
         }
     }
-
-    // Console Log para Debug de Campo
-    console.log("Sistema Raízen Paulínia V7.0 Inicializado.");
 </script>
 </body>
 </html>
