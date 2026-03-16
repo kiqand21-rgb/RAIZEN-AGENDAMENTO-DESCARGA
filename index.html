@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RAÍZEN - GESTÃO OPERACIONAL V21.0</title>
+    <title>RAÍZEN - GESTÃO OPERACIONAL V22.0</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
@@ -94,17 +94,15 @@
         }
 
         .wrapper-campo { margin-bottom: 40px; position: relative; }
-        
         label { 
-            display: block; 
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 15px; 
             font-weight: 900; 
             color: var(--verde-raizen); 
             font-size: 16px; 
             text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 12px;
         }
 
         label i { color: var(--roxo-raizen); font-size: 20px; }
@@ -118,7 +116,6 @@
             font-weight: 700;
             background: #f8fafc;
             color: #334155;
-            transition: all 0.3s;
         }
 
         .container-jornada-exp {
@@ -137,12 +134,10 @@
             background: #ffffff;
             padding: 25px;
             border-radius: 30px;
-            margin-top: 35px;
             border: 3px solid #fde68a;
         }
 
         .check-box-24h input { width: 45px; height: 45px; accent-color: var(--cor-alerta); }
-
         .txt-check { font-weight: 900; color: var(--cor-alerta); font-size: 22px; }
 
         .btn-principal { 
@@ -159,30 +154,55 @@
             margin-bottom: 20px;
         }
 
-        .btn-reabrir-jornada { background: var(--verde-botao-reabrir); color: white; }
+        .btn-reabrir-jornada { background: var(--verde-botao-reabrir); }
+
+        /* Estilos da Tabela e Filtros */
+        .filtros-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+        .btn-filtro {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 900;
+            font-size: 14px;
+            transition: 0.3s;
+            background: #cbd5e1;
+            color: #475569;
+        }
+
+        .btn-filtro.ativo { background: var(--roxo-raizen); color: white; }
 
         .moldura-tabela { overflow-x: auto; border-radius: 20px; border: 2px solid #e2e8f0; }
         table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-        th { background: #0f172a; color: #ffffff; padding: 15px; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; }
+        th { background: #0f172a; color: #ffffff; padding: 15px; font-size: 12px; text-transform: uppercase; }
         td { padding: 15px; border-bottom: 4px solid #f1f5f9; text-align: center; font-weight: 800; font-size: 16px; }
 
         .tag-prod { padding: 10px 15px; border-radius: 15px; font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 180px; text-transform: uppercase; }
-        .tag-gasosa { background: #ff8c00; color: #fff; border: 2px solid #e67e00; } 
-        .tag-b100 { background: #5d4037; color: #fff; border: 2px solid #3e2723; } 
-        .tag-anidro { background: #0056b3; color: #fff; border: 2px solid #003d80; } 
-        .tag-hidratado { background: #ffffff; color: #0056b3; border: 5px solid #0056b3; } 
-        .tag-s10 { background: #ffffff; color: #5d4037; border: 5px solid #5d4037; } 
+        .tag-gasosa { background: #ff8c00; color: #fff; } 
+        .tag-b100 { background: #5d4037; color: #fff; } 
+        .tag-anidro { background: #0056b3; color: #fff; } 
+        .tag-hidratado { background: #ffffff; color: #0056b3; border: 2px solid #0056b3; } 
+        .tag-s10 { background: #ffffff; color: #5d4037; border: 2px solid #5d4037; } 
 
-        .box-semaforo { padding: 10px 15px; border-radius: 30px; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; }
-        .semaforo-verde { background: #dcfce7; color: #166534; border: 3px solid var(--cor-sucesso); }
-        .semaforo-vermelho { background: #fee2e2; color: #991b1b; border: 3px solid var(--cor-alerta); }
+        .box-semaforo { padding: 10px 15px; border-radius: 30px; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .semaforo-verde { background: #dcfce7; color: #166534; border: 2px solid var(--cor-sucesso); }
+        .semaforo-vermelho { background: #fee2e2; color: #991b1b; border: 2px solid var(--cor-alerta); }
         .circulo-led { width: 12px; height: 12px; border-radius: 50%; }
-        .led-g { background: #10b981; box-shadow: 0 0 12px #10b981; }
-        .led-r { background: #ef4444; box-shadow: 0 0 12px #ef4444; }
+        .led-g { background: #10b981; }
+        .led-r { background: #ef4444; }
 
-        .btn-w-whatsapp { background: #22c55e; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 8px; font-weight: 900; font-size: 13px; }
-        .btn-f-finalizar { background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 900; font-size: 13px; }
-
+        .btn-w-whatsapp { background: #22c55e; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 8px; font-weight: 900; }
+        .btn-f-finalizar { background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 900; }
         #status-atualizacao { text-align: center; font-size: 14px; color: #64748b; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
@@ -252,6 +272,15 @@
 
 <div id="secao-operador">
     <h2><i class="fa-solid fa-list-check"></i> FILA DE DESCARGA - ÁREA 02</h2>
+
+    <div class="filtros-container">
+        <button class="btn-filtro ativo" onclick="filtrar('TODOS', this)">TODOS</button>
+        <button class="btn-filtro" onclick="filtrar('GASOLINA', this)">GASOLINA</button>
+        <button class="btn-filtro" onclick="filtrar('DIESEL', this)">DIESEL</button>
+        <button class="btn-filtro" onclick="filtrar('ANIDRO', this)">ANIDRO</button>
+        <button class="btn-filtro" onclick="filtrar('HIDRATADO', this)">HIDRATADO</button>
+    </div>
+
     <div id="status-atualizacao">Sincronizando...</div>
     <div class="moldura-tabela">
         <table id="tabelaMaster">
@@ -273,31 +302,18 @@
 </div>
 
 <script>
-    // CONFIGURAÇÃO SUPABASE
     const SUPABASE_URL = 'https://rbbkjuiizmvatiawfzuv.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_WkrHi6cWtZsnsDXl0nh1hA_kz1UT_1X';
-    const HEADERS = { 
-        "apikey": SUPABASE_KEY, 
-        "Authorization": `Bearer ${SUPABASE_KEY}`, 
-        "Content-Type": "application/json",
-        "Prefer": "return=minimal"
-    };
-
+    const HEADERS = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" };
     const SENHA_OP = 'raizen2026';
-    let ultimaQuantidade = 0;
-    let monitorAtivo = false;
+    
+    let dadosCache = [];
+    let filtroAtual = 'TODOS';
 
-    // --- INTERFACE ---
-    function mudarParaReabrir() {
-        document.getElementById('container-registro').style.display = 'none';
-        document.getElementById('container-reabrir').style.display = 'block';
-    }
-    function mudarParaNormal() {
-        document.getElementById('container-reabrir').style.display = 'none';
-        document.getElementById('container-registro').style.display = 'block';
-    }
+    // --- UTILITÁRIOS ---
+    function mudarParaReabrir() { document.getElementById('container-registro').style.display = 'none'; document.getElementById('container-reabrir').style.display = 'block'; }
+    function mudarParaNormal() { document.getElementById('container-reabrir').style.display = 'none'; document.getElementById('container-registro').style.display = 'block'; }
 
-    // --- MÁSCARAS ---
     function formatarPlaca(el) {
         let v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
         if (v.length > 3 && !isNaN(v[3])) v = v.substring(0,3) + "-" + v.substring(3,7);
@@ -314,7 +330,6 @@
         document.getElementById('box-horario-input').style.display = this.checked ? 'none' : 'block';
     });
 
-    // --- LÓGICA DE NEGÓCIO ---
     function gerarSemaforo(valor) {
         if(valor === "24 HORAS") return `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> 24H</div>`;
         const agora = new Date();
@@ -325,82 +340,64 @@
         return (agora > limite) ? `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> ${valor}</div>` : `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> ${valor}</div>`;
     }
 
-    function enviarNotificacao(placa) {
-        if (Notification.permission === "granted") {
-            new Notification("NOVA DESCARGA!", {
-                body: `Nova placa registrada: ${placa}`,
-                icon: 'https://cdn-icons-png.flaticon.com/512/71/71240.png'
-            });
-        }
-    }
-
-    // --- FUNÇÕES SUPABASE ---
+    // --- SUPABASE CORE ---
     async function sincronizarFila() {
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/registros?SAIDA=is.null&select=*`, { headers: HEADERS });
-            let ativos = await res.json();
-
-            // Ordenação: Agendados no topo, depois por ID (ordem de chegada)
-            ativos.sort((a, b) => {
-                if (a.AGENDAMENTO && !b.AGENDAMENTO) return -1;
-                if (!a.AGENDAMENTO && b.AGENDAMENTO) return 1;
-                if (a.AGENDAMENTO && b.AGENDAMENTO) return new Date(a.AGENDAMENTO) - new Date(b.AGENDAMENTO);
-                return a.id - b.id;
-            });
-
-            if (monitorAtivo && ativos.length > ultimaQuantidade) {
-                enviarNotificacao(ativos[ativos.length-1].PLACA);
-            }
-            ultimaQuantidade = ativos.length; monitorAtivo = true;
-
-            const corpo = document.getElementById('dadosFila');
-            corpo.innerHTML = "";
-            ativos.forEach(item => {
-                let cl = "";
-                if(item.PRODUTO.includes("GASOLINA")) cl = "tag-gasosa";
-                else if(item.PRODUTO.includes("BIODIESEL")) cl = "tag-b100";
-                else if(item.PRODUTO.includes("ANIDRO")) cl = "tag-anidro";
-                else if(item.PRODUTO.includes("HIDRATADO")) cl = "tag-hidratado";
-                else cl = "tag-s10";
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="color:var(--roxo-raizen); font-size:20px;">${item.PLACA}</td>
-                    <td><span class="tag-prod ${cl}">${item.PRODUTO}</span></td>
-                    <td style="font-size:14px;">${item.TELEFONE}</td>
-                    <td>${gerarSemaforo(item.JORNADA)}</td>
-                    <td style="font-size:14px;">${item.ENTRADA}</td>
-                    <td style="background:#fffde7;">
-                        <input type="datetime-local" id="ag-${item.id}" value="${item.AGENDAMENTO || ''}" style="width:170px; font-size:12px; padding:10px;">
-                        <button onclick="salvarAgenda('${item.id}')" style="background:var(--verde-raizen); color:white; border:none; padding:8px; border-radius:8px; cursor:pointer; font-weight:900;">OK</button>
-                    </td>
-                    <td>
-                        <button class="btn-w-whatsapp" onclick="chamarMotorista('${item.TELEFONE}','${item.PLACA}')">CONVOCAR</button>
-                        <button class="btn-f-finalizar" onclick="finalizar('${item.id}')">FIM</button>
-                    </td>
-                `;
-                corpo.appendChild(tr);
-            });
+            dadosCache = await res.json();
+            renderizarTabela();
             document.getElementById('status-atualizacao').innerHTML = "Sincronizado: " + new Date().toLocaleTimeString();
         } catch (e) { console.error(e); }
     }
 
-    async function salvarReabertura() {
-        const placa = document.getElementById('reabrir_placa').value.toUpperCase();
-        const hora = document.getElementById('reabrir_hora').value;
-        if(!placa || !hora) return alert("Preencha Placa e Hora!");
-        
-        const resCheck = await fetch(`${SUPABASE_URL}/rest/v1/registros?PLACA=eq.${placa}&SAIDA=is.null&select=id`, { headers: HEADERS });
-        const data = await resCheck.json();
+    function renderizarTabela() {
+        const corpo = document.getElementById('dadosFila');
+        corpo.innerHTML = "";
 
-        if(data.length > 0) {
-            await fetch(`${SUPABASE_URL}/rest/v1/registros?id=eq.${data[0].id}`, {
-                method: 'PATCH',
-                headers: HEADERS,
-                body: JSON.stringify({ "JORNADA": hora })
-            });
-            alert("JORNADA REABERTA!"); location.reload();
-        } else alert("PLACA NÃO ENCONTRADA NO PÁTIO!");
+        // ORDENAÇÃO: Agendados no TOPO (por horário) e depois por entrada
+        let ativos = [...dadosCache].sort((a, b) => {
+            const timeA = a.AGENDAMENTO ? new Date(a.AGENDAMENTO).getTime() : Infinity;
+            const timeB = b.AGENDAMENTO ? new Date(b.AGENDAMENTO).getTime() : Infinity;
+            
+            if (timeA !== timeB) return timeA - timeB; // Agendados mais cedo primeiro
+            return new Date(a.created_at) - new Date(b.created_at); // Depois ordem de chegada
+        });
+
+        // FILTRO
+        if (filtroAtual !== 'TODOS') {
+            ativos = ativos.filter(x => x.PRODUTO.includes(filtroAtual));
+        }
+
+        ativos.forEach(item => {
+            let cl = item.PRODUTO.includes("GASOLINA") ? "tag-gasosa" : item.PRODUTO.includes("BIODIESEL") ? "tag-b100" : item.PRODUTO.includes("ANIDRO") ? "tag-anidro" : item.PRODUTO.includes("HIDRATADO") ? "tag-hidratado" : "tag-s10";
+            
+            const tr = document.createElement('tr');
+            if(item.AGENDAMENTO) tr.style.backgroundColor = "#fff9c444"; // Destaque visual
+
+            tr.innerHTML = `
+                <td style="color:var(--roxo-raizen); font-size:20px;">${item.PLACA}</td>
+                <td><span class="tag-prod ${cl}">${item.PRODUTO}</span></td>
+                <td style="font-size:14px;">${item.TELEFONE}</td>
+                <td>${gerarSemaforo(item.JORNADA)}</td>
+                <td style="font-size:14px;">${item.ENTRADA}</td>
+                <td style="background:#fffde7;">
+                    <input type="datetime-local" id="ag-${item.id}" value="${item.AGENDAMENTO || ''}" style="width:170px; font-size:12px; padding:10px; border:2px solid orange;">
+                    <button onclick="salvarAgenda('${item.id}')" style="background:var(--verde-raizen); color:white; border:none; padding:8px; border-radius:8px; cursor:pointer; font-weight:900;">OK</button>
+                </td>
+                <td>
+                    <button class="btn-w-whatsapp" onclick="chamarMotorista('${item.TELEFONE}','${item.PLACA}')">CONVOCAR</button>
+                    <button class="btn-f-finalizar" onclick="finalizar('${item.id}')">FIM</button>
+                </td>
+            `;
+            corpo.appendChild(tr);
+        });
+    }
+
+    function filtrar(tipo, btn) {
+        filtroAtual = tipo;
+        document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('ativo'));
+        btn.classList.add('ativo');
+        renderizarTabela();
     }
 
     async function salvarAgenda(id) {
@@ -424,20 +421,33 @@
         }
     }
 
+    async function salvarReabertura() {
+        const placa = document.getElementById('reabrir_placa').value.toUpperCase();
+        const hora = document.getElementById('reabrir_hora').value;
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/registros?PLACA=eq.${placa}&SAIDA=is.null`, { headers: HEADERS });
+        const dados = await res.json();
+        if(dados.length > 0) {
+            await fetch(`${SUPABASE_URL}/rest/v1/registros?id=eq.${dados[0].id}`, {
+                method: 'PATCH',
+                headers: HEADERS,
+                body: JSON.stringify({ "JORNADA": hora })
+            });
+            alert("JORNADA ATUALIZADA!"); location.reload();
+        } else alert("PLACA NÃO ENCONTRADA!");
+    }
+
     function chamarMotorista(tel, placa) {
         const baia = prompt("PARA QUAL BAIA O VEÍCULO " + placa + " DEVE IR?");
-        if(!baia) return;
-        window.open(`https://api.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=Olá%0AMotorista vamos descarregar?%0ABaia ${baia}`, '_blank');
+        if(baia) window.open(`https://api.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=Olá%0AMotorista vamos descarregar?%0ABaia ${baia}`, '_blank');
     }
 
     function acessoOperador() {
         if(prompt("SENHA:") === SENHA_OP) {
             document.getElementById('modulo-entrada').style.display = 'none';
             document.getElementById('secao-operador').style.display = 'block';
-            if (Notification.permission !== "granted") { Notification.requestPermission(); }
             sincronizarFila();
             setInterval(sincronizarFila, 15000);
-        } else { alert("Senha Incorreta!"); }
+        }
     }
 
     document.getElementById('formDescarga').onsubmit = async e => {
@@ -449,11 +459,7 @@
             "JORNADA": document.getElementById('check_jornada_24h').checked ? "24 HORAS" : document.getElementById('campo_hora_limite').value,
             "ENTRADA": new Date().toLocaleString('pt-BR')
         };
-        await fetch(`${SUPABASE_URL}/rest/v1/registros`, {
-            method: 'POST',
-            headers: HEADERS,
-            body: JSON.stringify(dados)
-        });
+        await fetch(`${SUPABASE_URL}/rest/v1/registros`, { method: 'POST', headers: HEADERS, body: JSON.stringify(dados) });
         alert("REGISTRO ENVIADO!"); location.reload();
     };
 </script>
