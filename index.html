@@ -18,7 +18,7 @@
             --cor-alerta: #e11d48;
             --cor-sucesso: #10b981;
             --cor-texto: #1e293b;
-            --verde-botao-reabrir: #3d5446; /* Cor extraída da sua imagem */
+            --verde-botao-reabrir: #3d5446; 
         }
 
         * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
@@ -164,7 +164,6 @@
             color: white;
         }
 
-        /* Estilos da Tabela Operador */
         .moldura-tabela { overflow-x: auto; border-radius: 20px; border: 2px solid #e2e8f0; }
         table { width: 100%; border-collapse: collapse; min-width: 1200px; }
         th { background: #0f172a; color: #ffffff; padding: 15px; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; }
@@ -202,7 +201,6 @@
 </header>
 
 <div class="card-industrial" id="modulo-entrada">
-    
     <div id="container-registro">
         <h2><i class="fa-solid fa-file-signature"></i> REGISTRO DE ENTRADA</h2>
         <form id="formDescarga">
@@ -214,7 +212,7 @@
                 <label><i class="fa-solid fa-droplet"></i> PRODUTO CARREGADO</label>
                 <select id="campo_produto" required>
                     <option value="">-- SELECIONE O PRODUTO --</option>
-                    <option value="GASOLINA COMUM / ADITIVADA">GASOLINA COMUM / ADITIVADA</option>
+                    <option value="GASOLINA">GASOLINA</option>
                     <option value="BIODIESEL (B100)">BIODIESEL (B100)</option>
                     <option value="ETANOL ANIDRO">ETANOL ANIDRO</option>
                     <option value="ETANOL HIDRATADO">ETANOL HIDRATADO</option>
@@ -287,6 +285,11 @@
     let ultimaQuantidade = 0;
     let monitorAtivo = false;
 
+    // --- SERVICE WORKER PARA MOBILE ---
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi.JhZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgKCkgPT4gc2VsZi5za2lwV2FpdGluZygpKTs=').catch(() => {});
+    }
+
     function mudarParaReabrir() {
         document.getElementById('container-registro').style.display = 'none';
         document.getElementById('container-reabrir').style.display = 'block';
@@ -312,20 +315,31 @@
         document.getElementById('box-horario-input').style.display = this.checked ? 'none' : 'block';
     });
 
-    // --- LÓGICA DO SEMÁFORO (CORRIGIDA PARA 24 HORAS) ---
     function gerarSemaforo(valor) {
-        // Se for 24 HORAS, forçamos o Verde porque nunca vence.
-        if(valor === "24 HORAS") {
-            return `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> 24H</div>`;
-        }
-        
+        if(valor === "24 HORAS") return `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> 24H</div>`;
         const agora = new Date();
         const t = valor.split(':');
         if(t.length < 2) return valor;
         const limite = new Date(); 
         limite.setHours(t[0], t[1], 0);
-        
         return (agora > limite) ? `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> ${valor}</div>` : `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> ${valor}</div>`;
+    }
+
+    function enviarNotificacao(placa) {
+        if (Notification.permission === "granted") {
+            const options = {
+                body: `Nova placa registrada: ${placa}`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/71/71240.png',
+                vibrate: [200, 100, 200],
+                tag: 'nova-descarga'
+            };
+            // Tenta via Service Worker (melhor para Mobile)
+            navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification("NOVA DESCARGA!", options);
+            }).catch(() => {
+                new Notification("NOVA DESCARGA!", options);
+            });
+        }
     }
 
     async function sincronizarFila() {
@@ -335,9 +349,7 @@
             let ativos = json.filter(x => x.PLACA && !x.SAIDA);
 
             if (monitorAtivo && ativos.length > ultimaQuantidade) {
-                if (Notification.permission === "granted") {
-                    new Notification("NOVA DESCARGA!", { body: `Placa: ${ativos[ativos.length-1].PLACA}` });
-                }
+                enviarNotificacao(ativos[ativos.length-1].PLACA);
             }
             ultimaQuantidade = ativos.length; monitorAtivo = true;
 
@@ -404,7 +416,13 @@
         if(prompt("SENHA:") === SENHA_OP) {
             document.getElementById('modulo-entrada').style.display = 'none';
             document.getElementById('secao-operador').style.display = 'block';
-            if (Notification.permission !== "granted") Notification.requestPermission();
+            if (Notification.permission !== "granted") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        enviarNotificacao("Sistema de Notificações Ativado!");
+                    }
+                });
+            }
             sincronizarFila();
             setInterval(sincronizarFila, 15000);
         } else { alert("Senha Incorreta!"); }
