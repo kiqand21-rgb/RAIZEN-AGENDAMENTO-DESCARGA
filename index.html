@@ -305,16 +305,33 @@
         <button class="btn-principal" style="background:#475569; padding: 20px; font-size: 18px;" onclick="location.reload()">SAIR</button>
         <button class="btn-principal" style="background:var(--verde-raizen); padding: 20px; font-size: 18px;" onclick="sincronizarFila()">ATUALIZAR</button>
     </div>
+    <div style="margin-top: 30px; text-align: center;">
+        <button onclick="testarNotificacao()" style="background:#ddd; border:1px solid #999; padding:10px; border-radius:10px; font-size:12px; cursor:pointer;">TESTAR ALERTA DO NAVEGADOR</button>
+    </div>
 </div>
 
 <script>
     const API_URL = 'https://sheetdb.io/api/v1/p9z83v5m0dxq5';
     const SENHA_OP = 'raizen2026';
-    let ultimaQuantidade = 0; // Para monitorar novos registros
+    let ultimaQuantidade = 0; 
 
-    // PEDE PERMISSÃO PARA NOTIFICAR LOGO QUE ABRE
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission();
+    // SOLICITAÇÃO REFORÇADA DE PERMISSÃO
+    function solicitarPermissao() {
+        if (!("Notification" in window)) {
+            alert("Este navegador não suporta notificações de desktop");
+        } else if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    }
+    solicitarPermissao();
+
+    function testarNotificacao() {
+        if (Notification.permission === "granted") {
+            new Notification("RAÍZEN: Teste de Alerta", { body: "As notificações estão funcionando!" });
+        } else {
+            alert("Permissão de notificação negada. Ative no cadeado da URL.");
+            Notification.requestPermission();
+        }
     }
 
     document.getElementById('check_jornada_24h').addEventListener('change', function() {
@@ -388,13 +405,12 @@
         const json = await res.json();
         let ativos = json.filter(x => x.PLACA && !x.SAIDA);
 
-        // LÓGICA DE NOTIFICAÇÃO: Se o número de ativos aumentou, notifica!
+        // DISPARA NOTIFICAÇÃO SE HOUVER NOVOS
         if (ativos.length > ultimaQuantidade && ultimaQuantidade !== 0) {
-            const novo = ativos[ativos.length - 1];
             if (Notification.permission === "granted") {
-                new Notification("NOVA CHEGADA NO PÁTIO!", {
-                    body: `Veículo Placa: ${novo.PLACA}\nProduto: ${novo.PRODUTO}`,
-                    icon: "https://lh3.googleusercontent.com/pw/AP1GczPrU_K0hO..." // Link icon Raizen se tiver
+                new Notification("NOVA CHEGADA!", {
+                    body: `Placa: ${ativos[ativos.length-1].PLACA} chegou para descarga.`,
+                    requireInteraction: true // A notificação fica na tela até você fechar
                 });
             }
         }
@@ -430,8 +446,8 @@
         });
     }
 
-    // AUTO-ATUALIZA A CADA 30 SEGUNDOS PARA CHECAR NOVOS MOTORISTAS
-    setInterval(sincronizarFila, 30000);
+    // ATUALIZA A CADA 20 SEGUNDOS
+    setInterval(sincronizarFila, 20000);
 
     async function salvarAgenda(placa) {
         const val = document.getElementById(`ag-${placa}`).value;
