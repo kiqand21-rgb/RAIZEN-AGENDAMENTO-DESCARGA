@@ -214,6 +214,7 @@
 
         .btn-w-whatsapp { background: #22c55e; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 8px; font-weight: 900; font-size: 13px; }
         .btn-f-finalizar { background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 900; font-size: 13px; }
+        .btn-r-renovar { background: #ffc107; color: #000; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 8px; font-weight: 900; font-size: 13px; }
 
         .loader-raizen {
             border: 6px solid rgba(255,255,255,0.2);
@@ -288,7 +289,7 @@
     <h2><i class="fa-solid fa-list-check"></i> FILA DE DESCARGA - ÁREA 02</h2>
     
     <div id="status-atualizacao">
-        <i class="fa-solid fa-sync fa-spin"></i> Sincronizando com a planilha...
+        <i class="fa-solid fa-sync fa-spin"></i> Sincronizando dados...
     </div>
 
     <div style="margin-bottom:30px; margin-top: 15px;">
@@ -318,10 +319,6 @@
         <button class="btn-principal" style="background:#475569; padding: 20px; font-size: 18px;" onclick="location.reload()">SAIR</button>
         <button class="btn-principal" style="background:var(--verde-raizen); padding: 20px; font-size: 18px;" onclick="sincronizarFila()">FORÇAR ATUALIZAÇÃO</button>
     </div>
-
-    <div style="margin-top: 30px; text-align: center;">
-        <button onclick="testarNotificacao()" style="background:#ddd; border:1px solid #999; padding:10px; border-radius:10px; font-size:12px; cursor:pointer;">TESTAR ALERTA DO NAVEGADOR</button>
-    </div>
 </div>
 
 <script>
@@ -330,18 +327,8 @@
     let ultimaQuantidade = 0; 
     let monitorAtivo = false;
 
-    // PEDE PERMISSÃO ASSIM QUE ENTRA
     if (Notification.permission !== "granted") {
         Notification.requestPermission();
-    }
-
-    function testarNotificacao() {
-        if (Notification.permission === "granted") {
-            new Notification("SISTEMA RAÍZEN", { body: "As notificações automáticas estão ativadas!" });
-        } else {
-            alert("Ative as notificações no cadeado da barra de endereço!");
-            Notification.requestPermission();
-        }
     }
 
     document.getElementById('check_jornada_24h').addEventListener('change', function() {
@@ -367,6 +354,14 @@
         if(!baia) return;
         const msg = `Olá%0AMotorista vamos descarregar?%0ABaia ${baia} - Área 02%0AObrigado!%0A%0AObs: aguarde a instrução do operador para entrar na baia!`;
         window.open(`https://api.whatsapp.com/send?phone=55${num}&text=${msg}`, '_blank');
+    }
+
+    async function renovarJornada(placa) {
+        const novaHora = prompt("DIGITE O NOVO HORÁRIO DE TÉRMINO (Ex: 22:00) OU ESCREVA '24 HORAS':");
+        if(novaHora) {
+            await fetch(`${API_URL}/PLACA/${placa}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({"JORNADA": novaHora}) });
+            sincronizarFila();
+        }
     }
 
     function filtrarTabela() {
@@ -414,24 +409,19 @@
         const corpo = document.getElementById('dadosFila');
         
         try {
-            status.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i> Verificando novos motoristas...';
             const res = await fetch(API_URL + "?t=" + Date.now());
             const json = await res.json();
             let ativos = json.filter(x => x.PLACA && !x.SAIDA);
 
-            // LOGICA DA NOTIFICAÇÃO
             if (monitorAtivo && ativos.length > ultimaQuantidade) {
                 const ultimo = ativos[ativos.length - 1];
                 if (Notification.permission === "granted") {
-                    new Notification("NOVA DESCARGA!", {
-                        body: `Placa: ${ultimo.PLACA}\nProduto: ${ultimo.PRODUTO}`,
-                        requireInteraction: true
-                    });
+                    new Notification("NOVA DESCARGA!", { body: `Placa: ${ultimo.PLACA}\nProduto: ${ultimo.PRODUTO}`, requireInteraction: true });
                 }
             }
 
             ultimaQuantidade = ativos.length;
-            monitorAtivo = true; // Só ativa a notificação depois da primeira leitura
+            monitorAtivo = true;
 
             ativos.sort((a, b) => (a['AGENDAMENTO NO COLETA'] || '9').localeCompare(b['AGENDAMENTO NO COLETA'] || '9'));
             corpo.innerHTML = "";
@@ -455,18 +445,17 @@
                         <button onclick="salvarAgenda('${item.PLACA}')" style="background:var(--verde-raizen); color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;">OK</button>
                     </td>
                     <td>
+                        <button class="btn-r-renovar" onclick="renovarJornada('${item.PLACA}')">RENOVAR JORNADA</button>
                         <button class="btn-w-whatsapp" onclick="chamarMotorista('${item.TELEFONE}','${item.PLACA}')">CONVOCAR</button>
                         <button class="btn-f-finalizar" onclick="finalizar('${item.PLACA}')">FIM</button>
                     </td>
                 `;
                 corpo.appendChild(tr);
             });
-            
             const agora = new Date();
             status.innerHTML = `<i class="fa-solid fa-check-circle" style="color:green"></i> Última atualização: ${agora.toLocaleTimeString()}`;
-
         } catch (err) {
-            status.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:red"></i> Erro ao conectar. Tentando novamente...`;
+            status.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:red"></i> Erro de conexão.`;
         }
     }
 
@@ -489,7 +478,6 @@
             document.getElementById('modulo-entrada').style.display = 'none';
             document.getElementById('secao-operador').style.display = 'block';
             sincronizarFila();
-            // INICIA A ATUALIZAÇÃO AUTOMÁTICA A CADA 15 SEGUNDOS
             setInterval(sincronizarFila, 15000);
         } else { alert("ERRO!"); }
     }
