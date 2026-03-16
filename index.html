@@ -142,27 +142,16 @@
         }
 
         .check-box-24h input { width: 45px; height: 45px; accent-color: var(--cor-alerta); }
-
         .txt-check { font-weight: 900; color: var(--cor-alerta); font-size: 22px; }
 
         .btn-principal { 
-            width: 100%; 
-            padding: 30px; 
-            background: var(--roxo-raizen); 
-            color: white; 
-            border: none; 
-            border-radius: 25px; 
-            font-size: 24px; 
-            font-weight: 900; 
-            cursor: pointer; 
-            text-transform: uppercase;
+            width: 100%; padding: 30px; background: var(--roxo-raizen); 
+            color: white; border: none; border-radius: 25px; 
+            font-size: 24px; font-weight: 900; cursor: pointer; text-transform: uppercase;
             margin-bottom: 20px;
         }
 
-        .btn-reabrir-jornada {
-            background: var(--verde-botao-reabrir);
-            color: white;
-        }
+        .btn-reabrir-jornada { background: var(--verde-botao-reabrir); color: white; }
 
         .moldura-tabela { overflow-x: auto; border-radius: 20px; border: 2px solid #e2e8f0; }
         table { width: 100%; border-collapse: collapse; min-width: 1200px; }
@@ -189,6 +178,8 @@
 
         .btn-w-whatsapp { background: #22c55e; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-bottom: 8px; font-weight: 900; font-size: 13px; }
         .btn-f-finalizar { background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 900; font-size: 13px; }
+
+        #status-atualizacao { text-align: center; font-size: 14px; color: #64748b; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -257,8 +248,9 @@
 
 <div id="secao-operador">
     <h2><i class="fa-solid fa-list-check"></i> FILA DE DESCARGA - ÁREA 02</h2>
+    <div id="status-atualizacao">Sincronizando com Supabase...</div>
     <div class="moldura-tabela">
-        <table>
+        <table id="tabelaMaster">
             <thead>
                 <tr>
                     <th>PLACA</th>
@@ -270,29 +262,26 @@
                     <th>AÇÕES</th>
                 </tr>
             </thead>
-            <tbody id="corpoFila"></tbody>
+            <tbody id="dadosFila"></tbody>
         </table>
     </div>
     <button class="btn-principal" style="background:#475569; margin-top:30px;" onclick="location.reload()">SAIR</button>
 </div>
 
 <script>
-    // CREDENCIAIS SUPABASE (CONFIGURADAS)
+    // CONFIGURAÇÃO SUPABASE
     const SUPABASE_URL = 'https://rbbkjuiizmvatiawfzuv.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_WkrHi6cWtZsnsDXl0nh1hA_kz1UT_1X'; 
-
-    const headers = {
+    const SUPABASE_KEY = 'sb_publishable_WkrHi6cWtZsnsDXl0nh1hA_kz1UT_1X';
+    const HEADERS = {
         "apikey": SUPABASE_KEY,
         "Authorization": `Bearer ${SUPABASE_KEY}`,
         "Content-Type": "application/json",
         "Prefer": "return=minimal"
     };
 
-    // Alternar Visual
     function mudarParaReabrir() { document.getElementById('container-registro').style.display = 'none'; document.getElementById('container-reabrir').style.display = 'block'; }
     function mudarParaNormal() { document.getElementById('container-reabrir').style.display = 'none'; document.getElementById('container-registro').style.display = 'block'; }
 
-    // Formatação de Placa
     function formatarPlaca(el) {
         let v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
         if (v.length > 3 && !isNaN(v[3])) v = v.substring(0,3) + "-" + v.substring(3,7);
@@ -300,8 +289,12 @@
     }
     document.getElementById('campo_placa').oninput = function() { formatarPlaca(this); };
     document.getElementById('reabrir_placa').oninput = function() { formatarPlaca(this); };
+    
+    document.getElementById('campo_whatsapp').oninput = e => {
+        let v = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+        e.target.value = !v[2] ? v[1] : '(' + v[1] + ') ' + v[2] + (v[3] ? '-' + v[3] : '');
+    };
 
-    // Lógica do Semáforo 24h
     function gerarSemaforo(valor) {
         if(valor === "24 HORAS") return `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> 24H</div>`;
         const agora = new Date();
@@ -312,13 +305,13 @@
         return (agora > limite) ? `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> ${valor}</div>` : `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> ${valor}</div>`;
     }
 
-    // --- COMUNICAÇÃO SUPABASE ---
+    // --- LÓGICA SUPABASE ---
 
-    // REGISTRAR NOVO
-    document.getElementById('formDescarga').onsubmit = async (e) => {
+    // INSERT (Registrar)
+    document.getElementById('formDescarga').onsubmit = async e => {
         e.preventDefault();
         const dados = {
-            placa: document.getElementById('campo_placa').value.toUpperCase(),
+            placa: document.getElementById('campo_placa').value,
             produto: document.getElementById('campo_produto').value,
             telefone: document.getElementById('campo_whatsapp').value,
             jornada: document.getElementById('check_jornada_24h').checked ? "24 HORAS" : document.getElementById('campo_hora_limite').value,
@@ -327,87 +320,98 @@
 
         const res = await fetch(`${SUPABASE_URL}/rest/v1/registros`, {
             method: 'POST',
-            headers: headers,
+            headers: HEADERS,
             body: JSON.stringify(dados)
         });
-        if(res.ok) { alert("REGISTRADO NO SISTEMA!"); location.reload(); }
+
+        if(res.ok) { alert("REGISTRO ENVIADO AO SUPABASE!"); location.reload(); }
+        else { alert("ERRO AO SALVAR. Verifique a tabela no Supabase."); }
     };
 
-    // CARREGAR FILA (OPERADOR)
-    async function carregarFila() {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/registros?saida=is.null&select=*`, { headers: headers });
-        const dados = await res.json();
-        const corpo = document.getElementById('corpoFila');
-        corpo.innerHTML = "";
-        
-        dados.forEach(item => {
-            let cl = item.produto.includes("GASOLINA") ? "tag-gasosa" : (item.produto.includes("DIESEL") ? "tag-s10" : "tag-anidro");
-            corpo.innerHTML += `
-                <tr>
-                    <td style="color:var(--roxo-raizen); font-size:20px;">${item.placa}</td>
-                    <td><span class="tag-prod ${cl}">${item.produto}</span></td>
-                    <td style="font-size:14px;">${item.telefone}</td>
-                    <td>${gerarSemaforo(item.jornada)}</td>
-                    <td style="font-size:14px;">${item.entrada}</td>
-                    <td style="background:#fffde7;">
-                        <input type="datetime-local" id="ag-${item.id}" value="${item.agendamento || ''}" style="width:130px; font-size:12px; padding:10px;">
-                        <button onclick="salvarAgenda('${item.id}')" style="background:var(--verde-raizen); color:white; border:none; padding:8px; border-radius:8px; cursor:pointer;">OK</button>
-                    </td>
-                    <td>
-                        <button class="btn-w-whatsapp" onclick="chamar('${item.telefone}','${item.placa}')">CONVOCAR</button>
-                        <button class="btn-f-finalizar" onclick="finalizar('${item.id}')">FIM</button>
-                    </td>
-                </tr>
-            `;
-        });
+    // READ (Sincronizar Fila)
+    async function sincronizarFila() {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/registros?saida=is.null&select=*`, { headers: HEADERS });
+            const ativos = await res.json();
+
+            const corpo = document.getElementById('dadosFila');
+            corpo.innerHTML = "";
+            ativos.forEach(item => {
+                let cl = "";
+                if(item.produto.includes("GASOLINA")) cl = "tag-gasosa";
+                else if(item.produto.includes("BIODIESEL")) cl = "tag-b100";
+                else if(item.produto.includes("ANIDRO")) cl = "tag-anidro";
+                else if(item.produto.includes("HIDRATADO")) cl = "tag-hidratado";
+                else if(item.produto.includes("DIESEL")) cl = "tag-s10";
+
+                corpo.innerHTML += `
+                    <tr>
+                        <td style="color:var(--roxo-raizen); font-size:20px;">${item.placa}</td>
+                        <td><span class="tag-prod ${cl}">${item.produto}</span></td>
+                        <td style="font-size:14px;">${item.telefone}</td>
+                        <td>${gerarSemaforo(item.jornada)}</td>
+                        <td style="font-size:14px;">${item.entrada}</td>
+                        <td style="background:#fffde7;">
+                            <input type="datetime-local" id="ag-${item.id}" value="${item.agendamento || ''}" style="width:130px; font-size:12px; padding:10px;">
+                            <button onclick="salvarAgenda('${item.id}')" style="background:var(--verde-raizen); color:white; border:none; padding:8px; border-radius:8px; cursor:pointer; font-weight:900;">OK</button>
+                        </td>
+                        <td>
+                            <button class="btn-w-whatsapp" onclick="chamarMotorista('${item.telefone}','${item.placa}')">CONVOCAR</button>
+                            <button class="btn-f-finalizar" onclick="finalizar('${item.id}')">FIM</button>
+                        </td>
+                    </tr>`;
+            });
+            document.getElementById('status-atualizacao').innerHTML = "Sincronizado: " + new Date().toLocaleTimeString();
+        } catch (e) { console.log("Erro de conexão"); }
     }
 
-    // SALVAR AGENDAMENTO
+    // UPDATE (Finalizar Atendimento)
+    async function finalizar(id) {
+        if(confirm("FINALIZAR ATENDIMENTO?")) {
+            await fetch(`${SUPABASE_URL}/rest/v1/registros?id=eq.${id}`, {
+                method: 'PATCH',
+                headers: HEADERS,
+                body: JSON.stringify({ saida: new Date().toLocaleString('pt-BR') })
+            });
+            sincronizarFila();
+        }
+    }
+
+    // UPDATE (Salvar Agendamento)
     async function salvarAgenda(id) {
         const val = document.getElementById(`ag-${id}`).value;
         await fetch(`${SUPABASE_URL}/rest/v1/registros?id=eq.${id}`, {
             method: 'PATCH',
-            headers: headers,
+            headers: HEADERS,
             body: JSON.stringify({ agendamento: val })
         });
         alert("AGENDAMENTO SALVO!");
     }
 
-    // FINALIZAR
-    async function finalizar(id) {
-        if(confirm("FINALIZAR ATENDIMENTO?")) {
-            await fetch(`${SUPABASE_URL}/rest/v1/registros?id=eq.${id}`, {
-                method: 'PATCH',
-                headers: headers,
-                body: JSON.stringify({ saida: new Date().toLocaleString('pt-BR') })
-            });
-            carregarFila();
-        }
-    }
-
-    // REABRIR/ATUALIZAR JORNADA
+    // UPDATE (Reabrir Jornada)
     async function salvarReabertura() {
         const placa = document.getElementById('reabrir_placa').value;
         const hora = document.getElementById('reabrir_hora').value;
+        
         await fetch(`${SUPABASE_URL}/rest/v1/registros?placa=eq.${placa}&saida=is.null`, {
             method: 'PATCH',
-            headers: headers,
+            headers: HEADERS,
             body: JSON.stringify({ jornada: hora })
         });
         alert("JORNADA ATUALIZADA!"); location.reload();
     }
 
-    function chamar(tel, placa) {
+    function chamarMotorista(tel, placa) {
         const baia = prompt("QUAL BAIA?");
-        if(baia) window.open(`https://api.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=Placa ${placa} Baia ${baia}`, '_blank');
+        if(baia) window.open(`https://api.whatsapp.com/send?phone=55${tel.replace(/\D/g, "")}&text=Olá%0AMotorista vamos descarregar?%0APlaca ${placa} na Baia ${baia}`, '_blank');
     }
 
     function acessoOperador() {
         if(prompt("SENHA:") === "raizen2026") {
             document.getElementById('modulo-entrada').style.display = 'none';
             document.getElementById('secao-operador').style.display = 'block';
-            carregarFila();
-            setInterval(carregarFila, 20000);
+            sincronizarFila();
+            setInterval(sincronizarFila, 15000);
         }
     }
 </script>
