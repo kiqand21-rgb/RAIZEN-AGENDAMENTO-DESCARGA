@@ -18,7 +18,7 @@
             --cor-alerta: #e11d48;
             --cor-sucesso: #10b981;
             --cor-texto: #1e293b;
-            --azul-reabrir: #0ea5e9; /* O azul claro original do botão */
+            --verde-botao-reabrir: #3d5446; /* Cor extraída da sua imagem */
         }
 
         * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
@@ -160,7 +160,7 @@
         }
 
         .btn-reabrir-jornada {
-            background: var(--azul-reabrir);
+            background: var(--verde-botao-reabrir);
             color: white;
         }
 
@@ -241,7 +241,7 @@
     </div>
 
     <div id="container-reabrir" style="display:none;">
-        <h2 style="color:var(--azul-reabrir)"><i class="fa-solid fa-clock"></i> REABRIR JORNADA</h2>
+        <h2 style="color:var(--verde-botao-reabrir)"><i class="fa-solid fa-clock"></i> REABRIR JORNADA</h2>
         <div class="wrapper-campo">
             <label>CONFIRME SUA PLACA</label>
             <input type="text" id="reabrir_placa" placeholder="ABC-1234" maxlength="8">
@@ -250,7 +250,7 @@
             <label>NOVA HORA DE TÉRMINO</label>
             <input type="time" id="reabrir_hora">
         </div>
-        <button onclick="salvarReabertura()" class="btn-principal" style="background:var(--azul-reabrir)">ATUALIZAR JORNADA</button>
+        <button onclick="salvarReabertura()" class="btn-principal" style="background:var(--verde-botao-reabrir)">ATUALIZAR JORNADA</button>
         <button onclick="mudarParaNormal()" style="width:100%; margin-top:20px; background:none; border:none; text-decoration:underline; font-weight:900; color:gray; cursor:pointer;">VOLTAR</button>
     </div>
 
@@ -287,7 +287,6 @@
     let ultimaQuantidade = 0;
     let monitorAtivo = false;
 
-    // --- INTERFACE ---
     function mudarParaReabrir() {
         document.getElementById('container-registro').style.display = 'none';
         document.getElementById('container-reabrir').style.display = 'block';
@@ -297,7 +296,6 @@
         document.getElementById('container-registro').style.display = 'block';
     }
 
-    // --- FORMATAÇÕES ---
     function formatarPlaca(el) {
         let v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
         if (v.length > 3 && !isNaN(v[3])) v = v.substring(0,3) + "-" + v.substring(3,7);
@@ -314,18 +312,22 @@
         document.getElementById('box-horario-input').style.display = this.checked ? 'none' : 'block';
     });
 
-    // --- REGRAS DO SEMÁFORO ---
+    // --- LÓGICA DO SEMÁFORO (CORRIGIDA PARA 24 HORAS) ---
     function gerarSemaforo(valor) {
-        if(valor === "24 HORAS") return `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> 24H</div>`;
+        // Se for 24 HORAS, forçamos o Verde porque nunca vence.
+        if(valor === "24 HORAS") {
+            return `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> 24H</div>`;
+        }
+        
         const agora = new Date();
         const t = valor.split(':');
         if(t.length < 2) return valor;
         const limite = new Date(); 
         limite.setHours(t[0], t[1], 0);
+        
         return (agora > limite) ? `<div class="box-semaforo semaforo-vermelho"><span class="circulo-led led-r"></span> ${valor}</div>` : `<div class="box-semaforo semaforo-verde"><span class="circulo-led led-g"></span> ${valor}</div>`;
     }
 
-    // --- SINCRONIZAÇÃO E NOTIFICAÇÃO ---
     async function sincronizarFila() {
         try {
             const res = await fetch(API_URL + "?t=" + Date.now());
@@ -334,15 +336,13 @@
 
             if (monitorAtivo && ativos.length > ultimaQuantidade) {
                 if (Notification.permission === "granted") {
-                    new Notification("NOVA DESCARGA!", { body: `Placa: ${ativos[ativos.length-1].PLACA}`, icon: 'https://cdn-icons-png.flaticon.com/512/71/71240.png' });
+                    new Notification("NOVA DESCARGA!", { body: `Placa: ${ativos[ativos.length-1].PLACA}` });
                 }
             }
             ultimaQuantidade = ativos.length; monitorAtivo = true;
 
             const corpo = document.getElementById('dadosFila');
             corpo.innerHTML = "";
-            ativos.sort((a, b) => (a['AGENDAMENTO NO COLETA'] || '9').localeCompare(b['AGENDAMENTO NO COLETA'] || '9'));
-            
             ativos.forEach(item => {
                 let cl = "";
                 if(item.PRODUTO.includes("GASOLINA")) cl = "tag-gasosa";
@@ -359,7 +359,7 @@
                     <td>${gerarSemaforo(item.JORNADA)}</td>
                     <td style="font-size:14px;">${item.ENTRADA}</td>
                     <td style="background:#fffde7;">
-                        <input type="datetime-local" id="ag-${item.PLACA}" value="${item['AGENDAMENTO NO COLETA'] || ''}" style="width:130px; font-size:12px; padding:10px; border-radius:10px; border:1px solid #ccc;">
+                        <input type="datetime-local" id="ag-${item.PLACA}" value="${item['AGENDAMENTO NO COLETA'] || ''}" style="width:130px; font-size:12px; padding:10px;">
                         <button onclick="salvarAgenda('${item.PLACA}')" style="background:var(--verde-raizen); color:white; border:none; padding:8px; border-radius:8px; cursor:pointer; font-weight:900;">OK</button>
                     </td>
                     <td>
@@ -370,7 +370,7 @@
                 corpo.appendChild(tr);
             });
             document.getElementById('status-atualizacao').innerHTML = "Sincronizado: " + new Date().toLocaleTimeString();
-        } catch (e) { console.error("Erro na sincronização"); }
+        } catch (e) { }
     }
 
     async function salvarReabertura() {
