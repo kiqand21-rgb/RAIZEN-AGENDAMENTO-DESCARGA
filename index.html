@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1200"> 
-    <title>RAÍZEN - SISTEMA DE GESTÃO OPERACIONAL DE PÁTIO - V30.3</title>
+    <title>RAÍZEN - SISTEMA DE GESTÃO OPERACIONAL DE PÁTIO - V30.5</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- DESIGN SYSTEM PREMIUM RAÍZEN --- */
+        /* --- ESTILIZAÇÃO COMPLETA E DETALHADA (DESIGN SYSTEM RAÍZEN) --- */
         :root {
             --verde-raizen: #4d6d5d;
             --roxo-raizen: #84207d;
@@ -32,7 +32,7 @@
             overflow-x: auto;
         }
 
-        /* HEADER E LOGO */
+        /* CABEÇALHO INDUSTRIAL */
         header { 
             background: linear-gradient(135deg, var(--verde-raizen) 0%, #1a241f 100%); 
             padding: 120px 20px; 
@@ -51,7 +51,7 @@
             text-shadow: 8px 8px 0px rgba(0,0,0,0.2);
         }
 
-        /* CARD PRINCIPAL */
+        /* CONTAINER PRINCIPAL DO FORMULÁRIO */
         .card-master { 
             width: 95%; 
             max-width: 1200px; 
@@ -65,7 +65,7 @@
             z-index: 10;
         }
 
-        /* MODULOS OCULTOS */
+        /* CONFIGURAÇÃO DOS MÓDULOS ADM E SUPERVISÃO */
         #modulo-operador-full, #modulo-supervisao { 
             display: none; 
             width: 98%; 
@@ -75,7 +75,7 @@
             padding: 60px; 
             border-radius: 40px;
             box-shadow: var(--sombra-premium); 
-            zoom: 0.75;
+            zoom: 0.75; /* Ajuste para telas grandes */
         }
 
         h2 { 
@@ -90,7 +90,7 @@
             letter-spacing: -1px;
         }
 
-        /* CAMPOS DE FORMULÁRIO */
+        /* CAMPOS DE ENTRADA DE DADOS */
         .wrapper-input { margin-bottom: 45px; }
         
         label { 
@@ -122,7 +122,7 @@
             box-shadow: 0 0 0 20px rgba(132, 32, 125, 0.1);
         }
 
-        /* PAINEL DE JORNADA */
+        /* PAINEL AMARELO DE CONTROLE DE JORNADA */
         .painel-jornada { 
             background: #fffbeb; 
             padding: 50px; 
@@ -132,7 +132,7 @@
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        /* BOTÕES */
+        /* ESTILO DOS BOTÕES MESTRES */
         .btn-master { 
             width: 100%; 
             padding: 40px; 
@@ -158,7 +158,7 @@
             box-shadow: 0 6px 0 #5e1659; 
         }
 
-        /* TABELAS ADM */
+        /* TABELAS OPERACIONAIS */
         .moldura-tabela { 
             overflow-x: auto; 
             border-radius: 40px; 
@@ -189,7 +189,7 @@
 
         tr:hover { background-color: #f8fafc; }
 
-        /* CARDS DA SUPERVISÃO */
+        /* CARDS DE TANQUES (SUPERVISÃO) */
         .grid-tanques { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
@@ -209,24 +209,29 @@
         
         .card-tanque:hover { transform: translateY(-10px); border-color: var(--roxo-raizen); }
 
-        /* LOADER */
+        /* LOADER DE SINCRONIZAÇÃO */
         #loader-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.98); z-index: 10000; flex-direction: column; align-items: center; justify-content: center;
         }
         .raizen-spinner { width: 120px; height: 120px; border: 15px solid #f3f3f3; border-top: 15px solid var(--roxo-raizen); border-radius: 50%; animation: girar 1s linear infinite; }
-        @keyframes girar { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes girar { 100% { transform: rotate(360deg); } }
 
-        /* STATUS */
-        .status-ok { color: var(--cor-sucesso); font-weight: 900; background: #ecfdf5; padding: 10px 20px; border-radius: 15px; }
-        .status-erro { color: var(--cor-erro); font-weight: 900; background: #fff1f2; padding: 10px 20px; border-radius: 15px; }
+        /* INDICADORES DE STATUS */
+        .status-ok { color: var(--cor-sucesso); font-weight: 900; background: #ecfdf5; padding: 10px 20px; border-radius: 15px; border: 2px solid var(--cor-sucesso); }
+        .status-erro { color: var(--cor-erro); font-weight: 900; background: #fff1f2; padding: 10px 20px; border-radius: 15px; border: 2px solid var(--cor-erro); }
     </style>
 </head>
 <body>
 
-<div id="loader-overlay"><div class="raizen-spinner"></div><h2 style="border:none; margin-top:35px;">SINCRONIZANDO DADOS...</h2></div>
+<div id="loader-overlay">
+    <div class="raizen-spinner"></div>
+    <h2 style="border:none; margin-top:35px;">SINCRONIZANDO COM A BASE...</h2>
+</div>
 
-<header><div class="logo-display">RAÍZEN</div></header>
+<header>
+    <div class="logo-display">RAÍZEN</div>
+</header>
 
 <div class="card-master" id="secao-entrada">
     <div id="form-principal-wrapper">
@@ -238,7 +243,7 @@
             </div>
             
             <div class="wrapper-input">
-                <label><i class="fa-solid fa-gas-pump"></i> SELECIONE O PRODUTO</label>
+                <label><i class="fa-solid fa-gas-pump"></i> PRODUTO PARA DESCARGA</label>
                 <select id="produto" required>
                     <option value="">-- SELECIONE --</option>
                     <option value="GASOLINA">GASOLINA</option>
@@ -303,7 +308,7 @@
                 <tr>
                     <th>VEÍCULO</th>
                     <th>PRODUTO</th>
-                    <th>VOLUME P DESCARGA (L)</th>
+                    <th style="background:#fefce8;">VOLUME PARA DESCARGA (L)</th>
                     <th>JORNADA</th>
                     <th>CAPACIDADE TANQUE</th>
                     <th>COMUNICAÇÃO</th>
@@ -323,6 +328,7 @@
 </div>
 
 <script>
+    /* --- CONFIGURAÇÃO DA API (SUPABASE) --- */
     const CONFIG = {
         URL: 'https://rbbkjuiizmvatiawfzuv.supabase.co/rest/v1',
         HEADERS: { 
@@ -334,7 +340,7 @@
 
     let filaGlobal = [], tanquesGlobal = [];
 
-    // --- MÁSCARAS E UTILITÁRIOS ---
+    /* --- MÁSCARAS E TRATAMENTO DE INPUTS --- */
     const maskPlaca = el => {
         el.oninput = function() {
             let v = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -357,16 +363,15 @@
 
     function setLoader(v) { document.getElementById('loader-overlay').style.display = v ? 'flex' : 'none'; }
 
-    // --- FUNÇÃO DE LIMPEZA DE TEXTO (CORREÇÃO BIODIESEL) ---
-    function normalizarTexto(txt) {
+    /* --- LÓGICA BLINDADA DE COMPARAÇÃO DE PRODUTO (RESOLVE BIODIESEL) --- */
+    function normalizar(txt) {
         if(!txt) return "";
-        return txt.toUpperCase()
-                  .replace(/\s+/g, '')           // Tira todos os espaços
-                  .replace(/\(.*\)/g, '')        // Tira tudo que está entre parênteses
-                  .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Tira acentos
+        return txt.toString().toUpperCase().trim()
+                  .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove acentos
+                  .replace(/[^A-Z0-9]/g, ""); // Remove espaços, parênteses e traços
     }
 
-    // --- CARREGAMENTO DE DADOS ---
+    /* --- COMUNICAÇÃO COM O BANCO --- */
     async function carregarDados() {
         try {
             const [resF, resT] = await Promise.all([
@@ -377,21 +382,21 @@
             tanquesGlobal = await resT.json();
             renderFila();
             renderSuper();
-        } catch (err) { console.error("Erro ao carregar:", err); }
+        } catch (err) { console.error("Erro Crítico de Conexão:", err); }
     }
 
+    /* --- RENDERIZAÇÃO DA FILA DE PÁTIO (ADM) --- */
     function renderFila() {
         const corpo = document.getElementById('listaFila');
         corpo.innerHTML = "";
         
         filaGlobal.forEach(item => {
-            // Lógica de busca de tanque ultra-precisa
-            const nomeMotorista = normalizarTexto(item.PRODUTO);
-            const tanque = tanquesGlobal.find(t => 
-                normalizarTexto(t.PRODUTO) === nomeMotorista || 
-                normalizarTexto(t.PRODUTO).includes(nomeMotorista) ||
-                nomeMotorista.includes(normalizarTexto(t.PRODUTO))
-            );
+            // LÓGICA DE BUSCA: O Biodiesel (B100) agora casa com Biodiesel do tanque
+            const pMotorista = normalizar(item.PRODUTO);
+            const tanque = tanquesGlobal.find(t => {
+                const pTanque = normalizar(t.PRODUTO);
+                return pTanque.includes(pMotorista) || pMotorista.includes(pTanque);
+            });
             
             const volCaminhao = Number(item.VOLUME) || 0;
             const espacoLivre = tanque ? Number(tanque.ESPAÇO_DISPONIVEL) : 0;
@@ -412,69 +417,66 @@
                     <td><i class="fa-regular fa-clock"></i> ${item.JORNADA}</td>
                     <td>
                         <span class="${podeLiberar ? 'status-ok' : 'status-erro'}">
-                            ${podeLiberar ? '<i class="fa-solid fa-check"></i> DISPONÍVEL' : '<i class="fa-solid fa-triangle-exclamation"></i> SEM ESPAÇO'}
+                            ${podeLiberar ? '<i class="fa-solid fa-check"></i> ESPAÇO OK' : '<i class="fa-solid fa-triangle-exclamation"></i> BLOQUEADO'}
                         </span>
                     </td>
                     <td>
                         <button onclick="chamarWhatsApp('${item.TELEFONE}', '${item.PLACA}')" 
                             ${podeLiberar ? '' : 'disabled'} 
-                            style="background:${podeLiberar ? '#25d366' : '#cbd5e1'}; color:white; border:none; padding:18px 25px; border-radius:20px; cursor:pointer; font-weight:900; width:180px;">
+                            style="background:${podeLiberar ? '#25d366' : '#cbd5e1'}; color:white; border:none; padding:18px 25px; border-radius:20px; cursor:pointer; font-weight:900; width:100%;">
                             <i class="fa-brands fa-whatsapp"></i> CHAMAR
                         </button>
                     </td>
                     <td>
                         <button onclick="finalizarSaida(${item.ID}, ${volCaminhao}, ${tanque?.id})" 
                             style="background:#3b82f6; color:white; border:none; padding:18px 25px; border-radius:20px; cursor:pointer; font-weight:900;">
-                            SAÍDA VEÍCULO
+                            FINALIZAR
                         </button>
                     </td>
                 </tr>`;
         });
     }
 
+    /* --- FUNÇÕES AUXILIARES ADM --- */
     async function salvarVol(id) {
         const v = document.getElementById(`vol-${id}`).value;
         setLoader(true);
         await fetch(`${CONFIG.URL}/registros?ID=eq.${id}`, { 
-            method: 'PATCH', 
-            headers: CONFIG.HEADERS, 
+            method: 'PATCH', headers: CONFIG.HEADERS, 
             body: JSON.stringify({ VOLUME: v }) 
         });
-        await carregarDados();
+        await carregarDados(); // Recarrega para liberar o botão de WhatsApp na hora
         setLoader(false);
     }
 
     async function finalizarSaida(id, vol, tId) {
-        if(!confirm("DESEJA FINALIZAR A OPERAÇÃO E DAR SAÍDA NO VEÍCULO?")) return;
+        if(!confirm("CONFIRMAR SAÍDA E BAIXA NO ESTOQUE?")) return;
         setLoader(true);
         await fetch(`${CONFIG.URL}/registros?ID=eq.${id}`, { 
-            method: 'PATCH', 
-            headers: CONFIG.HEADERS, 
+            method: 'PATCH', headers: CONFIG.HEADERS, 
             body: JSON.stringify({ SAIDA: new Date().toLocaleString() }) 
         });
-        
         if(tId && vol > 0) {
             const t = tanquesGlobal.find(x => x.id === tId);
-            const novoEspaco = Number(t.ESPAÇO_DISPONIVEL) - vol;
             await fetch(`${CONFIG.URL}/ESTOQUE?id=eq.${tId}`, { 
-                method: 'PATCH', 
-                headers: CONFIG.HEADERS, 
-                body: JSON.stringify({ ESPAÇO_DISPONIVEL: novoEspaco }) 
+                method: 'PATCH', headers: CONFIG.HEADERS, 
+                body: JSON.stringify({ ESPAÇO_DISPONIVEL: Number(t.ESPAÇO_DISPONIVEL) - vol }) 
             });
         }
         await carregarDados();
         setLoader(false);
     }
 
+    /* --- RENDERIZAÇÃO DA SUPERVISÃO (TANQUES) --- */
     function renderSuper() {
         const grid = document.getElementById('gridSupervisao');
         grid.innerHTML = tanquesGlobal.map(t => `
             <div class="card-tanque">
                 <i class="fa-solid fa-database" style="font-size:40px; color:var(--roxo-raizen); margin-bottom:20px;"></i>
-                <h3 style="color:var(--roxo-raizen); margin-bottom:10px; font-size:24px;">${t.TANQUE_NAME}</h3>
+                <h3 style="color:var(--roxo-raizen); font-size:24px;">${t.TANQUE_NAME}</h3>
                 <p style="font-weight:900; font-size:20px; color:var(--verde-raizen); margin-bottom:25px;">${t.PRODUTO}</p>
                 <div style="text-align:left; margin-bottom:10px;">
-                    <label style="font-size:12px; color:#64748b;">ESPAÇO ATUAL NO TANQUE (L)</label>
+                    <label style="font-size:12px;">ESPAÇO DISPONÍVEL (L)</label>
                     <input type="number" id="stq-${t.id}" value="${t.ESPAÇO_DISPONIVEL}" style="padding:20px; font-size:22px;">
                 </div>
                 <button onclick="salvarEstoque(${t.id})" class="btn-master" style="font-size:16px; padding:25px; box-shadow:0 10px 0 #5e1659;">
@@ -488,16 +490,15 @@
         const val = document.getElementById(`stq-${id}`).value;
         setLoader(true);
         await fetch(`${CONFIG.URL}/ESTOQUE?id=eq.${id}`, { 
-            method: 'PATCH', 
-            headers: CONFIG.HEADERS, 
+            method: 'PATCH', headers: CONFIG.HEADERS, 
             body: JSON.stringify({ ESPAÇO_DISPONIVEL: val }) 
         });
         await carregarDados();
         setLoader(false);
-        alert("CAPACIDADE DO TANQUE ATUALIZADA COM SUCESSO!");
+        alert("ESTOQUE ATUALIZADO COM SUCESSO!");
     }
 
-    // --- SUBMISSÃO DO MOTORISTA ---
+    /* --- LÓGICA DE REGISTRO (MOTORISTA) --- */
     document.getElementById('formMaster').onsubmit = async e => {
         e.preventDefault();
         setLoader(true);
@@ -509,8 +510,7 @@
             ENTRADA: new Date().toLocaleString()
         };
         const res = await fetch(`${CONFIG.URL}/registros`, { 
-            method: 'POST', 
-            headers: CONFIG.HEADERS, 
+            method: 'POST', headers: CONFIG.HEADERS, 
             body: JSON.stringify(data) 
         });
         setLoader(false);
@@ -520,20 +520,16 @@
         }
     };
 
-    // --- LÓGICA DE REABERTURA ---
+    /* --- LÓGICA DE REABERTURA --- */
     async function processarReabertura() {
         const p = document.getElementById('re_placa').value.toUpperCase();
         const h = document.getElementById('re_hora').value;
-        if(!p || !h) { alert("Preencha todos os campos!"); return; }
-        
         setLoader(true);
         const res = await fetch(`${CONFIG.URL}/registros?PLACA=eq.${p}&SAIDA=is.null`, { headers: CONFIG.HEADERS });
         const data = await res.json();
-        
         if(data.length > 0) {
             await fetch(`${CONFIG.URL}/registros?ID=eq.${data[0].ID}`, { 
-                method: 'PATCH', 
-                headers: CONFIG.HEADERS, 
+                method: 'PATCH', headers: CONFIG.HEADERS, 
                 body: JSON.stringify({ JORNADA: h }) 
             });
             setLoader(false);
@@ -541,25 +537,25 @@
             location.reload();
         } else {
             setLoader(false);
-            alert("PLACA NÃO LOCALIZADA EM NOSSA FILA ATIVA!");
+            alert("PLACA NÃO LOCALIZADA!");
         }
     }
 
-    // --- CONTROLE DE ACESSO ---
+    /* --- CONTROLE DE NAVEGAÇÃO --- */
     function acessoADM() { 
-        if(prompt("DIGITE A SENHA DO ADM PÁTIO:") === "raizen2026") { 
+        if(prompt("SENHA ADM PÁTIO:") === "raizen2026") { 
             document.getElementById('secao-entrada').style.display='none'; 
             document.getElementById('modulo-operador-full').style.display='block'; 
             carregarDados(); 
-        } else { alert("Senha incorreta!"); }
+        } 
     }
     
     function acessoSuper() { 
-        if(prompt("DIGITE A SENHA DA SUPERVISÃO:") === "master2026") { 
+        if(prompt("SENHA SUPERVISÃO:") === "master2026") { 
             document.getElementById('secao-entrada').style.display='none'; 
             document.getElementById('modulo-supervisao').style.display='block'; 
             carregarDados(); 
-        } else { alert("Senha incorreta!"); }
+        } 
     }
 
     function abrirReabertura() { 
