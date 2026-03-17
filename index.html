@@ -107,7 +107,7 @@
         <h2><i class="fa-solid fa-truck-ramp-box"></i> REGISTRO DE ENTRADA</h2>
         <form id="formMaster">
             <div class="wrapper-input">
-                <label><i class="fa-solid fa-barcode"></i> PLACA</label>
+                <label><i class="fa-solid fa-barcode"></i> PLACA DO VEÍCULO</label>
                 <input type="text" id="placa" placeholder="AAA-0000" maxlength="8" required>
             </div>
             <div class="wrapper-input">
@@ -122,17 +122,24 @@
                 </select>
             </div>
             <div class="wrapper-input">
-                <label><i class="fa-brands fa-whatsapp"></i> WHATSAPP</label>
+                <label><i class="fa-brands fa-whatsapp"></i> WHATSAPP MOTORISTA</label>
                 <input type="tel" id="whatsapp" placeholder="(19) 99999-9999" required>
             </div>
+            
             <div class="painel-jornada">
-                <div id="area-tempo"><label>LIMITE JORNADA</label><input type="time" id="limite" required></div>
+                <div id="area-tempo">
+                    <label><i class="fa-solid fa-clock"></i> HORÁRIO LIMITE JORNADA</label>
+                    <input type="time" id="limite" required> 
+                </div>
                 <label style="margin-top:25px; display:flex; align-items:center; gap:20px; cursor:pointer; font-size: 20px; font-weight: 900; color: var(--roxo-raizen);">
-                    <input type="checkbox" id="jornada24" style="width:35px; height:35px;"> JORNADA 24 HORAS
+                    <input type="checkbox" id="jornada24" style="width:35px; height:35px;"> HABILITAR JORNADA 24 HORAS
                 </label>
             </div>
+
             <button type="submit" class="btn-master">CONFIRMAR REGISTRO</button>
-            <button type="button" onclick="abrirReabertura()" class="btn-master" style="background:#475569; box-shadow: 0 15px 0 #2d3748; font-size:18px;">REABRIR JORNADA</button>
+            <button type="button" onclick="abrirReabertura()" class="btn-master" style="background:#475569; box-shadow: 0 15px 0 #2d3748; font-size:18px;">
+                <i class="fa-solid fa-clock-rotate-left"></i> REABRIR JORNADA EXISTENTE
+            </button>
         </form>
     </div>
 
