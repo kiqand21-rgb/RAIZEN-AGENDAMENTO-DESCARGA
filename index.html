@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1200"> 
-    <title>RAÍZEN - GESTÃO OPERACIONAL V28.5</title>
+    <title>RAÍZEN - GESTÃO OPERACIONAL V28.8</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -49,7 +49,7 @@
             text-shadow: 5px 5px 0px rgba(0,0,0,0.2);
         }
 
-        /* --- NOVO: CSS DO PAINEL DE SUPERVISÃO --- */
+        /* --- NOVO: CSS DO PAINEL DE SUPERVISÃO (TANQUES) --- */
         #painel-supervisao {
             width: 98%; max-width: 1900px; margin: 20px auto; display: none;
             background: #1e293b; color: white; padding: 30px; border-radius: 35px;
@@ -57,9 +57,10 @@
             zoom: 0.75;
         }
         .grid-estoque { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-top: 15px; }
-        .card-estoque { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; text-align: center; }
+        .card-estoque { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; text-align: center; border: 2px solid transparent; }
         .card-estoque h4 { font-size: 11px; margin-bottom: 10px; color: var(--ouro-raizen); text-transform: uppercase; }
         .card-estoque input { background: #f8fafc; color: #1e293b; padding: 15px; font-size: 22px; border-radius: 12px; text-align: center; border: none; width: 100%; font-weight: 900; }
+        .card-estoque input.modo-edicao { background: #ffffff !important; border: 3px solid var(--cor-sucesso) !important; }
 
         .card-master { 
             width: 94%; 
@@ -118,7 +119,6 @@
             font-size: 24px; 
             font-weight: 700; 
             background: #f8fafc; 
-            transition: all 0.3s ease;
         }
 
         .painel-jornada { 
@@ -153,17 +153,6 @@
         .bg-hid { background: #00a8ff; border: 2px solid #0056b3; } 
         .bg-die { background: #334155; }
 
-        .input-edit-table {
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            width: 100%;
-            text-align: center;
-            background: #f8fafc;
-        }
-
         .btn-master { 
             width: 100%; padding: 35px; background: var(--roxo-raizen); 
             color: white; border: none; border-radius: 30px; 
@@ -181,7 +170,7 @@
         @keyframes girar { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body onclick="verificarCliqueForaEstoque(event)">
 
 <div id="loader-overlay"><div class="raizen-spinner"></div><h2 style="border:none; margin-top:25px;">SINCRONIZANDO...</h2></div>
 
@@ -190,16 +179,16 @@
 <div id="painel-supervisao">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <h3 style="color: var(--ouro-raizen); margin: 0;"><i class="fa-solid fa-warehouse"></i> ESPAÇO DISPONÍVEL NOS TANQUES (LITROS)</h3>
-        <button onclick="desbloquearEstoque()" id="btn-trava-estoque" style="background: var(--ouro-raizen); color: #1e293b; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 900; cursor: pointer;">
-            <i class="fa-solid fa-lock"></i> ALTERAR ESPAÇO COM SENHA
+        <button onclick="liberarEdicaoTanques(event)" id="btn-trava-estoque" style="background: var(--ouro-raizen); color: #1e293b; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 900; cursor: pointer;">
+            <i class="fa-solid fa-lock"></i> ALTERAR ESPAÇO
         </button>
     </div>
-    <div class="grid-estoque">
-        <div class="card-estoque"><h4>GASOLINA</h4><input type="number" id="est-GASOLINA" value="200000" readonly onchange="salvarEstoqueLocal()"></div>
-        <div class="card-estoque"><h4>B100</h4><input type="number" id="est-BIODIESEL" value="200000" readonly onchange="salvarEstoqueLocal()"></div>
-        <div class="card-estoque"><h4>ANIDRO</h4><input type="number" id="est-ANIDRO" value="200000" readonly onchange="salvarEstoqueLocal()"></div>
-        <div class="card-estoque"><h4>HIDRATADO</h4><input type="number" id="est-HIDRATADO" value="200000" readonly onchange="salvarEstoqueLocal()"></div>
-        <div class="card-estoque"><h4>DIESEL S10</h4><input type="number" id="est-DIESEL" value="200000" readonly onchange="salvarEstoqueLocal()"></div>
+    <div class="grid-estoque" id="container-estoque">
+        <div class="card-estoque"><h4>GASOLINA</h4><input type="number" id="est-GASOLINA" value="200000" readonly></div>
+        <div class="card-estoque"><h4>B100</h4><input type="number" id="est-BIODIESEL" value="200000" readonly></div>
+        <div class="card-estoque"><h4>ANIDRO</h4><input type="number" id="est-ANIDRO" value="200000" readonly></div>
+        <div class="card-estoque"><h4>HIDRATADO</h4><input type="number" id="est-HIDRATADO" value="200000" readonly></div>
+        <div class="card-estoque"><h4>DIESEL S10</h4><input type="number" id="est-DIESEL" value="200000" readonly></div>
     </div>
 </div>
 
@@ -282,11 +271,11 @@
                 <tr>
                     <th>VEÍCULO</th>
                     <th>PRODUTO</th>
-                    <th>VOL. (L)</th>
+                    <th>VOL (L)</th>
                     <th>STATUS JORNADA</th>
-                    <th>ENTRADA</th>
+                    <th>HORA ENTRADA</th>
                     <th style="background:#fff7ed; color:#c2410c;">AGENDAMENTO</th>
-                    <th style="background:#f0fdf4; color:#166534;">TELEFONE</th>
+                    <th style="background:#f0fdf4; color:#166534;">TELEFONE (AJUSTAR)</th>
                     <th>AÇÕES</th>
                     <th>FINALIZAR</th>
                 </tr>
@@ -315,44 +304,53 @@
 
     let memoriaFila = [];
     let filtroAtivo = 'TODOS';
+    let editandoTanques = false;
 
-    /* --- GESTÃO DE ESTOQUE (NOVO) --- */
-    function desbloquearEstoque() {
+    // --- FUNÇÕES DE ESTOQUE (TANQUES) ---
+    function liberarEdicaoTanques(e) {
+        e.stopPropagation();
         if(prompt("SENHA DE SUPERVISÃO:") === "super2026") {
-            document.querySelectorAll('.card-estoque input').forEach(i => {
-                i.readOnly = false;
-                i.style.background = "#fff";
-                i.style.border = "2px solid var(--cor-sucesso)";
+            editandoTanques = true;
+            document.querySelectorAll('#container-estoque input').forEach(input => {
+                input.readOnly = false;
+                input.classList.add('modo-edicao');
             });
-            document.getElementById('btn-trava-estoque').innerHTML = '<i class="fa-solid fa-lock-open"></i> EDITANDO...';
-        } else { alert("SENHA INCORRETA!"); }
-    }
-
-    function salvarEstoqueLocal() {
-        const estoque = {
-            GASOLINA: document.getElementById('est-GASOLINA').value,
-            BIODIESEL: document.getElementById('est-BIODIESEL').value,
-            ANIDRO: document.getElementById('est-ANIDRO').value,
-            HIDRATADO: document.getElementById('est-HIDRATADO').value,
-            DIESEL: document.getElementById('est-DIESEL').value
-        };
-        localStorage.setItem('estoqueRaizenV28', JSON.stringify(estoque));
-        document.querySelectorAll('.card-estoque input').forEach(i => { i.readOnly = true; i.style.background = "#f8fafc"; i.style.border = "none"; });
-        document.getElementById('btn-trava-estoque').innerHTML = '<i class="fa-solid fa-lock"></i> ALTERAR ESPAÇO';
-    }
-
-    function carregarEstoque() {
-        const salvo = JSON.parse(localStorage.getItem('estoqueRaizenV28'));
-        if(salvo) {
-            document.getElementById('est-GASOLINA').value = salvo.GASOLINA;
-            document.getElementById('est-BIODIESEL').value = salvo.BIODIESEL;
-            document.getElementById('est-ANIDRO').value = salvo.ANIDRO;
-            document.getElementById('est-HIDRATADO').value = salvo.HIDRATADO;
-            document.getElementById('est-DIESEL').value = salvo.DIESEL;
+            document.getElementById('btn-trava-estoque').innerHTML = '<i class="fa-solid fa-check"></i> SALVANDO...';
         }
     }
 
-    /* --- MANTENDO TODAS AS SUAS FUNÇÕES ORIGINAIS --- */
+    function verificarCliqueForaEstoque(e) {
+        if (!editandoTanques) return;
+        const painel = document.getElementById('painel-supervisao');
+        if (!painel.contains(e.target)) {
+            bloquearESalvarTanques();
+        }
+    }
+
+    function bloquearESalvarTanques() {
+        editandoTanques = false;
+        const estoque = {};
+        document.querySelectorAll('#container-estoque input').forEach(input => {
+            input.readOnly = true;
+            input.classList.remove('modo-edicao');
+            const chave = input.id.replace('est-', '');
+            estoque[chave] = input.value;
+        });
+        localStorage.setItem('raizen_tanques_v28', JSON.stringify(estoque));
+        document.getElementById('btn-trava-estoque').innerHTML = '<i class="fa-solid fa-lock"></i> ALTERAR ESPAÇO';
+    }
+
+    function carregarTanquesLocal() {
+        const salvo = JSON.parse(localStorage.getItem('raizen_tanques_v28'));
+        if(salvo) {
+            Object.keys(salvo).forEach(key => {
+                const input = document.getElementById(`est-${key}`);
+                if(input) input.value = salvo[key];
+            });
+        }
+    }
+
+    // --- FUNÇÕES ORIGINAIS DA BASE ---
     function setLoader(v) { document.getElementById('loader-overlay').style.display = v ? 'flex' : 'none'; }
     function abrirReabertura() { document.getElementById('form-principal-wrapper').style.display = 'none'; document.getElementById('form-reabertura-wrapper').style.display = 'block'; }
     function fecharReabertura() { document.getElementById('form-reabertura-wrapper').style.display = 'none'; document.getElementById('form-principal-wrapper').style.display = 'block'; }
@@ -391,50 +389,31 @@
     function renderTabela() {
         const corpo = document.getElementById('listaFila');
         corpo.innerHTML = "";
-        let lista = [...memoriaFila];
+        let lista = [...memoriaFila].sort((a,b) => {
+            const agA = a.AGENDAMENTO ? new Date(a.AGENDAMENTO) : new Date(8640000000000000);
+            const agB = b.AGENDAMENTO ? new Date(b.AGENDAMENTO) : new Date(8640000000000000);
+            return agA - agB;
+        });
         if (filtroAtivo !== 'TODOS') lista = lista.filter(i => i.PRODUTO.toUpperCase().includes(filtroAtivo));
 
         lista.forEach(item => {
-            const id = item.ID;
+            const id = item[RAÍZEN_DB.ID_COL];
             const corTag = item.PRODUTO.includes("GASOLINA") ? "bg-gas" : item.PRODUTO.includes("BIODIESEL") ? "bg-b100" : item.PRODUTO.includes("ANIDRO") ? "bg-ani" : item.PRODUTO.includes("HIDRATADO") ? "bg-hid" : "bg-die";
-            
             corpo.innerHTML += `
                 <tr>
                     <td style="color:var(--roxo-raizen); font-weight:900; font-size:22px;">${item.PLACA}</td>
                     <td><span class="tag-p ${corTag}">${item.PRODUTO}</span></td>
-                    <td><input type="number" id="vol-${id}" class="input-edit-table" value="${item.VOLUME || ''}" placeholder="L"></td>
+                    <td><input type="number" id="vol-${id}" class="input-edit-table" placeholder="Litros" value="${item.VOLUME || ''}"></td>
                     <td>${verificarJornada(item.JORNADA)}</td>
                     <td style="font-size:12px; color:#64748b;">${item.ENTRADA}</td>
-                    <td><input type="datetime-local" id="ag-${id}" value="${item.AGENDAMENTO ? item.AGENDAMENTO.slice(0,16) : ''}" class="input-edit-table"><button onclick="salvarCampo('${id}', 'AGENDAMENTO')" class="btn-master" style="padding:5px; font-size:10px; margin-top:5px;">SALVAR</button></td>
-                    <td><input type="text" id="tel-${id}" value="${item.TELEFONE}" class="input-edit-table"><button onclick="salvarCampo('${id}', 'TELEFONE')" class="btn-master" style="padding:5px; font-size:10px; margin-top:5px;">SALVAR</button></td>
-                    <td><button onclick="chamarWhatsApp('${item.TELEFONE}', '${item.PLACA}')" style="background:#25d366; color:white; padding:15px; border-radius:10px; cursor:pointer; font-weight:900; width:100%; border:none;"><i class="fa-brands fa-whatsapp"></i> CONVOCAR</button></td>
-                    <td><button onclick="tentarFinalizar('${id}', '${item.PRODUTO}')" style="background:#3b82f6; color:white; padding:15px; border-radius:10px; cursor:pointer; font-weight:900; width:100%; border:none;">SAÍDA</button></td>
+                    <td style="background:#fffbeb;"><input type="datetime-local" id="ag-${id}" value="${item.AGENDAMENTO ? item.AGENDAMENTO.slice(0,16) : ''}" class="input-edit-table"><button onclick="salvarCampo('${id}', 'AGENDAMENTO')" class="btn-master" style="padding:5px; font-size:10px; margin-top:5px;">SALVAR AG.</button></td>
+                    <td style="background:#f0fdf4;"><input type="text" id="tel-${id}" value="${item.TELEFONE}" class="input-edit-table"><button onclick="salvarCampo('${id}', 'TELEFONE')" class="btn-master" style="padding:5px; font-size:10px; margin-top:5px;">ATUALIZAR TEL.</button></td>
+                    <td><button onclick="chamarWhatsApp('${item.TELEFONE}', '${item.PLACA}', '${id}', '${item.PRODUTO}')" style="background:#25d366; color:white; border:none; padding:15px; border-radius:10px; cursor:pointer; font-weight:900; width:100%;"><i class="fa-brands fa-whatsapp"></i> CONVOCAR</button></td>
+                    <td><button onclick="finalizarComEstoque('${id}', '${item.PRODUTO}')" style="background:#3b82f6; color:white; border:none; padding:15px; border-radius:10px; cursor:pointer; font-weight:900; width:100%;">SAÍDA</button></td>
                 </tr>`;
         });
     }
 
-    async function tentarFinalizar(id, produto) {
-        const volCaminhao = parseFloat(document.getElementById(`vol-${id}`).value);
-        if(!volCaminhao) { alert("INFORME O VOLUME!"); return; }
-
-        let chave = produto.includes("GASOLINA") ? "GASOLINA" : produto.includes("BIODIESEL") ? "BIODIESEL" : produto.includes("ANIDRO") ? "ANIDRO" : produto.includes("HIDRATADO") ? "HIDRATADO" : "DIESEL";
-        const campo = document.getElementById(`est-${chave}`);
-        const atual = parseFloat(campo.value);
-
-        if(volCaminhao > atual) { alert("SEM ESPAÇO NO TANQUE!"); return; }
-
-        if(confirm(`SUBTRAIR ${volCaminhao}L DE ${chave}?`)) {
-            setLoader(true);
-            campo.value = (atual - volCaminhao).toFixed(0);
-            salvarEstoqueLocal();
-            await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros?ID=eq.${id}`, {
-                method: 'PATCH', headers: RAÍZEN_DB.HEADERS, body: JSON.stringify({ "SAIDA": new Date().toLocaleString('pt-BR'), "VOLUME": volCaminhao })
-            });
-            carregarDados();
-        }
-    }
-
-    /* MANTENDO AS DEMAIS FUNÇÕES DE JORNADA E REABERTURA IGUAIS AO SEU CÓDIGO */
     function verificarJornada(h) {
         if(h === "24 HORAS") return "<b style='color:green'>● 24H</b>";
         if(!h) return "---";
@@ -443,21 +422,70 @@
         return (new Date() > limite) ? `<b style="color:var(--cor-erro)">● EXP</b>` : `<b style="color:var(--cor-sucesso)">● OK</b>`;
     }
 
+    async function chamarWhatsApp(tel, placa, id, produto) {
+        const volCaminhao = parseFloat(document.getElementById(`vol-${id}`).value);
+        if(!volCaminhao) { alert("DIGITE O VOLUME ANTES DE CONVOCAR!"); return; }
+
+        let chave = produto.includes("GASOLINA") ? "GASOLINA" : produto.includes("BIODIESEL") ? "BIODIESEL" : produto.includes("ANIDRO") ? "ANIDRO" : produto.includes("HIDRATADO") ? "HIDRATADO" : "DIESEL";
+        const espacoDisponivel = parseFloat(document.getElementById(`est-${chave}`).value);
+
+        if(volCaminhao > espacoDisponivel) {
+            alert(`⚠️ BLOQUEADO!\nCaminhão: ${volCaminhao}L\nEspaço Tanque: ${espacoDisponivel}L\nNão há espaço suficiente para descarregar!`);
+            return;
+        }
+
+        const baia = prompt("Motorista vamos descarregar?\nInforme a BAIA ou ÁREA:");
+        if(!baia) return;
+        const msg = encodeURIComponent(`Olá\nMotorista da placa ${placa}, vamos descarregar?\nBaia ${baia}\nObrigado!`);
+        window.open(`https://wa.me/55${tel.replace(/\D/g, "")}?text=${msg}`, '_blank');
+    }
+
+    async function finalizarComEstoque(id, produto) {
+        const vol = parseFloat(document.getElementById(`vol-${id}`).value);
+        if(!vol) { alert("INFORME O VOLUME!"); return; }
+
+        let chave = produto.includes("GASOLINA") ? "GASOLINA" : produto.includes("BIODIESEL") ? "BIODIESEL" : produto.includes("ANIDRO") ? "ANIDRO" : produto.includes("HIDRATADO") ? "HIDRATADO" : "DIESEL";
+        const campoTanque = document.getElementById(`est-${chave}`);
+        const espacoAtual = parseFloat(campoTanque.value);
+
+        if(vol > espacoAtual) { alert("ERRO: VOLUME MAIOR QUE ESPAÇO!"); return; }
+
+        if(confirm(`FINALIZAR SAÍDA E SUBTRAIR ${vol}L DO ESPAÇO DE ${chave}?`)) {
+            setLoader(true);
+            campoTanque.value = (espacoAtual - vol).toFixed(0);
+            bloquearESalvarTanques(); 
+
+            await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros?ID=eq.${id}`, {
+                method: 'PATCH', headers: RAÍZEN_DB.HEADERS, body: JSON.stringify({ "SAIDA": new Date().toLocaleString('pt-BR'), "VOLUME": vol })
+            });
+            carregarDados();
+        }
+    }
+
     async function salvarCampo(id, campo) {
         let valor = document.getElementById(campo === 'AGENDAMENTO' ? `ag-${id}` : `tel-${id}`).value;
+        setLoader(true);
         await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros?ID=eq.${id}`, { method: 'PATCH', headers: RAÍZEN_DB.HEADERS, body: JSON.stringify({ [campo]: valor }) });
-        alert("OK!");
+        carregarDados();
+        setLoader(false);
     }
 
-    function chamarWhatsApp(tel, placa) {
-        const baia = prompt("BAIA:"); if(!baia) return;
-        window.open(`https://wa.me/55${tel.replace(/\D/g, "")}?text=${encodeURIComponent('Placa '+placa+' para a Baia '+baia)}`, '_blank');
+    async function processarReabertura() {
+        const p = document.getElementById('re_placa').value.toUpperCase();
+        const h = document.getElementById('re_hora').value;
+        setLoader(true);
+        const res = await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros?PLACA=eq.${p}&SAIDA=is.null`, { headers: RAÍZEN_DB.HEADERS });
+        const d = await res.json();
+        if(d.length > 0) {
+            await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros?ID=eq.${d[0].ID}`, { method: 'PATCH', headers: RAÍZEN_DB.HEADERS, body: JSON.stringify({"JORNADA": h}) });
+            location.reload();
+        } else { alert("NÃO ACHOU!"); setLoader(false); }
     }
 
-    function filtrar(t, b) {
+    function filtrar(t, btn) {
         filtroAtivo = t;
-        document.querySelectorAll('.chip-filtro').forEach(x => x.classList.remove('active'));
-        b.classList.add('active'); renderTabela();
+        document.querySelectorAll('.chip-filtro').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); renderTabela();
     }
 
     function ativarOperador() {
@@ -465,7 +493,8 @@
             document.getElementById('secao-entrada').style.display = 'none';
             document.getElementById('modulo-operador-full').style.display = 'block';
             document.getElementById('painel-supervisao').style.display = 'block';
-            carregarEstoque(); carregarDados();
+            carregarTanquesLocal();
+            carregarDados();
         }
     }
 
@@ -482,18 +511,6 @@
         await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros`, { method: 'POST', headers: RAÍZEN_DB.HEADERS, body: JSON.stringify(data) });
         location.reload();
     };
-
-    async function processarReabertura() {
-        const p = document.getElementById('re_placa').value.toUpperCase();
-        const h = document.getElementById('re_hora').value;
-        setLoader(true);
-        const res = await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros?PLACA=eq.${p}&SAIDA=is.null`, { headers: RAÍZEN_DB.HEADERS });
-        const d = await res.json();
-        if(d.length > 0) {
-            await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros?ID=eq.${d[0].ID}`, { method: 'PATCH', headers: RAÍZEN_DB.HEADERS, body: JSON.stringify({"JORNADA": h}) });
-            location.reload();
-        } else alert("NÃO ACHOU!");
-    }
 </script>
 </body>
 </html>
