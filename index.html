@@ -252,6 +252,11 @@
 </div>
 
 <div id="modulo-operador-full">
+    <div style="text-align:center; margin-top:20px;">
+    <button onclick="abrirGestaoTanques()" style="background:none; border:none; color:#64748b; font-weight:700; cursor:pointer; font-size:12px; text-transform:uppercase;">
+        <i class="fa-solid fa-gauge-high"></i> SUPERVISÃO DE TANQUES
+    </button>
+</div>
     <h2>PAINEL DE CONTROLE DE PÁTIO</h2>
     <div class="filtros-top">
         <button class="chip-filtro active" onclick="filtrar('TODOS', this)">TODOS</button>
@@ -467,6 +472,93 @@
             if(res.ok) { alert("REGISTRADO!"); location.reload(); }
         } finally { setLoader(false); }
     };
+    /* --- MÓDULO DE GESTÃO DE TANQUES (SUPERVISÃO) --- */
+
+// 1. Função para abrir a tela de gestão (pode ser chamada por um botão ou senha)
+async function abrirGestaoTanques() {
+    const senha = prompt("SENHA DE SUPERVISÃO:");
+    if (senha !== "raizen2026") return; // Use a mesma senha do operacional ou uma nova
+
+    // Esconde as outras seções e mostra a de gestão
+    document.getElementById('secao-entrada').style.display = 'none';
+    document.getElementById('modulo-operador-full').style.display = 'none';
+    
+    // Cria o container da gestão se não existir
+    if (!document.getElementById('modulo-supervisao-tanques')) {
+        const div = document.createElement('div');
+        div.id = 'modulo-supervisao-tanques';
+        div.className = 'card-master'; // Usa o mesmo estilo blindado
+        div.innerHTML = `
+            <h2><i class="fa-solid fa-gears"></i> GESTÃO DE TANQUES</h2>
+            <div id="lista-tanques-gestao"></div>
+            <button class="btn-master" style="background:#1e293b; margin-top:30px;" onclick="location.reload()">VOLTAR AO INÍCIO</button>
+        `;
+        document.body.appendChild(div);
+    }
+    
+    document.getElementById('modulo-supervisao-tanques').style.display = 'block';
+    carregarTanquesParaEdicao();
+}
+
+// 2. Carrega os tanques do Supabase para a tela de edição
+async function carregarTanquesParaEdicao() {
+    setLoader(true);
+    try {
+        const res = await fetch(`${RAÍZEN_DB.URL}/rest/v1/ESTOQUE?select=*`, { headers: RAÍZEN_DB.HEADERS });
+        const tanques = await res.json();
+        
+        const container = document.getElementById('lista-tanques-gestao');
+        container.innerHTML = "";
+
+        tanques.forEach(t => {
+            container.innerHTML += `
+                <div class="painel-jornada" style="border-style: solid; border-color: var(--roxo-raizen); margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div>
+                            <span style="font-weight:900; color:var(--roxo-raizen); font-size:18px;">TANQUE ${t.TANQUE_NAME}</span><br>
+                            <small style="font-weight:700;">${t.PRODUTO}</small>
+                        </div>
+                        <div style="flex-grow: 1; max-width: 300px;">
+                            <label style="font-size:12px;">ESPAÇO DISPONÍVEL (LITROS)</label>
+                            <input type="number" id="input-tanque-${t.id}" value="${t.ESPAÇO_DISPONIVEL}" 
+                                   style="padding: 15px; font-size: 18px; border-width: 2px;">
+                        </div>
+                        <button onclick="atualizarEspacoTanque(${t.id})" 
+                                style="background: var(--cor-sucesso); color: white; border: none; padding: 15px 30px; border-radius: 15px; font-weight: 900; cursor: pointer;">
+                            ATUALIZAR
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    } finally {
+        setLoader(false);
+    }
+}
+
+// 3. Salva o novo volume no Supabase
+async function atualizarEspacoTanque(id) {
+    const novoVolume = document.getElementById(`input-tanque-${id}`).value;
+    if (!novoVolume) return;
+
+    setLoader(true);
+    try {
+        const res = await fetch(`${RAÍZEN_DB.URL}/rest/v1/ESTOQUE?id=eq.${id}`, {
+            method: 'PATCH',
+            headers: RAÍZEN_DB.HEADERS,
+            body: JSON.stringify({ "ESPAÇO_DISPONIVEL": parseFloat(novoVolume) })
+        });
+
+        if (res.ok) {
+            alert("VOLUME ATUALIZADO COM SUCESSO!");
+            carregarTanquesParaEdicao();
+        }
+    } catch (e) {
+        alert("Erro ao atualizar tanque.");
+    } finally {
+        setLoader(false);
+    }
+}
 </script>
 </body>
 </html>
