@@ -421,6 +421,21 @@
         await fetch(`${RAÍZEN_DB.URL}/rest/v1/ESTOQUE?id=eq.${id}`, { method: 'PATCH', headers: RAÍZEN_DB.HEADERS, body: JSON.stringify({"ESPAÇO_DISPONIVEL": v}) });
         alert("ATUALIZADO!");
     }
+     document.getElementById('formMaster').onsubmit = async e => {
+        e.preventDefault();
+        setLoader(true);
+        const data = {
+            "PLACA": document.getElementById('placa').value.toUpperCase(),
+            "PRODUTO": document.getElementById('produto').value,
+            "TELEFONE": document.getElementById('whatsapp').value,
+            "JORNADA": document.getElementById('jornada24').checked ? "24 HORAS" : document.getElementById('limite').value,
+            "ENTRADA": new Date().toLocaleString('pt-BR')
+        };
+        try {
+            const res = await fetch(`${RAÍZEN_DB.URL}/rest/v1/registros`, { method: 'POST', headers: RAÍZEN_DB.HEADERS, body: JSON.stringify(data) });
+            if(res.ok) { alert("REGISTRADO!"); location.reload(); }
+        } finally { setLoader(false); }
+    };
 </script>
 </body>
 </html>
