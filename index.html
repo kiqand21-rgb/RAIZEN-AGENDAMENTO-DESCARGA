@@ -30,7 +30,6 @@
         #modulo-supervisor { display: none; width: 96%; max-width: 1300px; margin: 40px auto; background: var(--branco); padding: 55px; border-radius: 35px; box-shadow: var(--sombra-premium); border-left: 35px solid #0ea5e9; }
         #modulo-logs { display: none; width: 96%; max-width: 1400px; margin: 40px auto; background: var(--branco); padding: 55px; border-radius: 35px; box-shadow: var(--sombra-premium); border-left: 35px solid #7c3aed; }
 
-        /* MODAL LOGIN */
         #modal-login { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; }
         #modal-login.aberto { display: flex; }
         .login-box { background: white; border-radius: 35px; padding: 60px; width: 90%; max-width: 500px; box-shadow: 0 30px 60px rgba(0,0,0,0.3); }
@@ -88,15 +87,14 @@
         .resumo-tanques-topo { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin-bottom: 40px; }
         .resumo-tanque-mini { background: #f8fafc; border-radius: 20px; padding: 20px 25px; border: 3px solid #e2e8f0; }
         .mini-barra { height: 10px; border-radius: 10px; background: #e2e8f0; overflow: hidden; margin: 8px 0; }
-        .mini-barra-fill { height: 100%; border-radius: 10px; transition: width 0.5px; }
+        .mini-barra-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
         .mini-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #94a3b8; }
 
-        /* LOGS */
         .log-item { background: #f8fafc; border-radius: 18px; padding: 22px 28px; margin-bottom: 14px; border-left: 8px solid #e2e8f0; display: flex; align-items: center; gap: 20px; }
-        .log-item.saida   { border-left-color: #3b82f6; }
-        .log-item.volume  { border-left-color: #1d4ed8; }
-        .log-item.tanque  { border-left-color: #0ea5e9; }
-        .log-item.zerar   { border-left-color: #f59e0b; }
+        .log-item.saida  { border-left-color: #3b82f6; }
+        .log-item.volume { border-left-color: #1d4ed8; }
+        .log-item.tanque { border-left-color: #0ea5e9; }
+        .log-item.zerar  { border-left-color: #f59e0b; }
         .log-icon { font-size: 22px; min-width: 35px; text-align: center; }
         .log-corpo { flex: 1; }
         .log-acao { font-size: 15px; font-weight: 900; color: #1e293b; }
@@ -104,7 +102,6 @@
         .log-meta { font-size: 12px; font-weight: 700; color: #94a3b8; text-align: right; min-width: 160px; }
         .log-usuario { display: inline-block; background: #ede9fe; color: #6d28d9; padding: 3px 12px; border-radius: 8px; font-size: 11px; font-weight: 900; margin-top: 4px; }
 
-        /* badge usuario logado */
         #badge-usuario { display: none; position: fixed; top: 18px; right: 18px; background: #1e293b; color: white; padding: 10px 22px; border-radius: 20px; font-size: 13px; font-weight: 900; z-index: 9000; gap: 10px; align-items: center; }
         #badge-usuario.visivel { display: flex; }
     </style>
@@ -113,14 +110,12 @@
 
 <div id="loader-overlay"><div class="raizen-spinner"></div><h2 style="border:none;margin-top:25px;">SINCRONIZANDO...</h2></div>
 
-<!-- BADGE USUÁRIO LOGADO -->
 <div id="badge-usuario">
     <i class="fa-solid fa-circle-user"></i>
     <span id="badge-nome">---</span>
     <span id="badge-perfil" style="background:#84207d;padding:2px 10px;border-radius:8px;font-size:11px;">---</span>
 </div>
 
-<!-- MODAL LOGIN -->
 <div id="modal-login">
     <div class="login-box">
         <h3 id="login-titulo" style="color:var(--roxo-raizen);"><i class="fa-solid fa-lock"></i> ACESSO AO SISTEMA</h3>
@@ -134,7 +129,6 @@
 
 <header><div class="logo-display">RAÍZEN</div></header>
 
-<!-- TELA ENTRADA -->
 <div class="card-master" id="secao-entrada">
     <div id="form-principal-wrapper">
         <h2><i class="fa-solid fa-truck-ramp-box"></i> REGISTRO DE ENTRADA</h2>
@@ -198,7 +192,6 @@
     </div>
 </div>
 
-<!-- MÓDULO OPERADOR -->
 <div id="modulo-operador-full">
     <h2>PAINEL DE CONTROLE DE PÁTIO</h2>
     <div id="resumo-tanques-operador" class="resumo-tanques-topo"></div>
@@ -234,7 +227,6 @@
     </div>
 </div>
 
-<!-- MÓDULO SUPERVISOR -->
 <div id="modulo-supervisor">
     <h2 style="color:#0ea5e9;"><i class="fa-solid fa-shield-halved"></i> GESTÃO DE TANQUES — SUPERVISOR</h2>
     <div style="background:#f0f9ff;border-radius:25px;padding:28px;margin-bottom:40px;border:3px solid #bae6fd;">
@@ -248,13 +240,10 @@
         <button onclick="abrirLogs()" class="btn-master" style="background:#7c3aed;box-shadow:0 15px 0 #5b21b6;">
             <i class="fa-solid fa-clock-rotate-left"></i> VER LOG DE AÇÕES
         </button>
-        <button onclick="location.reload()" class="btn-master" style="background:#475569;box-shadow:0 15px 0 #334155;">
-            VOLTAR
-        </button>
+        <button onclick="location.reload()" class="btn-master" style="background:#475569;box-shadow:0 15px 0 #334155;">VOLTAR</button>
     </div>
 </div>
 
-<!-- MÓDULO LOGS -->
 <div id="modulo-logs">
     <h2 style="color:#7c3aed;"><i class="fa-solid fa-clock-rotate-left"></i> LOG DE AÇÕES</h2>
     <div style="display:flex;gap:15px;margin-bottom:30px;flex-wrap:wrap;">
@@ -282,13 +271,13 @@
         }
     };
 
-    let memoriaFila    = [];
-    let memoriaTanques = [];
-    let memoriaLogs    = [];
-    let filtroAtivo    = 'TODOS';
-    let filtroLogAtivo = 'TODOS';
-    let idsConhecidos  = new Set();
-    let usuarioLogado  = null;
+    let memoriaFila       = [];
+    let memoriaTanques    = [];
+    let memoriaLogs       = [];
+    let filtroAtivo       = 'TODOS';
+    let filtroLogAtivo    = 'TODOS';
+    let idsConhecidos     = new Set();
+    let usuarioLogado     = null;
     let tipoLoginPendente = null;
 
     /* --- UTILS --- */
@@ -381,9 +370,10 @@
                 return;
             }
             usuarioLogado = { nome: data[0].nome, perfil: data[0].perfil };
+            const perfilConfirmado = tipoLoginPendente; // salva ANTES de fecharLogin zerar
             fecharLogin();
             mostrarBadge();
-            if(tipoLoginPendente === 'OPERADOR') {
+            if(perfilConfirmado === 'OPERADOR') {
                 document.getElementById('secao-entrada').style.display = 'none';
                 document.getElementById('modulo-operador-full').style.display = 'block';
                 const permitido = await pedirPermissaoNotificacao();
@@ -550,7 +540,7 @@
         const corpo = document.getElementById('listaFila');
         corpo.innerHTML = '';
         let lista = [...memoriaFila].sort((a,b) => {
-            const da = a.AGENDAMENTO ? new Date(a.AGENDAMENTO) : new Date(8640000000000000);
+            const da  = a.AGENDAMENTO ? new Date(a.AGENDAMENTO) : new Date(8640000000000000);
             const db2 = b.AGENDAMENTO ? new Date(b.AGENDAMENTO) : new Date(8640000000000000);
             return da - db2;
         });
