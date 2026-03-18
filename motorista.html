@@ -1,0 +1,495 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>RAÍZEN — Registro de Entrada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --roxo: #84207d;
+            --verde: #4d6d5d;
+            --ouro: #ffc107;
+            --fundo: #f1f5f9;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background: var(--fundo); min-height: 100vh; padding-bottom: 40px; }
+
+        header {
+            background: linear-gradient(135deg, var(--verde) 0%, #1a241f 100%);
+            padding: 35px 20px 50px;
+            text-align: center;
+            border-bottom: 12px solid var(--roxo);
+        }
+        .logo { color: white; font-size: 42px; font-weight: 900; letter-spacing: 10px; text-transform: uppercase; }
+        .logo-sub { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; margin-top: 6px; letter-spacing: 3px; text-transform: uppercase; }
+
+        .card {
+            width: 92%;
+            max-width: 480px;
+            margin: -25px auto 0;
+            background: white;
+            border-radius: 28px;
+            padding: 35px 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            border-left: 10px solid var(--roxo);
+            position: relative;
+            z-index: 10;
+        }
+
+        .card-titulo {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--roxo);
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f1f5f9;
+        }
+        .card-titulo.cinza { color: #475569; }
+
+        .field { margin-bottom: 20px; }
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--verde);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 18px 16px;
+            border: 3px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: 0.2s;
+            -webkit-appearance: none;
+        }
+        .field input:focus, .field select:focus {
+            border-color: var(--roxo);
+            background: white;
+            outline: none;
+            box-shadow: 0 0 0 6px rgba(132,32,125,0.08);
+        }
+
+        .jornada-box {
+            background: #fffbeb;
+            border: 3px dashed var(--ouro);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .jornada-box label { color: #92400e; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+
+        .check-24 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--roxo);
+        }
+        .check-24 input[type=checkbox] { width: 24px; height: 24px; cursor: pointer; }
+
+        .btn {
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 18px;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.2s;
+            margin-bottom: 12px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-roxo { background: var(--roxo); color: white; box-shadow: 0 8px 0 #5e1659; }
+        .btn-roxo:active { box-shadow: 0 3px 0 #5e1659; transform: translateY(5px); }
+        .btn-cinza { background: #475569; color: white; box-shadow: 0 8px 0 #2d3748; }
+        .btn-cinza:active { box-shadow: 0 3px 0 #2d3748; transform: translateY(5px); }
+        .btn-outline { background: none; color: var(--roxo); border: 3px solid var(--roxo); box-shadow: none; }
+
+        #tela-sucesso {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .sucesso-icone {
+            width: 90px; height: 90px;
+            background: #dcfce7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+        .sucesso-titulo { font-size: 24px; font-weight: 900; color: #166534; margin-bottom: 8px; }
+        .sucesso-sub { font-size: 14px; font-weight: 600; color: #64748b; margin-bottom: 25px; line-height: 1.6; }
+        .sucesso-placa {
+            background: #f0fdf4;
+            border: 3px solid #86efac;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 25px;
+        }
+        .sucesso-placa .label { font-size: 11px; font-weight: 900; color: #166534; text-transform: uppercase; letter-spacing: 1px; }
+        .sucesso-placa .valor { font-size: 28px; font-weight: 900; color: #14532d; margin-top: 4px; }
+
+        #loader {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.92);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        .spinner {
+            width: 60px; height: 60px;
+            border: 8px solid #f1f5f9;
+            border-top: 8px solid var(--roxo);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-txt { font-size: 15px; font-weight: 900; color: var(--roxo); text-transform: uppercase; letter-spacing: 1px; }
+
+        .msg-erro {
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.5;
+        }
+        .msg-erro.visivel { display: flex; }
+
+        .tabs { display: flex; gap: 0; margin-bottom: 25px; border-radius: 16px; overflow: hidden; border: 3px solid #e2e8f0; }
+        .tab {
+            flex: 1; padding: 14px; text-align: center;
+            font-size: 13px; font-weight: 900; text-transform: uppercase;
+            cursor: pointer; background: #f8fafc; color: #94a3b8;
+            transition: 0.2s;
+        }
+        .tab.active { background: var(--roxo); color: white; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="spinner"></div>
+    <div class="loader-txt">Aguarde...</div>
+</div>
+
+<header>
+    <div class="logo">RAÍZEN</div>
+    <div class="logo-sub">Registro de Motorista</div>
+</header>
+
+<div class="card" id="card-principal">
+
+    <div class="tabs">
+        <div class="tab active" id="tab-entrada" onclick="trocarAba('entrada')">
+            <i class="fa-solid fa-truck-arrow-right"></i> Entrada
+        </div>
+        <div class="tab" id="tab-jornada" onclick="trocarAba('jornada')">
+            <i class="fa-solid fa-clock-rotate-left"></i> Reabrir Jornada
+        </div>
+    </div>
+
+    <!-- ABA ENTRADA -->
+    <div id="aba-entrada">
+        <div class="card-titulo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#84207d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="8" width="13" height="9" rx="1"/>
+                <path d="M14 10h4l3 3v4h-7V10z"/>
+                <circle cx="5.5" cy="18.5" r="1.5"/>
+                <circle cx="18.5" cy="18.5" r="1.5"/>
+            </svg>
+            Registrar Entrada
+        </div>
+
+        <div id="erro-entrada" class="msg-erro">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="erro-entrada-txt">Erro</span>
+        </div>
+
+        <div class="field">
+            <label><i class="fa-solid fa-barcode"></i> Placa do Veículo</label>
+            <input type="text" id="placa" placeholder="AAA-0000" maxlength="8" autocomplete="off" autocapitalize="characters">
+        </div>
+        <div class="field">
+            <label><i class="fa-solid fa-gas-pump"></i> Produto</label>
+            <select id="produto">
+                <option value="">— Selecione —</option>
+                <option value="GASOLINA">Gasolina</option>
+                <option value="BIODIESEL (B100)">Biodiesel (B100)</option>
+                <option value="ETANOL ANIDRO">Etanol Anidro</option>
+                <option value="ETANOL HIDRATADO">Etanol Hidratado</option>
+                <option value="DIESEL S10">Diesel S10</option>
+            </select>
+        </div>
+        <div class="field">
+            <label><i class="fa-brands fa-whatsapp"></i> WhatsApp</label>
+            <input type="tel" id="whatsapp" placeholder="(19) 99999-9999" inputmode="numeric">
+        </div>
+
+        <div class="jornada-box">
+            <div id="campo-hora-entrada">
+                <label><i class="fa-solid fa-clock"></i> Horário Limite da Jornada</label>
+                <input type="time" id="limite">
+            </div>
+            <label class="check-24">
+                <input type="checkbox" id="jornada24"> Jornada 24 Horas
+            </label>
+        </div>
+
+        <button class="btn btn-roxo" onclick="registrarEntrada()">
+            <i class="fa-solid fa-circle-check"></i> CONFIRMAR ENTRADA
+        </button>
+    </div>
+
+    <!-- ABA REABRIR JORNADA -->
+    <div id="aba-jornada" style="display:none;">
+        <div class="card-titulo cinza">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Reabrir Jornada
+        </div>
+
+        <div id="erro-jornada" class="msg-erro">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="erro-jornada-txt">Erro</span>
+        </div>
+
+        <div style="background:#f0f9ff;border-radius:16px;padding:16px;margin-bottom:20px;font-size:13px;font-weight:600;color:#0369a1;line-height:1.6;">
+            <i class="fa-solid fa-circle-info"></i>
+            Informe sua placa e o novo horário limite para reabrir sua jornada.
+        </div>
+
+        <div class="field">
+            <label>Placa do Veículo</label>
+            <input type="text" id="re-placa" placeholder="AAA-0000" maxlength="8" autocomplete="off" autocapitalize="characters">
+        </div>
+        <div class="field">
+            <label>Nova Hora Limite</label>
+            <input type="time" id="re-hora">
+        </div>
+
+        <button class="btn btn-cinza" onclick="reabrirJornada()">
+            <i class="fa-solid fa-rotate"></i> REABRIR JORNADA
+        </button>
+    </div>
+
+    <!-- TELA SUCESSO -->
+    <div id="tela-sucesso">
+        <div class="sucesso-icone">✅</div>
+        <div class="sucesso-titulo" id="sucesso-titulo">Registrado!</div>
+        <div class="sucesso-placa">
+            <div class="label">Veículo</div>
+            <div class="valor" id="sucesso-placa-val">---</div>
+        </div>
+        <div class="sucesso-sub" id="sucesso-msg">Seu registro foi realizado com sucesso. Aguarde a convocação do operador.</div>
+        <button class="btn btn-outline" onclick="novoRegistro()">
+            <i class="fa-solid fa-plus"></i> NOVO REGISTRO
+        </button>
+    </div>
+
+</div>
+
+<div style="text-align:center;margin-top:30px;padding:0 20px;">
+    <p style="font-size:11px;font-weight:600;color:#94a3b8;">RAÍZEN — Sistema de Gestão Operacional</p>
+    <p style="font-size:11px;font-weight:600;color:#cbd5e1;margin-top:4px;">Aguarde a convocação do operador após o registro</p>
+</div>
+
+<script>
+    const DB = {
+        URL: 'https://rbbkjuiizmvatiawfzuv.supabase.co',
+        H: {
+            "apikey": 'sb_publishable_WkrHi6cWtZsnsDXl0nh1hA_kz1UT_1X',
+            "Authorization": 'Bearer sb_publishable_WkrHi6cWtZsnsDXl0nh1hA_kz1UT_1X',
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+        }
+    };
+
+    const agora = () => new Date().toLocaleString('pt-BR');
+    const setLoader = v => document.getElementById('loader').style.display = v ? 'flex' : 'none';
+
+    document.getElementById('placa').oninput = function() {
+        let v = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+        if(v.length > 3 && !isNaN(v[3])) v = v.slice(0,3)+'-'+v.slice(3,7);
+        this.value = v.slice(0,8);
+    };
+
+    document.getElementById('re-placa').oninput = function() {
+        let v = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+        if(v.length > 3 && !isNaN(v[3])) v = v.slice(0,3)+'-'+v.slice(3,7);
+        this.value = v.slice(0,8);
+    };
+
+    document.getElementById('whatsapp').oninput = function(e) {
+        let v = e.target.value.replace(/\D/g,'').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+        e.target.value = !v[2] ? v[1] : '('+v[1]+') '+v[2]+(v[3] ? '-'+v[3] : '');
+    };
+
+    document.getElementById('jornada24').onchange = function() {
+        const c = document.getElementById('limite');
+        document.getElementById('campo-hora-entrada').style.opacity = this.checked ? '.3' : '1';
+        c.disabled = this.checked;
+        if(this.checked) c.value = '';
+    };
+
+    function trocarAba(aba) {
+        document.getElementById('aba-entrada').style.display  = aba === 'entrada' ? 'block' : 'none';
+        document.getElementById('aba-jornada').style.display  = aba === 'jornada' ? 'block' : 'none';
+        document.getElementById('tela-sucesso').style.display = 'none';
+        document.getElementById('tab-entrada').classList.toggle('active', aba === 'entrada');
+        document.getElementById('tab-jornada').classList.toggle('active', aba === 'jornada');
+        ocultarErro('entrada');
+        ocultarErro('jornada');
+    }
+
+    function mostrarErro(tipo, msg) {
+        const el = document.getElementById(`erro-${tipo}`);
+        document.getElementById(`erro-${tipo}-txt`).textContent = msg;
+        el.classList.add('visivel');
+    }
+
+    function ocultarErro(tipo) {
+        document.getElementById(`erro-${tipo}`)?.classList.remove('visivel');
+    }
+
+    async function registrarEntrada() {
+        ocultarErro('entrada');
+        const placa   = document.getElementById('placa').value.trim().toUpperCase();
+        const produto = document.getElementById('produto').value;
+        const tel     = document.getElementById('whatsapp').value.trim();
+        const j24     = document.getElementById('jornada24').checked;
+        const limite  = document.getElementById('limite').value;
+
+        if(!placa)            { mostrarErro('entrada','Informe a placa do veículo.'); return; }
+        if(!produto)          { mostrarErro('entrada','Selecione o produto.'); return; }
+        if(!tel)              { mostrarErro('entrada','Informe o WhatsApp.'); return; }
+        if(!j24 && !limite)   { mostrarErro('entrada','Informe o horário limite da jornada.'); return; }
+
+        setLoader(true);
+        try {
+            const chk = await fetch(`${DB.URL}/rest/v1/registros?PLACA=eq.${placa}&SAIDA=is.null&select=*`, { headers: DB.H });
+            const existentes = await chk.json();
+            if(existentes && existentes.length > 0) {
+                const reg = existentes[0];
+                mostrarErro('entrada', `Placa ${placa} já está registrada no pátio desde ${reg.ENTRADA}. Aguarde a liberação ou reabra a jornada na aba ao lado.`);
+                setLoader(false);
+                return;
+            }
+
+            const r = await fetch(`${DB.URL}/rest/v1/registros`, {
+                method: 'POST', headers: DB.H,
+                body: JSON.stringify({
+                    PLACA:    placa,
+                    PRODUTO:  produto,
+                    TELEFONE: tel,
+                    JORNADA:  j24 ? '24 HORAS' : limite,
+                    ENTRADA:  agora()
+                })
+            });
+
+            if(r.ok) {
+                mostrarSucesso(placa, `Produto: ${produto}\nAguarde a convocação do operador.`, 'Entrada Confirmada!');
+            } else {
+                mostrarErro('entrada', 'Erro ao registrar. Tente novamente.');
+            }
+        } catch(e) {
+            mostrarErro('entrada', 'Erro de conexão. Verifique sua internet.');
+            console.error(e);
+        } finally { setLoader(false); }
+    }
+
+    async function reabrirJornada() {
+        ocultarErro('jornada');
+        const placa = document.getElementById('re-placa').value.trim().toUpperCase();
+        const hora  = document.getElementById('re-hora').value;
+
+        if(!placa) { mostrarErro('jornada','Informe a placa do veículo.'); return; }
+        if(!hora)  { mostrarErro('jornada','Informe a nova hora limite.'); return; }
+
+        setLoader(true);
+        try {
+            const r = await fetch(`${DB.URL}/rest/v1/registros?PLACA=eq.${placa}&SAIDA=is.null&select=*`, { headers: DB.H });
+            const data = await r.json();
+
+            if(!data || data.length === 0) {
+                mostrarErro('jornada', `Placa ${placa} não encontrada no pátio.`);
+                setLoader(false);
+                return;
+            }
+
+            const upd = await fetch(`${DB.URL}/rest/v1/registros?ID=eq.${data[0].ID}`, {
+                method: 'PATCH', headers: DB.H,
+                body: JSON.stringify({ JORNADA: hora })
+            });
+
+            if(upd.ok) {
+                mostrarSucesso(placa, `Jornada reaberta!\nNovo limite: ${hora}\nAguarde a convocação do operador.`, 'Jornada Reaberta!');
+            } else {
+                mostrarErro('jornada', 'Erro ao reabrir jornada. Tente novamente.');
+            }
+        } catch(e) {
+            mostrarErro('jornada', 'Erro de conexão. Verifique sua internet.');
+            console.error(e);
+        } finally { setLoader(false); }
+    }
+
+    function mostrarSucesso(placa, msg, titulo) {
+        document.getElementById('aba-entrada').style.display  = 'none';
+        document.getElementById('aba-jornada').style.display  = 'none';
+        document.getElementById('tela-sucesso').style.display = 'block';
+        document.getElementById('sucesso-titulo').textContent  = titulo;
+        document.getElementById('sucesso-placa-val').textContent = placa;
+        document.getElementById('sucesso-msg').textContent = msg;
+    }
+
+    function novoRegistro() {
+        document.getElementById('tela-sucesso').style.display = 'none';
+        document.getElementById('aba-entrada').style.display  = 'block';
+        document.getElementById('tab-entrada').classList.add('active');
+        document.getElementById('tab-jornada').classList.remove('active');
+        document.getElementById('placa').value    = '';
+        document.getElementById('produto').value  = '';
+        document.getElementById('whatsapp').value = '';
+        document.getElementById('limite').value   = '';
+        document.getElementById('jornada24').checked = false;
+        document.getElementById('campo-hora-entrada').style.opacity = '1';
+        document.getElementById('limite').disabled = false;
+    }
+</script>
+</body>
+</html>
+```
