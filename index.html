@@ -1,19 +1,10 @@
-Sim, exatamente! Foi adicionado apenas:
-- A variável `idsConhecidos`
-- A função `pedirPermissaoNotificacao()`
-- A função `dispararNotificacao()`
-- A lógica de detecção de novos caminhões dentro do `carregarDados`
-- O `await pedirPermissaoNotificacao()` dentro do `ativarOperador`
-
-Todo o resto permanece intacto. Aqui está o código completo:Aqui está o código completo com as notificações integradas:
-
 ```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1200"> 
-    <title>RAÍZEN - GESTÃO OPERACIONAL V27.0</title>
+    <title>RAÍZEN - GESTÃO OPERACIONAL V28.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -37,6 +28,16 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
 
         #modulo-operador-full { display: none; width: 98%; max-width: 1900px; margin: 40px auto; background: var(--branco); padding: 45px; border-radius: 35px; box-shadow: var(--sombra-premium); zoom: 0.75; }
         #modulo-supervisor { display: none; width: 96%; max-width: 1300px; margin: 40px auto; background: var(--branco); padding: 55px; border-radius: 35px; box-shadow: var(--sombra-premium); border-left: 35px solid #0ea5e9; }
+        #modulo-logs { display: none; width: 96%; max-width: 1400px; margin: 40px auto; background: var(--branco); padding: 55px; border-radius: 35px; box-shadow: var(--sombra-premium); border-left: 35px solid #7c3aed; }
+
+        /* MODAL LOGIN */
+        #modal-login { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; }
+        #modal-login.aberto { display: flex; }
+        .login-box { background: white; border-radius: 35px; padding: 60px; width: 90%; max-width: 500px; box-shadow: 0 30px 60px rgba(0,0,0,0.3); }
+        .login-box h3 { font-size: 24px; font-weight: 900; text-transform: uppercase; margin-bottom: 35px; text-align: center; }
+        .login-input { width: 100%; padding: 22px 25px; border: 4px solid #e2e8f0; border-radius: 20px; font-size: 20px; font-weight: 700; background: #f8fafc; margin-bottom: 20px; }
+        .login-input:focus { border-color: var(--roxo-raizen); outline: none; }
+        .login-btn { width: 100%; padding: 25px; border: none; border-radius: 20px; font-size: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-bottom: 12px; }
 
         h2 { color: var(--roxo-raizen); text-align: center; font-weight: 900; text-transform: uppercase; margin-bottom: 50px; font-size: 38px; border-bottom: 12px solid #f8fafc; padding-bottom: 25px; }
 
@@ -87,13 +88,49 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
         .resumo-tanques-topo { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin-bottom: 40px; }
         .resumo-tanque-mini { background: #f8fafc; border-radius: 20px; padding: 20px 25px; border: 3px solid #e2e8f0; }
         .mini-barra { height: 10px; border-radius: 10px; background: #e2e8f0; overflow: hidden; margin: 8px 0; }
-        .mini-barra-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
+        .mini-barra-fill { height: 100%; border-radius: 10px; transition: width 0.5px; }
         .mini-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #94a3b8; }
+
+        /* LOGS */
+        .log-item { background: #f8fafc; border-radius: 18px; padding: 22px 28px; margin-bottom: 14px; border-left: 8px solid #e2e8f0; display: flex; align-items: center; gap: 20px; }
+        .log-item.saida   { border-left-color: #3b82f6; }
+        .log-item.volume  { border-left-color: #1d4ed8; }
+        .log-item.tanque  { border-left-color: #0ea5e9; }
+        .log-item.zerar   { border-left-color: #f59e0b; }
+        .log-icon { font-size: 22px; min-width: 35px; text-align: center; }
+        .log-corpo { flex: 1; }
+        .log-acao { font-size: 15px; font-weight: 900; color: #1e293b; }
+        .log-detalhe { font-size: 13px; font-weight: 600; color: #64748b; margin-top: 4px; }
+        .log-meta { font-size: 12px; font-weight: 700; color: #94a3b8; text-align: right; min-width: 160px; }
+        .log-usuario { display: inline-block; background: #ede9fe; color: #6d28d9; padding: 3px 12px; border-radius: 8px; font-size: 11px; font-weight: 900; margin-top: 4px; }
+
+        /* badge usuario logado */
+        #badge-usuario { display: none; position: fixed; top: 18px; right: 18px; background: #1e293b; color: white; padding: 10px 22px; border-radius: 20px; font-size: 13px; font-weight: 900; z-index: 9000; gap: 10px; align-items: center; }
+        #badge-usuario.visivel { display: flex; }
     </style>
 </head>
 <body>
 
 <div id="loader-overlay"><div class="raizen-spinner"></div><h2 style="border:none;margin-top:25px;">SINCRONIZANDO...</h2></div>
+
+<!-- BADGE USUÁRIO LOGADO -->
+<div id="badge-usuario">
+    <i class="fa-solid fa-circle-user"></i>
+    <span id="badge-nome">---</span>
+    <span id="badge-perfil" style="background:#84207d;padding:2px 10px;border-radius:8px;font-size:11px;">---</span>
+</div>
+
+<!-- MODAL LOGIN -->
+<div id="modal-login">
+    <div class="login-box">
+        <h3 id="login-titulo" style="color:var(--roxo-raizen);"><i class="fa-solid fa-lock"></i> ACESSO AO SISTEMA</h3>
+        <input type="text" id="login-usuario" class="login-input" placeholder="Seu nome de usuário">
+        <input type="password" id="login-senha" class="login-input" placeholder="Senha">
+        <div id="login-erro" style="color:#ef4444;font-weight:900;font-size:14px;text-align:center;margin-bottom:15px;display:none;">Usuário ou senha incorretos</div>
+        <button onclick="processarLogin()" class="login-btn" style="background:var(--roxo-raizen);color:white;">ENTRAR</button>
+        <button onclick="fecharLogin()" class="login-btn" style="background:#f1f5f9;color:#475569;">CANCELAR</button>
+    </div>
+</div>
 
 <header><div class="logo-display">RAÍZEN</div></header>
 
@@ -152,10 +189,10 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
     </div>
 
     <div style="text-align:center;margin-top:50px;display:flex;flex-direction:column;gap:20px;align-items:center;">
-        <button onclick="ativarOperador()" style="background:none;border:none;color:var(--roxo-raizen);font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;font-size:16px;">
+        <button onclick="abrirLogin('OPERADOR')" style="background:none;border:none;color:var(--roxo-raizen);font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;font-size:16px;">
             <i class="fa-solid fa-lock"></i> ACESSO OPERACIONAL
         </button>
-        <button onclick="ativarSupervisor()" style="background:none;border:none;color:#0ea5e9;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;font-size:16px;">
+        <button onclick="abrirLogin('SUPERVISOR')" style="background:none;border:none;color:#0ea5e9;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;font-size:16px;">
             <i class="fa-solid fa-shield-halved"></i> ACESSO SUPERVISOR (TANQUES)
         </button>
     </div>
@@ -207,9 +244,30 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
         </p>
     </div>
     <div id="tanques-supervisor-grid" class="tanques-grid"></div>
-    <button onclick="location.reload()" class="btn-master" style="background:#475569;box-shadow:0 15px 0 #334155;max-width:400px;margin:0 auto;">
-        VOLTAR
-    </button>
+    <div style="display:flex;gap:20px;margin-top:10px;">
+        <button onclick="abrirLogs()" class="btn-master" style="background:#7c3aed;box-shadow:0 15px 0 #5b21b6;">
+            <i class="fa-solid fa-clock-rotate-left"></i> VER LOG DE AÇÕES
+        </button>
+        <button onclick="location.reload()" class="btn-master" style="background:#475569;box-shadow:0 15px 0 #334155;">
+            VOLTAR
+        </button>
+    </div>
+</div>
+
+<!-- MÓDULO LOGS -->
+<div id="modulo-logs">
+    <h2 style="color:#7c3aed;"><i class="fa-solid fa-clock-rotate-left"></i> LOG DE AÇÕES</h2>
+    <div style="display:flex;gap:15px;margin-bottom:30px;flex-wrap:wrap;">
+        <button onclick="filtrarLog('TODOS',this)" class="chip-filtro active" style="font-size:13px;padding:14px 28px;">TODOS</button>
+        <button onclick="filtrarLog('SAIDA',this)" class="chip-filtro" style="font-size:13px;padding:14px 28px;">SAÍDAS</button>
+        <button onclick="filtrarLog('VOLUME',this)" class="chip-filtro" style="font-size:13px;padding:14px 28px;">VOLUMES</button>
+        <button onclick="filtrarLog('TANQUE',this)" class="chip-filtro" style="font-size:13px;padding:14px 28px;">TANQUES</button>
+    </div>
+    <div id="lista-logs"></div>
+    <div style="margin-top:40px;display:flex;gap:20px;">
+        <button onclick="document.getElementById('modulo-logs').style.display='none';document.getElementById('modulo-supervisor').style.display='block';" class="btn-master" style="background:#475569;box-shadow:0 15px 0 #334155;">VOLTAR</button>
+        <button onclick="carregarLogs()" class="btn-master" style="background:#7c3aed;box-shadow:0 15px 0 #5b21b6;"><i class="fa-solid fa-rotate"></i> ATUALIZAR</button>
+    </div>
 </div>
 
 <script>
@@ -226,33 +284,17 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
 
     let memoriaFila    = [];
     let memoriaTanques = [];
+    let memoriaLogs    = [];
     let filtroAtivo    = 'TODOS';
-    let modalId = null, modalPlaca = '', modalProduto = '';
+    let filtroLogAtivo = 'TODOS';
     let idsConhecidos  = new Set();
-
-    /* --- NOTIFICAÇÕES --- */
-    async function pedirPermissaoNotificacao() {
-        if(!('Notification' in window)) return false;
-        if(Notification.permission === 'granted') return true;
-        if(Notification.permission === 'denied') return false;
-        const perm = await Notification.requestPermission();
-        return perm === 'granted';
-    }
-
-    function dispararNotificacao(placa, produto) {
-        if(Notification.permission !== 'granted') return;
-        const n = new Notification('🚛 NOVA ENTRADA — RAÍZEN', {
-            body: `Caminhão ${placa}  •  ${produto}  deu entrada no pátio`,
-            tag: `entrada-${placa}-${Date.now()}`,
-            requireInteraction: false
-        });
-        n.onclick = () => { window.focus(); n.close(); };
-        setTimeout(() => n.close(), 8000);
-    }
+    let usuarioLogado  = null;
+    let tipoLoginPendente = null;
 
     /* --- UTILS --- */
     const setLoader = v => document.getElementById('loader-overlay').style.display = v ? 'flex' : 'none';
     const fmtL = n => n != null ? Number(n).toLocaleString('pt-BR') + ' L' : '---';
+    const agora = () => new Date().toLocaleString('pt-BR');
     const espacoLivre = t => Math.max(0, (t.CAPACIDADE || 0) - (t.UTILIZADO || 0));
     const pctLivre = t => (!t.CAPACIDADE ? 0 : Math.min(100, Math.round(espacoLivre(t) / t.CAPACIDADE * 100)));
     const classeBarra = p => p >= 60 ? 'cheia' : p >= 25 ? 'media' : p > 0 ? 'baixa' : 'lotada';
@@ -278,6 +320,7 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
             : `<b style="color:var(--cor-sucesso)">● EM DIA (${h})</b>`;
     }
 
+    /* --- MÁSCARAS --- */
     function mascaraPlaca(el) {
         el.oninput = function() {
             let v = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
@@ -300,6 +343,157 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
         if(this.checked) c.value = '';
     };
 
+    /* --- LOGIN --- */
+    function abrirLogin(tipo) {
+        tipoLoginPendente = tipo;
+        document.getElementById('login-usuario').value = '';
+        document.getElementById('login-senha').value = '';
+        document.getElementById('login-erro').style.display = 'none';
+        document.getElementById('login-titulo').innerHTML =
+            tipo === 'OPERADOR'
+                ? '<i class="fa-solid fa-lock"></i> ACESSO OPERACIONAL'
+                : '<i class="fa-solid fa-shield-halved"></i> ACESSO SUPERVISOR';
+        document.getElementById('modal-login').classList.add('aberto');
+        setTimeout(() => document.getElementById('login-usuario').focus(), 100);
+    }
+
+    function fecharLogin() {
+        document.getElementById('modal-login').classList.remove('aberto');
+        tipoLoginPendente = null;
+    }
+
+    document.getElementById('login-senha').addEventListener('keydown', e => { if(e.key === 'Enter') processarLogin(); });
+
+    async function processarLogin() {
+        const nome  = document.getElementById('login-usuario').value.trim();
+        const senha = document.getElementById('login-senha').value.trim();
+        if(!nome || !senha) { document.getElementById('login-erro').style.display='block'; return; }
+        setLoader(true);
+        try {
+            const r = await fetch(
+                `${DB.URL}/rest/v1/usuarios?nome=eq.${encodeURIComponent(nome)}&senha=eq.${encodeURIComponent(senha)}&perfil=eq.${tipoLoginPendente}&select=*`,
+                { headers: DB.H }
+            );
+            const data = await r.json();
+            if(!data || data.length === 0) {
+                document.getElementById('login-erro').style.display = 'block';
+                setLoader(false);
+                return;
+            }
+            usuarioLogado = { nome: data[0].nome, perfil: data[0].perfil };
+            fecharLogin();
+            mostrarBadge();
+            if(tipoLoginPendente === 'OPERADOR') {
+                document.getElementById('secao-entrada').style.display = 'none';
+                document.getElementById('modulo-operador-full').style.display = 'block';
+                const permitido = await pedirPermissaoNotificacao();
+                if(!permitido) console.warn('Notificações não autorizadas.');
+                await carregarDados();
+                setInterval(carregarDados, 30000);
+            } else {
+                document.getElementById('secao-entrada').style.display = 'none';
+                document.getElementById('modulo-supervisor').style.display = 'block';
+                await carregarTanques();
+                renderSupervisor();
+            }
+        } catch(e) {
+            document.getElementById('login-erro').style.display = 'block';
+            console.error(e);
+        } finally { setLoader(false); }
+    }
+
+    function mostrarBadge() {
+        if(!usuarioLogado) return;
+        document.getElementById('badge-nome').textContent = usuarioLogado.nome;
+        document.getElementById('badge-perfil').textContent = usuarioLogado.perfil;
+        document.getElementById('badge-usuario').classList.add('visivel');
+    }
+
+    /* --- LOG DE AÇÕES --- */
+    async function registrarLog(acao, detalhe) {
+        if(!usuarioLogado) return;
+        try {
+            await fetch(`${DB.URL}/rest/v1/logs`, {
+                method: 'POST', headers: DB.H,
+                body: JSON.stringify({
+                    acao, detalhe,
+                    quando: agora(),
+                    usuario_nome: usuarioLogado.nome,
+                    perfil: usuarioLogado.perfil
+                })
+            });
+        } catch(e) { console.error('Erro ao registrar log', e); }
+    }
+
+    async function carregarLogs() {
+        setLoader(true);
+        try {
+            const r = await fetch(`${DB.URL}/rest/v1/logs?select=*&order=id.desc&limit=200`, { headers: DB.H });
+            if(r.ok) { memoriaLogs = await r.json(); renderLogs(); }
+        } catch(e) { console.error('Erro logs', e); }
+        finally { setLoader(false); }
+    }
+
+    function renderLogs() {
+        const div = document.getElementById('lista-logs');
+        let lista = [...memoriaLogs];
+        if(filtroLogAtivo !== 'TODOS') lista = lista.filter(l => l.acao.includes(filtroLogAtivo));
+        if(!lista.length) {
+            div.innerHTML = `<div style="text-align:center;padding:60px;color:#94a3b8;font-weight:900;font-size:18px;">
+                <i class="fa-solid fa-inbox" style="font-size:50px;display:block;margin-bottom:15px;opacity:.3;"></i>
+                Nenhuma ação registrada ainda.
+            </div>`;
+            return;
+        }
+        div.innerHTML = lista.map(l => {
+            const icon = l.acao.includes('SAIDA') ? '🚛' : l.acao.includes('VOLUME') ? '💧' : l.acao.includes('ZERAR') ? '🔄' : '🛢️';
+            const cls  = l.acao.includes('SAIDA') ? 'saida' : l.acao.includes('VOLUME') ? 'volume' : l.acao.includes('ZERAR') ? 'zerar' : 'tanque';
+            return `
+            <div class="log-item ${cls}">
+                <div class="log-icon">${icon}</div>
+                <div class="log-corpo">
+                    <div class="log-acao">${l.acao}</div>
+                    <div class="log-detalhe">${l.detalhe}</div>
+                    <span class="log-usuario"><i class="fa-solid fa-user"></i> ${l.usuario_nome} — ${l.perfil}</span>
+                </div>
+                <div class="log-meta">${l.quando}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function filtrarLog(tipo, btn) {
+        filtroLogAtivo = tipo;
+        document.querySelectorAll('#modulo-logs .chip-filtro').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderLogs();
+    }
+
+    function abrirLogs() {
+        document.getElementById('modulo-supervisor').style.display = 'none';
+        document.getElementById('modulo-logs').style.display = 'block';
+        carregarLogs();
+    }
+
+    /* --- NOTIFICAÇÕES --- */
+    async function pedirPermissaoNotificacao() {
+        if(!('Notification' in window)) return false;
+        if(Notification.permission === 'granted') return true;
+        if(Notification.permission === 'denied') return false;
+        const perm = await Notification.requestPermission();
+        return perm === 'granted';
+    }
+
+    function dispararNotificacao(placa, produto) {
+        if(Notification.permission !== 'granted') return;
+        const n = new Notification('🚛 NOVA ENTRADA — RAÍZEN', {
+            body: `Caminhão ${placa}  •  ${produto}  deu entrada no pátio`,
+            tag: `entrada-${placa}-${Date.now()}`,
+            requireInteraction: false
+        });
+        n.onclick = () => { window.focus(); n.close(); };
+        setTimeout(() => n.close(), 8000);
+    }
+
     /* --- CARGA --- */
     async function carregarTanques() {
         try {
@@ -313,18 +507,12 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
             const r = await fetch(`${DB.URL}/rest/v1/registros?SAIDA=is.null&select=*`, { headers: DB.H });
             if(!r.ok) throw new Error();
             const novaFila = await r.json();
-
-            // Detectar novos caminhões e notificar
             if(idsConhecidos.size > 0) {
                 novaFila.forEach(item => {
-                    if(!idsConhecidos.has(item.ID)) {
-                        dispararNotificacao(item.PLACA, item.PRODUTO);
-                    }
+                    if(!idsConhecidos.has(item.ID)) dispararNotificacao(item.PLACA, item.PRODUTO);
                 });
             }
-            // Atualizar set de IDs conhecidos
             idsConhecidos = new Set(novaFila.map(i => i.ID));
-
             memoriaFila = novaFila;
             await carregarTanques();
             renderTabela();
@@ -422,7 +610,15 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
         setLoader(true);
         try {
             const r = await fetch(`${DB.URL}/rest/v1/registros?ID=eq.${id}`, { method:'PATCH', headers:DB.H, body:JSON.stringify({[campo]:valor}) });
-            if(r.ok) { alert('DADO ATUALIZADO!'); carregarDados(); } else throw new Error();
+            if(r.ok) {
+                if(campo === 'VOLUME') {
+                    const item = memoriaFila.find(i => i.ID === id);
+                    const placa = item ? item.PLACA : `ID ${id}`;
+                    await registrarLog('VOLUME ALTERADO', `Placa: ${placa} — Novo volume: ${fmtL(valor)}`);
+                }
+                alert('DADO ATUALIZADO!');
+                carregarDados();
+            } else throw new Error();
         } catch { alert('ERRO AO SALVAR'); }
         finally { setLoader(false); }
     }
@@ -437,7 +633,6 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
 
     /* --- SAÍDA --- */
     function abrirModalSaida(id, placa, produto, volume) {
-        modalId = id; modalPlaca = placa; modalProduto = produto;
         if(!volume || volume <= 0) {
             alert(`⚠️ VOLUME NÃO CADASTRADO!\n\nCadastre o volume do caminhão ${placa} na coluna VOLUME (L) antes de registrar a saída.`);
             return;
@@ -459,13 +654,14 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
         try {
             await fetch(`${DB.URL}/rest/v1/registros?ID=eq.${id}`, {
                 method: 'PATCH', headers: DB.H,
-                body: JSON.stringify({ SAIDA: new Date().toLocaleString('pt-BR') })
+                body: JSON.stringify({ SAIDA: agora() })
             });
             const novoUtilizado = (tanque.UTILIZADO || 0) + volume;
             await fetch(`${DB.URL}/rest/v1/tanques?PRODUTO=eq.${encodeURIComponent(produto)}`, {
                 method: 'PATCH', headers: DB.H,
                 body: JSON.stringify({ UTILIZADO: novoUtilizado })
             });
+            await registrarLog('SAIDA REGISTRADA', `Placa: ${placa} — Produto: ${produto} — Volume: ${fmtL(volume)} — Tanque após saída: ${fmtL(novoLivre)} livres`);
             await carregarDados();
             alert(`✅ SAÍDA REGISTRADA!\n\n${placa} — ${fmtL(volume)}\nEspaço livre no tanque: ${fmtL(novoLivre)}`);
         } catch(e) {
@@ -480,7 +676,7 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
         if(!memoriaTanques.length) {
             grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:#94a3b8;font-weight:900;font-size:20px;">
                 <i class="fa-solid fa-database" style="font-size:60px;display:block;margin-bottom:20px;opacity:.3;"></i>
-                Nenhum tanque encontrado.<br><small style="font-size:14px;font-weight:600;">Verifique se a tabela "tanques" possui registros no Supabase.</small>
+                Nenhum tanque encontrado.
             </div>`;
             return;
         }
@@ -537,8 +733,12 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
             const r = await fetch(`${DB.URL}/rest/v1/tanques?PRODUTO=eq.${encodeURIComponent(produto)}`, {
                 method:'PATCH', headers:DB.H, body:JSON.stringify({ CAPACIDADE: cap, UTILIZADO: util })
             });
-            if(r.ok) { await carregarTanques(); renderSupervisor(); alert('✅ TANQUE ATUALIZADO!'); }
-            else throw new Error();
+            if(r.ok) {
+                await registrarLog('TANQUE ATUALIZADO', `Produto: ${produto} — Capacidade: ${fmtL(cap)} — Utilizado: ${fmtL(util)} — Livre: ${fmtL(cap - util)}`);
+                await carregarTanques();
+                renderSupervisor();
+                alert('✅ TANQUE ATUALIZADO!');
+            } else throw new Error();
         } catch { alert('ERRO AO SALVAR'); }
         finally { setLoader(false); }
     }
@@ -550,37 +750,20 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
             await fetch(`${DB.URL}/rest/v1/tanques?PRODUTO=eq.${encodeURIComponent(produto)}`, {
                 method:'PATCH', headers:DB.H, body:JSON.stringify({ UTILIZADO: 0 })
             });
-            await carregarTanques(); renderSupervisor();
+            await registrarLog('TANQUE ZERADO', `Produto: ${produto} — Volume utilizado resetado para 0`);
+            await carregarTanques();
+            renderSupervisor();
             alert('✅ TANQUE ZERADO!');
         } catch { alert('ERRO'); }
         finally { setLoader(false); }
     }
 
-    /* --- FILTRO / ACESSO / REABERTURA / FORM --- */
+    /* --- FILTRO / REABERTURA / FORM --- */
     function filtrar(tipo, btn) {
         filtroAtivo = tipo;
-        document.querySelectorAll('.chip-filtro').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#modulo-operador-full .chip-filtro').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderTabela();
-    }
-
-    async function ativarOperador() {
-        if(prompt('SENHA:') === 'raizen2026') {
-            document.getElementById('secao-entrada').style.display='none';
-            document.getElementById('modulo-operador-full').style.display='block';
-            const permitido = await pedirPermissaoNotificacao();
-            if(!permitido) console.warn('Notificações não autorizadas pelo navegador.');
-            await carregarDados();
-            setInterval(carregarDados, 30000);
-        } else alert('SENHA INCORRETA');
-    }
-
-    function ativarSupervisor() {
-        if(prompt('SENHA SUPERVISOR:') === 'supervisor2026') {
-            document.getElementById('secao-entrada').style.display='none';
-            document.getElementById('modulo-supervisor').style.display='block';
-            carregarTanques().then(renderSupervisor);
-        } else alert('SENHA INCORRETA');
     }
 
     function abrirReabertura()  { document.getElementById('form-principal-wrapper').style.display='none'; document.getElementById('form-reabertura-wrapper').style.display='block'; }
@@ -608,7 +791,7 @@ Todo o resto permanece intacto. Aqui está o código completo:Aqui está o códi
             PRODUTO:  document.getElementById('produto').value,
             TELEFONE: document.getElementById('whatsapp').value,
             JORNADA:  document.getElementById('jornada24').checked ? '24 HORAS' : document.getElementById('limite').value,
-            ENTRADA:  new Date().toLocaleString('pt-BR')
+            ENTRADA:  agora()
         };
         try {
             const r = await fetch(`${DB.URL}/rest/v1/registros`, { method:'POST', headers:DB.H, body:JSON.stringify(data) });
