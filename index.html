@@ -38,7 +38,7 @@
         .login-input:focus { border-color: var(--roxo-raizen); outline: none; }
         .login-btn { width: 100%; padding: 25px; border: none; border-radius: 20px; font-size: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-bottom: 12px; }
 
-        h2 { color: var(--roxo-raizen); text-align: center; font-weight: 900; text-transform: uppercase; margin-bottom: 50px; font-size: 38px; border-bottom: 12px solid #f8fafc; padding-bottom: 25px; }
+        h2 { color: var(--roxo-raizen); text-align: center; font-weight: 900; text-transform: uppercase; margin-bottom: 50px; font-size: 38px; border-bottom: 12px solid #f8fafc; padding-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
 
         .wrapper-input { margin-bottom: 40px; }
         label { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; font-weight: 900; color: var(--verde-raizen); font-size: 16px; text-transform: uppercase; }
@@ -105,7 +105,6 @@
         #badge-usuario { display: none; position: fixed; top: 18px; right: 18px; background: #1e293b; color: white; padding: 10px 22px; border-radius: 20px; font-size: 13px; font-weight: 900; z-index: 9000; gap: 10px; align-items: center; }
         #badge-usuario.visivel { display: flex; }
 
-        /* PREVISÃO */
         .prev-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; margin-bottom: 40px; }
         .prev-card { background: #fffbeb; border-radius: 24px; padding: 32px; border: 3px solid #fde68a; }
         .prev-produto { font-size: 20px; font-weight: 900; color: #92400e; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; }
@@ -116,7 +115,6 @@
         .prev-destaque.critico { background: #ef4444; }
         .prev-destaque.ok { background: #10b981; }
 
-        /* BANNER AVISO TANQUE */
         .banner-aviso { background: #fff7ed; border: 3px solid #fed7aa; border-radius: 22px; padding: 22px 28px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
         .banner-aviso-info { display: flex; align-items: center; gap: 16px; }
         .banner-aviso-icone { width: 44px; height: 44px; border-radius: 50%; background: #ffedd5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
@@ -153,7 +151,17 @@
 
 <div class="card-master" id="secao-entrada">
     <div id="form-principal-wrapper">
-        <h2><i class="fa-solid fa-truck-ramp-box"></i> REGISTRO DE ENTRADA</h2>
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="42" height="42" style="vertical-align:middle;" fill="none" stroke="#84207d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="8" width="13" height="9" rx="1"/>
+                <path d="M14 10h4l3 3v4h-7V10z"/>
+                <circle cx="5.5" cy="18.5" r="1.5"/>
+                <circle cx="18.5" cy="18.5" r="1.5"/>
+                <path d="M1 12h3M6 8V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>
+                <path d="M9 5h2"/>
+            </svg>
+            REGISTRO DE ENTRADA
+        </h2>
         <form id="formMaster">
             <div class="wrapper-input">
                 <label><i class="fa-solid fa-barcode"></i> PLACA DO VEÍCULO</label>
@@ -320,7 +328,6 @@
     let usuarioLogado     = null;
     let tipoLoginPendente = null;
 
-    /* --- UTILS --- */
     const setLoader = v => document.getElementById('loader-overlay').style.display = v ? 'flex' : 'none';
     const fmtL = n => n != null ? Number(n).toLocaleString('pt-BR') + ' L' : '---';
     const agora = () => new Date().toLocaleString('pt-BR');
@@ -349,7 +356,6 @@
             : `<b style="color:var(--cor-sucesso)">● EM DIA (${h})</b>`;
     }
 
-    /* --- MÁSCARAS --- */
     function mascaraPlaca(el) {
         el.oninput = function() {
             let v = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
@@ -439,20 +445,15 @@
         document.getElementById('badge-usuario').classList.add('visivel');
     }
 
-    /* --- LOG DE AÇÕES --- */
+    /* --- LOG --- */
     async function registrarLog(acao, detalhe) {
         if(!usuarioLogado) return;
         try {
             await fetch(`${DB.URL}/rest/v1/logs`, {
                 method: 'POST', headers: DB.H,
-                body: JSON.stringify({
-                    acao, detalhe,
-                    quando: agora(),
-                    usuario_nome: usuarioLogado.nome,
-                    perfil: usuarioLogado.perfil
-                })
+                body: JSON.stringify({ acao, detalhe, quando: agora(), usuario_nome: usuarioLogado.nome, perfil: usuarioLogado.perfil })
             });
-        } catch(e) { console.error('Erro ao registrar log', e); }
+        } catch(e) { console.error('Erro log', e); }
     }
 
     async function carregarLogs() {
@@ -576,7 +577,7 @@
         }).join('');
     }
 
-    /* --- BANNERS DE AVISO TANQUE CHEIO --- */
+    /* --- BANNERS AVISO TANQUE CHEIO --- */
     function renderBannersAviso() {
         const div = document.getElementById('banners-aviso-tanque');
         if(!div) return;
@@ -644,7 +645,14 @@
             const db2 = b.AGENDAMENTO ? new Date(b.AGENDAMENTO) : new Date(8640000000000000);
             return da - db2;
         });
-        if(filtroAtivo !== 'TODOS') lista = lista.filter(i => i.PRODUTO.toUpperCase().includes(filtroAtivo));
+        if(filtroAtivo !== 'TODOS') {
+            lista = lista.filter(i => {
+                const p = i.PRODUTO.toUpperCase();
+                if(filtroAtivo === 'DIESEL') return p.includes('DIESEL S10');
+                if(filtroAtivo === 'BIODIESEL') return p.includes('BIODIESEL');
+                return p.includes(filtroAtivo);
+            });
+        }
 
         lista.forEach(item => {
             const id = item.ID;
@@ -703,8 +711,7 @@
             if(r.ok) {
                 if(campo === 'VOLUME') {
                     const item = memoriaFila.find(i => i.ID === id);
-                    const placa = item ? item.PLACA : `ID ${id}`;
-                    await registrarLog('VOLUME ALTERADO', `Placa: ${placa} — Novo volume: ${fmtL(valor)}`);
+                    await registrarLog('VOLUME ALTERADO', `Placa: ${item ? item.PLACA : id} — Novo volume: ${fmtL(valor)}`);
                 }
                 alert('DADO ATUALIZADO!');
                 carregarDados();
@@ -848,7 +855,7 @@
         finally { setLoader(false); }
     }
 
-    /* --- PREVISÃO DE ESVAZIAMENTO --- */
+    /* --- PREVISÃO --- */
     async function abrirPrevisao() {
         document.getElementById('modulo-supervisor').style.display = 'none';
         document.getElementById('modulo-previsao').style.display = 'block';
