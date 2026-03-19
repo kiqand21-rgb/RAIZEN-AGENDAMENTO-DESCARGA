@@ -706,9 +706,33 @@
                         style="background:#3b82f6;color:white;border:none;padding:12px;border-radius:14px;cursor:pointer;font-weight:900;font-size:13px;">
                         <i class="fa-solid fa-right-from-bracket"></i> SAÍDA
                     </button>
-                </div>`;
+                </div>
+                <button onclick="excluirRegistro(${id},'${item.PLACA}')"
+                    style="background:none;border:2px solid var(--cor-erro);color:var(--cor-erro);border-radius:14px;padding:10px;font-size:12px;font-weight:900;cursor:pointer;width:100%;margin-top:4px;">
+                    <i class="fa-solid fa-trash"></i> EXCLUIR REGISTRO
+                </button>`;
             corpo.appendChild(card);
         });
+    }
+
+    async function excluirRegistro(id, placa){
+        const senha = prompt(`🔐 EXCLUIR REGISTRO\n\nPlaca: ${placa}\n\nDigite a senha mestre para confirmar:`);
+        if(senha === null) return;
+        if(senha !== 'moto12'){
+            alert('❌ SENHA INCORRETA!\n\nRegistro não excluído.');
+            return;
+        }
+        if(!confirm(`⚠️ CONFIRMAR EXCLUSÃO\n\nPlaca: ${placa}\n\nEsta ação não pode ser desfeita!`)) return;
+        setLoader(true);
+        try{
+            const r=await fetch(`${DB.URL}/rest/v1/registros?ID=eq.${id}`,{method:'DELETE',headers:DB.H});
+            if(r.ok){
+                await registrarLog('REGISTRO EXCLUÍDO',`Placa: ${placa} — excluído manualmente pelo operador`);
+                await carregarDados();
+                alert(`✅ Registro de ${placa} excluído com sucesso.`);
+            } else throw new Error();
+        }catch{alert('ERRO AO EXCLUIR. Tente novamente.');}
+        finally{setLoader(false);}
     }
 
     async function salvarCampo(id,campo){
