@@ -358,10 +358,10 @@
     const setLoader      = v  => document.getElementById('loader-overlay').style.display = v ? 'flex' : 'none';
     const fmtL           = n  => n != null ? Number(n).toLocaleString('pt-BR') + ' L' : '---';
     const agora          = () => new Date().toLocaleString('pt-BR');
-    const espacoOperador = t  => Math.max(0, (t.DISPONIVEL || 0) - SEGURANCA_L);
+    // ── usa campo minúsculo "disponivel" ──
+    const espacoOperador = t  => Math.max(0, (t.disponivel || 0) - SEGURANCA_L);
     const espacoLivre    = t  => espacoOperador(t);
-    const pctLivre       = t  => { const l=espacoOperador(t), b=Math.max(t.DISPONIVEL||1,1); return Math.min(100,Math.round(l/b*100)); };
-    const classeBarra    = p  => p>=60?'cheia':p>=25?'media':p>0?'baixa':'lotada';
+    const pctLivre       = t  => { const l=espacoOperador(t), b=Math.max(t.disponivel||1,1); return Math.min(100,Math.round(l/b*100)); };
     const corBarra       = p  => p>=60?'#10b981':p>=25?'#f59e0b':p>0?'#ef4444':'#7c3aed';
 
     function corProduto(p='') {
@@ -530,15 +530,16 @@
     /* --- CARGA --- */
     async function carregarTanques(){
         try{
-            const r=await fetch(`${DB.URL}/rest/v1/tanques_individuais?select=*&order=TANQUE.asc`,{headers:DB.H});
+            // ── select com nomes minúsculos ──
+            const r=await fetch(`${DB.URL}/rest/v1/tanques_individuais?select=tanque,produto,disponivel,ativo&order=tanque.asc`,{headers:DB.H});
             if(r.ok){
                 memoriaTanquesIndividuais=await r.json();
                 const map={};
                 memoriaTanquesIndividuais.forEach(t=>{
-                    if(!map[t.PRODUTO]) map[t.PRODUTO]={PRODUTO:t.PRODUTO,DISPONIVEL:0,ATIVO_TANQUE:null};
-                    if(t.ATIVO){
-                        map[t.PRODUTO].DISPONIVEL=t.DISPONIVEL||0;
-                        map[t.PRODUTO].ATIVO_TANQUE=t.TANQUE;
+                    if(!map[t.produto]) map[t.produto]={produto:t.produto,disponivel:0,ativo_tanque:null};
+                    if(t.ativo){
+                        map[t.produto].disponivel=t.disponivel||0;
+                        map[t.produto].ativo_tanque=t.tanque;
                     }
                 });
                 memoriaTanques=Object.values(map);
@@ -564,19 +565,19 @@
         const div=document.getElementById('resumo-tanques-operador');
         if(!memoriaTanques.length){div.innerHTML='';return;}
         div.innerHTML=memoriaTanques.map(t=>{
-            const livre=espacoOperador(t),pct=pctLivre(t),cor=corProduto(t.PRODUTO),cb=corBarra(pct);
+            const livre=espacoOperador(t),pct=pctLivre(t),cor=corProduto(t.produto),cb=corBarra(pct);
             const badge=pct===0
                 ?`<span style="background:#fce7f3;color:#9d174d;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:900;">LOTADO</span>`
                 :pct>=60
                     ?`<span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:900;">OK</span>`
                     :`<span style="background:#fef9c3;color:#854d0e;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:900;">BAIXO</span>`;
             return `<div class="resumo-tanque-mini">
-                <div style="font-size:11px;font-weight:900;color:#64748b;text-transform:uppercase;">${t.PRODUTO}</div>
+                <div style="font-size:11px;font-weight:900;color:#64748b;text-transform:uppercase;">${t.produto}</div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
                     <span style="font-size:14px;font-weight:900;color:${cor}">${fmtL(livre)}</span>${badge}
                 </div>
                 <div class="mini-barra"><div class="mini-barra-fill" style="width:${pct}%;background:${cb}"></div></div>
-                <div class="mini-info"><span>Tanque ${t.ATIVO_TANQUE||'?'}</span><span>Bruto: ${fmtL(t.DISPONIVEL)}</span></div>
+                <div class="mini-info"><span>Tanque ${t.ativo_tanque||'?'}</span><span>Bruto: ${fmtL(t.disponivel)}</span></div>
             </div>`;
         }).join('');
     }
@@ -587,10 +588,10 @@
         if(!div) return;
         const bloqueados={};
         memoriaFila.forEach(item=>{
-            const t=memoriaTanques.find(x=>x.PRODUTO===item.PRODUTO);
+            const t=memoriaTanques.find(x=>x.produto===item.PRODUTO);
             const livre=t?espacoOperador(t):0;
             const vol=item.VOLUME||0;
-            const bloqueado=!t||!t.ATIVO_TANQUE||livre<=0||(vol>0&&vol>livre);
+            const bloqueado=!t||!t.ativo_tanque||livre<=0||(vol>0&&vol>livre);
             if(bloqueado){if(!bloqueados[item.PRODUTO])bloqueados[item.PRODUTO]=[];bloqueados[item.PRODUTO].push(item);}
         });
         const produtos=Object.keys(bloqueados);
@@ -614,12 +615,12 @@
     }
 
     function avisarMotoristasBlockados(produto){
-        const t=memoriaTanques.find(x=>x.PRODUTO===produto);
+        const t=memoriaTanques.find(x=>x.produto===produto);
         const livre=t?espacoOperador(t):0;
         const lista=memoriaFila.filter(item=>{
             if(item.PRODUTO!==produto) return false;
             const vol=item.VOLUME||0;
-            return !t||!t.ATIVO_TANQUE||livre<=0||(vol>0&&vol>livre);
+            return !t||!t.ativo_tanque||livre<=0||(vol>0&&vol>livre);
         });
         if(!lista.length){alert('Nenhum motorista bloqueado.');return;}
         if(!confirm(`Avisar ${lista.length} motorista(s) de ${produto}?\n\nPlacas: ${lista.map(i=>i.PLACA).join(', ')}`)) return;
@@ -651,9 +652,9 @@
         lista.forEach(item=>{
             const id=item.ID;
             const ct=item.PRODUTO.includes('GASOLINA')?'bg-gas':item.PRODUTO.includes('BIODIESEL')?'bg-b100':item.PRODUTO.includes('ANIDRO')?'bg-ani':item.PRODUTO.includes('HIDRATADO')?'bg-hid':'bg-die';
-            const t=memoriaTanques.find(x=>x.PRODUTO===item.PRODUTO);
+            const t=memoriaTanques.find(x=>x.produto===item.PRODUTO);
             const livre=t?espacoOperador(t):0;
-            const temAtivo=t&&t.ATIVO_TANQUE;
+            const temAtivo=t&&t.ativo_tanque;
             const vol=item.VOLUME||0;
             let btnWA;
             if(!t||!temAtivo||livre<=0){
@@ -713,12 +714,12 @@
 
     function abrirModalSaida(id,placa,produto,volume){
         if(!volume||volume<=0){alert(`⚠️ VOLUME NÃO CADASTRADO!\n\nCadastre o volume do caminhão ${placa} antes de registrar a saída.`);return;}
-        const t=memoriaTanques.find(x=>x.PRODUTO===produto);
-        if(!t||!t.ATIVO_TANQUE){alert(`❌ Nenhum tanque ativo para ${produto}.\nO supervisor precisa ativar um tanque.`);return;}
+        const t=memoriaTanques.find(x=>x.produto===produto);
+        if(!t||!t.ativo_tanque){alert(`❌ Nenhum tanque ativo para ${produto}.\nO supervisor precisa ativar um tanque.`);return;}
         const livre=espacoOperador(t);
         if(volume>livre){alert(`❌ ESPAÇO INSUFICIENTE!\n\nVolume: ${fmtL(volume)}\nEspaço disponível: ${fmtL(livre)}`);return;}
-        const novoDisp=Math.max(0,t.DISPONIVEL-volume);
-        if(!confirm(`CONFIRMAR SAÍDA?\n\nPlaca: ${placa}\nProduto: ${produto}\nVolume: ${fmtL(volume)}\nTanque ${t.ATIVO_TANQUE}\n\nEspaço após descarga: ${fmtL(Math.max(0,novoDisp-SEGURANCA_L))}`)) return;
+        const novoDisp=Math.max(0,t.disponivel-volume);
+        if(!confirm(`CONFIRMAR SAÍDA?\n\nPlaca: ${placa}\nProduto: ${produto}\nVolume: ${fmtL(volume)}\nTanque ${t.ativo_tanque}\n\nEspaço após descarga: ${fmtL(Math.max(0,novoDisp-SEGURANCA_L))}`)) return;
         executarSaida(id,placa,produto,volume,t,novoDisp);
     }
 
@@ -726,10 +727,11 @@
         setLoader(true);
         try{
             await fetch(`${DB.URL}/rest/v1/registros?ID=eq.${id}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({SAIDA:agora()})});
-            await fetch(`${DB.URL}/rest/v1/tanques_individuais?TANQUE=eq.${t.ATIVO_TANQUE}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({DISPONIVEL:novoDisp})});
-            await registrarLog('SAIDA REGISTRADA',`Placa: ${placa} — ${produto} — Volume: ${fmtL(volume)} — Tanque ${t.ATIVO_TANQUE} — Disponível após: ${fmtL(novoDisp)}`);
+            // ── coluna minúscula "disponivel", filtro minúsculo "tanque" ──
+            await fetch(`${DB.URL}/rest/v1/tanques_individuais?tanque=eq.${t.ativo_tanque}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({disponivel:novoDisp})});
+            await registrarLog('SAIDA REGISTRADA',`Placa: ${placa} — ${produto} — Volume: ${fmtL(volume)} — Tanque ${t.ativo_tanque} — Disponível após: ${fmtL(novoDisp)}`);
             await carregarDados();
-            alert(`✅ SAÍDA REGISTRADA!\n\n${placa} — ${fmtL(volume)}\nTanque ${t.ATIVO_TANQUE}\nDisponível p/ operador: ${fmtL(Math.max(0,novoDisp-SEGURANCA_L))}`);
+            alert(`✅ SAÍDA REGISTRADA!\n\n${placa} — ${fmtL(volume)}\nTanque ${t.ativo_tanque}\nDisponível p/ operador: ${fmtL(Math.max(0,novoDisp-SEGURANCA_L))}`);
         }catch(e){alert('ERRO AO REGISTRAR SAÍDA.');console.error(e);}
         finally{setLoader(false);}
     }
@@ -738,53 +740,65 @@
     async function parsearTabelaSupervisao(){
         const texto=document.getElementById('textarea-importacao').value.trim();
         if(!texto){alert('Cole o conteúdo da tabela antes de importar.');return;}
-        const linhas=texto.split('\n').map(l=>l.trim()).filter(l=>l);
-        let idxTanque=-1,idxProduto=-1,idxEspaco=-1,linhaHeader=-1;
-        for(const sep of [/\t+/,/\s{2,}/]){
-            for(let i=0;i<linhas.length;i++){
-                const cols=linhas[i].split(sep).map(c=>c.trim());
-                const hs=cols.join(' ').toUpperCase();
-                if(hs.includes('PRODUTO')&&hs.includes('ESPA')){
-                    linhaHeader=i;
-                    cols.forEach((c,j)=>{
-                        const cu=c.toUpperCase();
-                        if(cu==='TANQUE')                          idxTanque=j;
-                        if(cu==='PRODUTO')                         idxProduto=j;
-                        if(cu.includes('ESPA')&&cu.includes('M')) idxEspaco=j;
-                    });
-                    break;
-                }
-            }
-            if(linhaHeader!==-1) break;
+
+        const PRODUTOS_CONHECIDOS=[
+            'ETANOL HIDRATADO',
+            'ETANOL ANIDRO',
+            'BIODIESEL B100',
+            'GASOLINA A',
+            'DIESEL S10 A',
+            'JET A',
+        ];
+
+        // Remove cabeçalho se presente
+        let corpo=texto;
+        const dispIdx=texto.search(/Dispon[ií]vel/i);
+        if(dispIdx!==-1){
+            const posInicio=texto.slice(dispIdx).search(/\d{3}/)+dispIdx;
+            if(posInicio>dispIdx) corpo=texto.slice(posInicio);
         }
-        if(idxProduto===-1||idxEspaco===-1){
-            alert('Não foi possível identificar as colunas.\n\nVerifique se copiou a tabela correta do Relatório de Supervisão de Tanques.');
-            return;
-        }
-        const splitter=texto.includes('\t')?/\t+/:/\s{2,}/;
+
+        // Regex que lê cada linha do formato colado sem separadores
+        const regexLinha=new RegExp(
+            `(\\d{3})(${PRODUTOS_CONHECIDOS.map(p=>p.replace(/[()]/g,'\\$&')).join('|')})`+
+            `([\\d.,]+)`+ // Espaço (m³)
+            `([\\d.,]+)`+ // Altura (mm)
+            `([\\d.,]+)`+ // Temperatura
+            `([\\d.,]+)`+ // Volume
+            `([\\d.,]+)`+ // Volume 20°C
+            `([\\d.,]+)`+ // Densidade
+            `([\\d.,]+)`+ // Lastro
+            `([\\d.,]+)`,  // Disponível
+            'g'
+        );
+
+        const parseNum=s=>parseFloat((s||'0').replace(/\./g,'').replace(',','.'))||0;
+
         const atualizacoes=[];
-        for(let i=linhaHeader+1;i<linhas.length;i++){
-            const cols=linhas[i].split(splitter).map(c=>c.trim());
-            if(cols.length<=Math.max(idxProduto,idxEspaco)) continue;
-            const produtoRaw=(cols[idxProduto]||'').toUpperCase().trim();
-            if(!produtoRaw) continue;
+        let match;
+        while((match=regexLinha.exec(corpo))!==null){
+            const numTanque=parseInt(match[1]);
+            const produtoRaw=match[2].trim().toUpperCase();
+            const espacoM3=parseNum(match[3]);
+
             if(IGNORAR_PRODUTOS.some(ig=>produtoRaw.includes(ig))) continue;
+
             let produtoBanco=null;
             for(const [chave,valor] of Object.entries(MAPA_PRODUTOS)){
                 if(produtoRaw.includes(chave)||chave.includes(produtoRaw)){produtoBanco=valor;break;}
             }
             if(!produtoBanco) continue;
-            const numTanque=idxTanque!==-1?parseInt(cols[idxTanque]):null;
-            const espacoStr=(cols[idxEspaco]||'0').replace(',','.').replace(/[^\d.]/g,'');
-            const espacoM3=parseFloat(espacoStr)||0;
+
             const espacoL=Math.round(espacoM3*1000);
             const disponivelL=Math.max(0,espacoL-SEGURANCA_L);
             atualizacoes.push({numTanque,produto:produtoBanco,espacoM3,espacoL,disponivelL});
         }
+
         if(!atualizacoes.length){
             alert('Nenhum produto reconhecido.\n\nVerifique se o conteúdo colado é o Relatório de Supervisão de Tanques correto.');
             return;
         }
+
         let html=`<div style="padding:20px;">
             <div style="font-size:15px;font-weight:900;color:#166534;margin-bottom:14px;"><i class="fa-solid fa-eye"></i> PRÉVIA — O que será atualizado:</div>
             <table style="width:100%;border-collapse:collapse;font-size:13px;">
@@ -826,8 +840,9 @@
         for(const a of atualizacoes){
             if(!a.numTanque) continue;
             try{
-                const r=await fetch(`${DB.URL}/rest/v1/tanques_individuais?TANQUE=eq.${a.numTanque}`,{
-                    method:'PATCH',headers:DB.H,body:JSON.stringify({DISPONIVEL:a.espacoL})
+                // ── filtro "tanque" minúsculo, campo "disponivel" minúsculo ──
+                const r=await fetch(`${DB.URL}/rest/v1/tanques_individuais?tanque=eq.${a.numTanque}`,{
+                    method:'PATCH',headers:DB.H,body:JSON.stringify({disponivel:a.espacoL})
                 });
                 if(r.ok){
                     await registrarLog('TANQUE ATUALIZADO',
@@ -847,26 +862,26 @@
         if(!memoriaTanquesIndividuais.length){
             grid.innerHTML=`<div style="text-align:center;padding:60px;color:#94a3b8;font-weight:900;font-size:18px;">
                 <i class="fa-solid fa-database" style="font-size:50px;display:block;margin-bottom:15px;opacity:.3;"></i>
-                Nenhum tanque encontrado. Crie a tabela <b>tanques_individuais</b> no Supabase.</div>`;
+                Nenhum tanque encontrado.</div>`;
             return;
         }
         const porProduto={};
         memoriaTanquesIndividuais.forEach(t=>{
-            if(!porProduto[t.PRODUTO]) porProduto[t.PRODUTO]=[];
-            porProduto[t.PRODUTO].push(t);
+            if(!porProduto[t.produto]) porProduto[t.produto]=[];
+            porProduto[t.produto].push(t);
         });
         let html='';
         Object.entries(porProduto).forEach(([produto,tanques])=>{
             const cor=corProduto(produto);
-            const ativo=tanques.find(t=>t.ATIVO);
-            const espBruto=ativo?Math.max(0,ativo.DISPONIVEL||0):0;
+            const ativo=tanques.find(t=>t.ativo);
+            const espBruto=ativo?Math.max(0,ativo.disponivel||0):0;
             const dispOp=Math.max(0,espBruto-SEGURANCA_L);
             html+=`<div style="background:white;border-radius:28px;padding:30px;border:3px solid #e2e8f0;box-shadow:0 4px 20px rgba(0,0,0,0.06);margin-bottom:24px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;padding-bottom:18px;border-bottom:3px solid #f1f5f9;flex-wrap:wrap;gap:12px;">
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                         <span style="background:${cor};color:white;padding:8px 22px;border-radius:14px;font-size:16px;font-weight:900;">${produto}</span>
                         ${ativo
-                            ?`<span style="background:#dcfce7;color:#166534;padding:6px 18px;border-radius:12px;font-size:13px;font-weight:900;"><i class="fa-solid fa-circle-check"></i> ATIVO: TANQUE ${ativo.TANQUE}</span>`
+                            ?`<span style="background:#dcfce7;color:#166534;padding:6px 18px;border-radius:12px;font-size:13px;font-weight:900;"><i class="fa-solid fa-circle-check"></i> ATIVO: TANQUE ${ativo.tanque}</span>`
                             :`<span style="background:#fef2f2;color:#ef4444;padding:6px 18px;border-radius:12px;font-size:13px;font-weight:900;"><i class="fa-solid fa-circle-xmark"></i> NENHUM ATIVO</span>`}
                     </div>
                     <div style="text-align:right;">
@@ -877,23 +892,23 @@
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">
                     ${tanques.map(t=>{
-                        const espT=Math.max(0,t.DISPONIVEL||0);
+                        const espT=Math.max(0,t.disponivel||0);
                         const dispT=Math.max(0,espT-SEGURANCA_L);
                         const pctT=espT>0?Math.min(100,Math.round(dispT/espT*100)):0;
                         const cbT=pctT>=60?'#10b981':pctT>=25?'#f59e0b':'#ef4444';
-                        return `<div style="background:${t.ATIVO?'#f0fdf4':'#f8fafc'};border:3px solid ${t.ATIVO?'#86efac':'#e2e8f0'};border-radius:20px;padding:20px;">
+                        return `<div style="background:${t.ativo?'#f0fdf4':'#f8fafc'};border:3px solid ${t.ativo?'#86efac':'#e2e8f0'};border-radius:20px;padding:20px;">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-                                <div style="font-size:20px;font-weight:900;color:#1e293b;">Tanque ${t.TANQUE}</div>
-                                <div class="toggle-wrap" onclick="toggleAtivo(${t.TANQUE},'${produto}')">
-                                    <div class="toggle-track ${t.ATIVO?'on':'off'}"><div class="toggle-thumb"></div></div>
-                                    <span style="font-size:13px;font-weight:900;color:${t.ATIVO?'#166534':'#94a3b8'};">${t.ATIVO?'ATIVO':'INATIVO'}</span>
+                                <div style="font-size:20px;font-weight:900;color:#1e293b;">Tanque ${t.tanque}</div>
+                                <div class="toggle-wrap" onclick="toggleAtivo(${t.tanque},'${produto}')">
+                                    <div class="toggle-track ${t.ativo?'on':'off'}"><div class="toggle-thumb"></div></div>
+                                    <span style="font-size:13px;font-weight:900;color:${t.ativo?'#166534':'#94a3b8'};">${t.ativo?'ATIVO':'INATIVO'}</span>
                                 </div>
                             </div>
                             <div style="background:#e2e8f0;border-radius:10px;height:16px;overflow:hidden;margin-bottom:10px;">
                                 <div style="width:${pctT}%;height:100%;background:${cbT};border-radius:10px;transition:width 0.5s;"></div>
                             </div>
                             <div style="font-size:12px;font-weight:700;color:#64748b;">Espaço bruto: <b style="color:#1e293b;">${fmtL(espT)}</b></div>
-                            ${t.ATIVO?`<div style="background:#dcfce7;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:900;color:#166534;text-align:center;margin-top:8px;">
+                            ${t.ativo?`<div style="background:#dcfce7;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:900;color:#166534;text-align:center;margin-top:8px;">
                                 <i class="fa-solid fa-check-circle"></i> Operador vê: ${fmtL(dispT)}</div>`:''}
                         </div>`;
                     }).join('')}
@@ -904,19 +919,20 @@
     }
 
     async function toggleAtivo(numTanque,produto){
-        const tanquesDosProduto=memoriaTanquesIndividuais.filter(t=>t.PRODUTO===produto);
-        const tanque=memoriaTanquesIndividuais.find(t=>t.TANQUE===numTanque);
+        const tanquesDosProduto=memoriaTanquesIndividuais.filter(t=>t.produto===produto);
+        const tanque=memoriaTanquesIndividuais.find(t=>t.tanque===numTanque);
         if(!tanque) return;
-        const novoEstado=!tanque.ATIVO;
+        const novoEstado=!tanque.ativo;
         setLoader(true);
         try{
             for(const t of tanquesDosProduto){
-                if(t.ATIVO||t.TANQUE===numTanque){
-                    await fetch(`${DB.URL}/rest/v1/tanques_individuais?TANQUE=eq.${t.TANQUE}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({ATIVO:false})});
+                if(t.ativo||t.tanque===numTanque){
+                    // ── filtro e campo minúsculos ──
+                    await fetch(`${DB.URL}/rest/v1/tanques_individuais?tanque=eq.${t.tanque}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({ativo:false})});
                 }
             }
             if(novoEstado){
-                await fetch(`${DB.URL}/rest/v1/tanques_individuais?TANQUE=eq.${numTanque}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({ATIVO:true})});
+                await fetch(`${DB.URL}/rest/v1/tanques_individuais?tanque=eq.${numTanque}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({ativo:true})});
                 await registrarLog('TANQUE ATIVADO',`Tanque ${numTanque} — ${produto} — marcado como ATIVO para recebimento`);
             } else {
                 await registrarLog('TANQUE DESATIVADO',`Tanque ${numTanque} — ${produto} — desmarcado`);
@@ -943,8 +959,8 @@
         const grid=document.getElementById('previsao-grid');
         if(!memoriaTanques.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:#94a3b8;font-weight:900;">Nenhum tanque configurado.</div>`;return;}
         grid.innerHTML=memoriaTanques.map(t=>{
-            const livre=espacoOperador(t),pct=pctLivre(t),cor=corProduto(t.PRODUTO);
-            const caminhoes=fila.filter(i=>i.PRODUTO===t.PRODUTO&&i.VOLUME>0);
+            const livre=espacoOperador(t),pct=pctLivre(t),cor=corProduto(t.produto);
+            const caminhoes=fila.filter(i=>i.PRODUTO===t.produto&&i.VOLUME>0);
             const totalVol=caminhoes.reduce((s,i)=>s+(i.VOLUME||0),0);
             const media=caminhoes.length>0?totalVol/caminhoes.length:0;
             const descargas=media>0?Math.floor(livre/media):null;
@@ -955,10 +971,10 @@
             const descTxt=descargas!==null?`${descargas} descarga${descargas!==1?'s':''}`:'Sem dados de volume';
             return `<div class="prev-card">
                 <div class="prev-produto">
-                    <span style="background:${cor};color:white;padding:6px 16px;border-radius:12px;font-size:13px;">${t.PRODUTO}</span>
+                    <span style="background:${cor};color:white;padding:6px 16px;border-radius:12px;font-size:13px;">${t.produto}</span>
                     <span class="prev-destaque ${stClass}">${stTxt}</span>
                 </div>
-                <div class="prev-linha"><span style="color:#64748b;">Tanque ativo</span><span class="prev-valor">${t.ATIVO_TANQUE||'—'}</span></div>
+                <div class="prev-linha"><span style="color:#64748b;">Tanque ativo</span><span class="prev-valor">${t.ativo_tanque||'—'}</span></div>
                 <div class="prev-linha"><span style="color:#64748b;">Disponível p/ operador</span><span class="prev-valor" style="color:${livre===0?'#ef4444':'#10b981'}">${fmtL(livre)}</span></div>
                 <div class="prev-linha"><span style="color:#64748b;">Caminhões no pátio</span><span class="prev-valor">${caminhoes.length} veículo${caminhoes.length!==1?'s':''}</span></div>
                 <div class="prev-linha"><span style="color:#64748b;">Média por caminhão</span><span class="prev-valor">${media>0?fmtL(media):'---'}</span></div>
