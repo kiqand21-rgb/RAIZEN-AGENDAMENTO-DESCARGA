@@ -283,7 +283,7 @@
 
     <div style="text-align:center;margin-top:50px;display:flex;flex-direction:column;gap:20px;align-items:center;">
         <button onclick="abrirLogin('OPERADOR')" style="background:none;border:none;color:var(--roxo-raizen);font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;font-size:16px;">
-            <i class="fa-solid fa-lock"></i> ACESSO OPERACIONAL
+            <i class="fa-solid fa-lock"></i> ACESSO GATE
         </button>
         <button onclick="abrirLogin('SUPERVISOR')" style="background:none;border:none;color:#0ea5e9;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;font-size:16px;">
             <i class="fa-solid fa-shield-halved"></i> ACESSO SUPERVISOR (TANQUES)
@@ -292,7 +292,7 @@
 </div>
 
 <div id="modulo-operador-full">
-    <h2>PAINEL DE CONTROLE DE PÁTIO</h2>
+    <h2>PAINEL DE CONTROLE DE PÁTIO — GATE</h2>
     <div id="resumo-tanques-operador" class="resumo-tanques-topo"></div>
 
     <div style="display:flex;gap:16px;margin-bottom:28px;align-items:center;flex-wrap:wrap;">
@@ -352,7 +352,7 @@
         <div>
             <div style="font-size:16px;font-weight:900;color:#92400e;">MARGEM DE SEGURANÇA ATIVA: 120.000 L</div>
             <div style="font-size:13px;font-weight:600;color:#b45309;margin-top:3px;">
-                Ao importar o relatório, o sistema subtrai automaticamente 120.000 L do Espaço de cada tanque antes de liberar para o operador.
+                Ao importar o relatório, o sistema subtrai automaticamente 120.000 L do Espaço de cada tanque antes de liberar para o gate.
             </div>
         </div>
     </div>
@@ -636,7 +636,7 @@
         document.getElementById('login-erro').style.display='none';
         document.getElementById('login-titulo').innerHTML=
             tipo==='OPERADOR'
-                ?'<i class="fa-solid fa-lock"></i> ACESSO OPERACIONAL'
+                ?'<i class="fa-solid fa-lock"></i> ACESSO GATE'
                 :'<i class="fa-solid fa-shield-halved"></i> ACESSO SUPERVISOR';
         document.getElementById('modal-login').classList.add('aberto');
         setTimeout(()=>document.getElementById('login-usuario').focus(),100);
@@ -680,7 +680,7 @@
     function mostrarBadge(){
         if(!usuarioLogado) return;
         document.getElementById('badge-nome').textContent=usuarioLogado.nome;
-        document.getElementById('badge-perfil').textContent=usuarioLogado.perfil;
+        document.getElementById('badge-perfil').textContent=usuarioLogado.perfil==='OPERADOR'?'GATE':usuarioLogado.perfil;
         document.getElementById('badge-usuario').classList.add('visivel');
     }
 
@@ -1012,7 +1012,7 @@
         try{
             const r=await fetch(`${DB.URL}/rest/v1/registros?ID=eq.${id}`,{method:'DELETE',headers:DB.H});
             if(r.ok){
-                await registrarLog('REGISTRO EXCLUÍDO',`Placa: ${placa} — excluído manualmente pelo operador`);
+                await registrarLog('REGISTRO EXCLUÍDO',`Placa: ${placa} — excluído manualmente pelo gate`);
                 await carregarDados();
                 alert(`✅ Registro de ${placa} excluído com sucesso.`);
             } else throw new Error();
@@ -1039,7 +1039,7 @@
     function chamarWhatsApp(tel){
         const baia=prompt('Motorista vamos descarregar?\nInforme a BAIA ou ÁREA:');
         if(!baia) return;
-        const msg=encodeURIComponent(`Olá\nMotorista vamos descarregar?\nBaia ${baia}\nObrigado!\n\nObs: aguarde a instrução do operador para entrar na baia!`);
+        const msg=encodeURIComponent(`Olá\nMotorista vamos descarregar?\nBaia ${baia}\nObrigado!\n\nObs: aguarde a instrução do gate para entrar na baia!`);
         window.open(`https://wa.me/55${tel.replace(/\D/g,'')}?text=${msg}`,'_blank');
     }
 
@@ -1062,7 +1062,7 @@
             await fetch(`${DB.URL}/rest/v1/tanques_individuais?tanque=eq.${t.ativo_tanque}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({disponivel:novoDisp})});
             await registrarLog('SAIDA REGISTRADA',`Placa: ${placa} — ${produto} — Volume: ${fmtL(volume)} — Tanque ${t.ativo_tanque} — Disponível após: ${fmtL(novoDisp)}`);
             await carregarDados();
-            alert(`✅ SAÍDA REGISTRADA!\n\n${placa} — ${fmtL(volume)}\nTanque ${t.ativo_tanque}\nDisponível p/ operador: ${fmtL(Math.max(0,novoDisp-SEGURANCA_L))}`);
+            alert(`✅ SAÍDA REGISTRADA!\n\n${placa} — ${fmtL(volume)}\nTanque ${t.ativo_tanque}\nDisponível p/ gate: ${fmtL(Math.max(0,novoDisp-SEGURANCA_L))}`);
         }catch(e){alert('ERRO AO REGISTRAR SAÍDA.');console.error(e);}
         finally{setLoader(false);}
     }
@@ -1177,7 +1177,7 @@
                 });
                 if(r.ok){
                     await registrarLog('TANQUE ATUALIZADO',
-                        `[IMPORTAÇÃO] Tanque ${a.numTanque} — ${a.produto} — Espaço: ${fmtL(a.espacoL)} — Disponível p/ operador: ${fmtL(a.disponivelL)}`);
+                        `[IMPORTAÇÃO] Tanque ${a.numTanque} — ${a.produto} — Espaço: ${fmtL(a.espacoL)} — Disponível p/ gate: ${fmtL(a.disponivelL)}`);
                 } else erros++;
             }catch{erros++;}
         }
@@ -1216,7 +1216,7 @@
                             :`<span style="background:#fef2f2;color:#ef4444;padding:6px 18px;border-radius:12px;font-size:13px;font-weight:900;"><i class="fa-solid fa-circle-xmark"></i> NENHUM ATIVO</span>`}
                     </div>
                     <div style="text-align:right;">
-                        <div style="font-size:12px;font-weight:700;color:#64748b;">Disponível p/ operador</div>
+                        <div style="font-size:12px;font-weight:700;color:#64748b;">Disponível p/ gate</div>
                         <div style="font-size:26px;font-weight:900;color:${dispOp===0?'#ef4444':'#059669'}">${fmtL(dispOp)}</div>
                         ${ativo?`<div style="font-size:11px;color:#94a3b8;">${fmtL(espBruto)} bruto − 120.000 L segurança</div>`:''}
                     </div>
