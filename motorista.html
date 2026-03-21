@@ -292,8 +292,14 @@
 
         setLoader(true);
         try {
+            // Busca com hífen e sem hífen (precheck importado do Coleta vem sem hífen)
+            const placaSemHifen = placa.replace('-','');
             const chk = await fetch(`${DB.URL}/rest/v1/registros?PLACA=eq.${placa}&SAIDA=is.null&select=*`, { headers: DB.H });
-            const existentes = await chk.json();
+            let existentes = await chk.json();
+            if((!existentes||existentes.length===0) && placaSemHifen!==placa){
+                const chk2 = await fetch(`${DB.URL}/rest/v1/registros?PLACA=eq.${placaSemHifen}&SAIDA=is.null&select=*`, { headers: DB.H });
+                existentes = await chk2.json();
+            }
 
             if(existentes && existentes.length > 0) {
                 const reg = existentes[0];
@@ -302,6 +308,7 @@
                     const r = await fetch(`${DB.URL}/rest/v1/registros?ID=eq.${reg.ID}`, {
                         method: 'PATCH', headers: DB.H,
                         body: JSON.stringify({
+                            PLACA:       placa,
                             PRODUTO:     produto,
                             TELEFONE:    tel,
                             JORNADA:     jornadaValor,
