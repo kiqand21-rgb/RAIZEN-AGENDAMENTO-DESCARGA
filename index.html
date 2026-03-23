@@ -570,11 +570,45 @@
     }
 
     window.addEventListener('load', async()=>{
-        setLoader(true);
-        const restaurou = await restaurarSessao();
-        if(!restaurou) setLoader(false);
-        else setLoader(false);
-    });
+    setLoader(true);
+    try {
+        await restaurarSessao();
+    } catch(e) {
+        console.error('Erro ao restaurar sessão:', e);
+    } finally {
+        setLoader(false);
+    }
+});
+
+async function restaurarSessao(){
+    const usuario = carregarSessao();
+    if(!usuario) return false;
+    usuarioLogado = usuario;
+    mostrarBadge();
+    try {
+        if(usuario.perfil === 'GATE' || usuario.perfil === 'OPERADOR'){
+            document.getElementById('secao-entrada').style.display='none';
+            document.getElementById('modulo-operador-full').style.display='block';
+            await pedirPermissaoNotificacao();
+            await carregarDados();
+            setInterval(carregarDados, 30000);
+        } else {
+            document.getElementById('secao-entrada').style.display='none';
+            document.getElementById('modulo-supervisor').style.display='block';
+            await carregarTanques();
+            renderSupervisor();
+            setInterval(async()=>{await carregarTanques();renderSupervisor();}, 30000);
+        }
+    } catch(e) {
+        console.error('Erro ao restaurar sessão:', e);
+        // Se falhar, volta para tela inicial
+        localStorage.removeItem(SESSAO_KEY);
+        document.getElementById('secao-entrada').style.display='block';
+        document.getElementById('modulo-operador-full').style.display='none';
+        document.getElementById('modulo-supervisor').style.display='none';
+    }
+    return true;
+}
 
     const setLoader      = v  => document.getElementById('loader-overlay').style.display = v ? 'flex' : 'none';
     const fmtL           = n  => n != null ? Number(n).toLocaleString('pt-BR') + ' L' : '---';
