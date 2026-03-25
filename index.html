@@ -1267,13 +1267,13 @@
                     <div>
                         <div class="fila-label">Agendamento</div>
                         <input type="datetime-local" id="ag-${id}" value="${item.AGENDAMENTO?item.AGENDAMENTO.replace(' ','T').slice(0,16):''}" class="input-edit-table">
-                        <button onclick="salvarCampo(${id},'AGENDAMENTO')" class="btn-acao-tabela" style="background:var(--verde-raizen);color:white;">💾 Salvar ag.</button>
+                        <button onclick="salvarCampo(${id},'AGENDAMENTO')" class="btn-acao-tabela" style="background:var(--verde-raizen);color:white;">💾</button>
                     </div>
                     <div>
                         <div class="fila-label">Volume (L)</div>
                         <input type="number" id="vol-${id}" value="${item.VOLUME||''}" placeholder="Ex: 30000" class="input-edit-table"
                             onkeydown="if(event.key==='Enter'){ event.preventDefault(); confirmarSalvarVolume(${id}); }">
-                        <button onclick="confirmarSalvarVolume(${id})" class="btn-acao-tabela" style="background:#1d4ed8;color:white;">💾 Salvar vol.</button>
+                        <button onclick="confirmarSalvarVolume(${id})" class="btn-acao-tabela" style="background:#1d4ed8;color:white;">💾</button>
                     </div>
                 </div>
                 <div>
