@@ -1183,27 +1183,6 @@ async function restaurarSessao(){
         finally{setLoader(false);}
     }
     
-<!-- INÍCIO HISTÓRICO DE SAÍDAS -->
-<section id="historico-saidas">
-  <h2>Histórico de Saídas</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Caminhão</th>
-        <th>Motorista</th>
-        <th>Telefone</th>
-        <th>Data/Hora</th>
-        <th>Motivo</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="lista-saidas">
-      <!-- registros dinâmicos -->
-    </tbody>
-  </table>
-</section>
-<!-- FIM HISTÓRICO DE SAÍDAS -->
-    
     async function salvarCampo(id,campo){
         let valor;
         if(campo==='AGENDAMENTO'){valor=document.getElementById(`ag-${id}`).value;valor=valor?valor.replace('T',' '):null;}
