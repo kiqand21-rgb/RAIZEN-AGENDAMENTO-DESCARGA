@@ -728,6 +728,7 @@
             } else {
                 document.getElementById('secao-entrada').style.display='none';
                 document.getElementById('modulo-supervisor').style.display='block';
+                setTimeout(()=>alert('⚠️ LEMBRETE: SEMPRE Atualize o ENRAF do NEWSAT antes de importar o espaço/planilha de tanques !'), 800);
                 await carregarTanques();
                 renderSupervisor();
                 setInterval(async()=>{await carregarTanques();renderSupervisor();}, 30000);
