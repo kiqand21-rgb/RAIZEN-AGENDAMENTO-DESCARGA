@@ -498,12 +498,26 @@
 <div id="modulo-supervisor">
     <h2 style="color:var(--verde-vivo);"><i class="fa-solid fa-shield-halved"></i> GESTÃO DE TANQUES — SUPERVISOR</h2>
 
-    <div style="background:#fff7ed;border:3px solid #fed7aa;border-radius:22px;padding:22px 28px;margin-bottom:28px;display:flex;align-items:center;gap:16px;">
-        <div style="font-size:32px;">🔒</div>
-        <div>
-            <div style="font-size:16px;font-weight:900;color:#92400e;">MARGEM DE SEGURANÇA ATIVA: 120.000 L</div>
-            <div style="font-size:13px;font-weight:600;color:#b45309;margin-top:3px;">
-                Ao importar o relatório, o sistema subtrai automaticamente 120.000 L do Espaço de cada tanque antes de liberar para o gate.
+    <div style="background:#fff7ed;border:3px solid #fed7aa;border-radius:22px;padding:22px 28px;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div style="font-size:32px;">🔒</div>
+            <div style="flex:1;min-width:220px;">
+                <div style="font-size:16px;font-weight:900;color:#92400e;">MARGEM DE SEGURANÇA</div>
+                <div style="font-size:13px;font-weight:600;color:#b45309;margin-top:3px;">
+                    Ao importar o relatório, o sistema subtrai este valor do Espaço de cada tanque antes de liberar para o gate.
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+                <input type="number" id="input-margem-seguranca"
+                    style="width:140px;padding:12px 16px;border:3px solid #fed7aa;border-radius:14px;font-size:18px;font-weight:900;color:#92400e;background:#fffbeb;outline:none;text-align:center;"
+                    min="0" step="1000"
+                    onfocus="this.style.borderColor='#f59e0b'"
+                    onblur="this.style.borderColor='#fed7aa'">
+                <span style="font-size:14px;font-weight:900;color:#92400e;">L</span>
+                <button onclick="salvarMargemSeguranca()"
+                    style="background:#f59e0b;color:white;border:none;border-radius:14px;padding:12px 20px;font-size:14px;font-weight:900;cursor:pointer;">
+                    <i class="fa-solid fa-check"></i> SALVAR
+                </button>
             </div>
         </div>
     </div>
@@ -641,7 +655,24 @@
         }
     };
 
-    const SEGURANCA_L = 120000;
+    function salvarMargemSeguranca(){
+        const input = document.getElementById('input-margem-seguranca');
+        const val = parseInt(input.value);
+        if(isNaN(val) || val < 0){ showToast('Valor inválido para margem de segurança.','erro'); return; }
+        SEGURANCA_L = val;
+        localStorage.setItem('raizen_seguranca_l', String(val));
+        input.style.borderColor = '#86efac';
+        setTimeout(()=>{ input.style.borderColor='#fed7aa'; },1500);
+        showToast(`✅ Margem de segurança atualizada: ${Number(val).toLocaleString('pt-BR')} L`,'ok');
+        carregarTanques().then(()=>renderSupervisor());
+    }
+
+    function inicializarCampoMargem(){
+        const input = document.getElementById('input-margem-seguranca');
+        if(input) input.value = SEGURANCA_L;
+    }
+
+    let SEGURANCA_L = parseInt(localStorage.getItem('raizen_seguranca_l') || '120000');
 
     const MAPA_PRODUTO_COLETA = {
         'hidratado':   'ETANOL HIDRATADO',
@@ -733,7 +764,7 @@
                 document.getElementById('secao-entrada').style.display='none';
                 document.getElementById('modulo-supervisor').style.display='block';
                 await carregarTanques();
-                renderSupervisor();
+                renderSupervisor(); inicializarCampoMargem();
                 setInterval(async()=>{await carregarTanques();renderSupervisor();}, 30000);
             }
         }catch(e){
@@ -878,7 +909,7 @@
                 document.getElementById('secao-entrada').style.display='none';
                 document.getElementById('modulo-supervisor').style.display='block';
                 await carregarTanques();
-                renderSupervisor();
+                renderSupervisor(); inicializarCampoMargem();
                 setInterval(async()=>{await carregarTanques();renderSupervisor();},30000);
             }
         }catch(e){ erroEl.textContent='Erro ao salvar senha. Tente novamente.'; erroEl.style.display='block'; }
@@ -958,7 +989,7 @@
                 document.getElementById('secao-entrada').style.display='none';
                 document.getElementById('modulo-supervisor').style.display='block';
                 await carregarTanques();
-                renderSupervisor();
+                renderSupervisor(); inicializarCampoMargem();
                 setInterval(async()=>{await carregarTanques();renderSupervisor();},30000);
             }
         }catch(e){document.getElementById('login-erro').style.display='block';console.error(e);}
