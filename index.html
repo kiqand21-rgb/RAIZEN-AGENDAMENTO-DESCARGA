@@ -174,10 +174,10 @@
         /* CARD PRECHECK */
         .fila-card.precheck { background: #fff7ed; border: 3px solid var(--laranja-raizen); }
         /* CARD MOTORISTA INDISPONÍVEL */
-        .fila-card.indisponivel { background: #fef2f2; border: 3px solid #ef4444; }
-        .fila-card.indisponivel .fila-placa { color: #dc2626; }
-        .btn-icon-indisponivel { background: #fee2e2; color: #dc2626; border: 2px solid #fca5a5 !important; }
-        .btn-icon-indisponivel.ativo { background: #dc2626; color: white; border: 2px solid #b91c1c !important; }
+        .fila-card.indisponivel { background: #fef2f2 !important; border: 3px solid #ef4444 !important; }
+        .fila-card.indisponivel .fila-placa { color: #dc2626 !important; }
+        .btn-icon-indisp { background: #fee2e2; color: #dc2626; border: 2px solid #fca5a5 !important; }
+        .btn-icon-indisp.ativo { background: #dc2626 !important; color: white !important; border: 2px solid #b91c1c !important; }
         .secao-precheck-titulo { display:flex; align-items:center; gap:14px; background:#fff7ed; border:3px solid var(--laranja-raizen); border-radius:18px; padding:18px 24px; margin:32px 0 18px; font-size:16px; font-weight:900; color:#92400e; }
         .secao-precheck-titulo .qtd-badge { background:var(--laranja-raizen); color:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; flex-shrink:0; }
         #modal-agendamentos { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; }
@@ -421,6 +421,10 @@
         <button class="chip-filtro" onclick="filtrar('DIESEL',this)">DIESEL S10</button>
     </div>
     <div class="moldura-tabela">
+        <div id="secao-pateo-titulo" style="display:none;align-items:center;gap:14px;background:#eff6ff;border:3px solid #bfdbfe;border-radius:18px;padding:18px 24px;margin-bottom:18px;">
+            <div id="qtd-pateo" style="background:#1d4ed8;color:white;border-radius:50%;width:32px;height:32px;min-width:32px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;">0</div>
+            <div style="font-size:16px;font-weight:900;color:#1d4ed8;"><i class="fa-solid fa-circle-check"></i> 🚛 EM PÁTIO — AGUARDANDO DESCARGA</div>
+        </div>
         <div class="fila-grid" id="listaFila"></div>
     </div>
     
@@ -1183,13 +1187,11 @@
     /* ─── STATUS BADGE DO CARD ────────────────────────── */
     function getCardStatusBadge(item, t, livre){
         const vol=item.VOLUME||0;
-        // Motorista indisponível
         if(item.INDISPONIVEL){
             return `<div class="card-status-badge" style="background:#fef2f2;color:#dc2626;border-color:#fca5a5;">
                 <i class="fa-solid fa-user-xmark"></i> MOTORISTA INDISPONÍVEL
             </div>`;
         }
-        // Sem tanque ou sem espaço
         if(!t||!t.ativo_tanque||livre<=0){
             return `<div class="card-status-badge" style="background:#fef2f2;color:#dc2626;border-color:#fca5a5;">
                 <i class="fa-solid fa-ban"></i> 🚛 TANQUE SEM ESPAÇO
@@ -1228,8 +1230,13 @@
                 ?`<i class="fa-solid fa-magnifying-glass" style="font-size:50px;display:block;margin-bottom:15px;opacity:.3;"></i>Nenhum veículo encontrado para "<b>${busca}</b>".`
                 :`<i class="fa-solid fa-truck" style="font-size:50px;display:block;margin-bottom:15px;opacity:.3;"></i>Nenhum veículo no pátio.`;
             corpo.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:#94a3b8;font-weight:900;font-size:18px;">${msg}</div>`;
+            const tEl=document.getElementById('secao-pateo-titulo'); if(tEl) tEl.style.display='none';
             return;
         }
+        const tEl=document.getElementById('secao-pateo-titulo');
+        const qEl=document.getElementById('qtd-pateo');
+        if(tEl){ tEl.style.display='flex'; }
+        if(qEl){ qEl.textContent=lista.length; }
         lista.forEach(item=>{
             const id=item.ID;
             const cor=corProduto(item.PRODUTO);
@@ -1237,6 +1244,7 @@
             const livre=t?espacoOperador(t):0;
             const temAtivo=t&&t.ativo_tanque;
             const vol=item.VOLUME||0;
+            const indisp=!!item.INDISPONIVEL;
 
             // Badge de status no topo do card
             const statusBadge=getCardStatusBadge(item, t, livre);
@@ -1258,7 +1266,7 @@
             }
 
             const card=document.createElement('div');
-            card.className='fila-card'+(item.INDISPONIVEL?' indisponivel':'');
+            card.className='fila-card'+(indisp?' indisponivel':'');
             card.innerHTML=`
                 ${statusBadge}
                 <div class="fila-card-top">
@@ -1297,10 +1305,10 @@
                         title="Registrar saída">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
-                    <button class="btn-icon-indisponivel btn-icon-action${item.INDISPONIVEL?' ativo':''}" style="flex:1;max-width:80px;"
-                        onclick="toggleIndisponivel(${id},'${item.PLACA}',${item.INDISPONIVEL?'true':'false'})"
-                        title="${item.INDISPONIVEL?'Motorista indisponível — clique para reverter':'Marcar motorista como indisponível'}">
-                        <i class="fa-solid fa-user-${item.INDISPONIVEL?'xmark':'slash'}"></i>
+                    <button class="btn-icon-indisp btn-icon-action${indisp?' ativo':''}" style="flex:1;max-width:80px;"
+                        onclick="toggleIndisponivel(${id},'${item.PLACA}',${indisp})"
+                        title="${indisp?'Clique para marcar como disponível':'Marcar motorista como indisponível'}">
+                        <i class="fa-solid fa-user-${indisp?'xmark':'slash'}"></i>
                     </button>
                     <button class="btn-icon-del btn-icon-action" style="flex:1;max-width:80px;"
                         onclick="excluirRegistro(${id},'${item.PLACA}')"
@@ -1371,7 +1379,7 @@
         try{
             const r=await fetch(`${DB.URL}/rest/v1/registros?ID=eq.${id}`,{method:'PATCH',headers:DB.H,body:JSON.stringify({INDISPONIVEL:novoEstado})});
             if(r.ok){
-                await registrarLog('STATUS MOTORISTA', `Placa: ${placa} — ${novoEstado?'INDISPONÍVEL':'DISPONÍVEL novamente'}`);
+                await registrarLog('STATUS MOTORISTA',`Placa: ${placa} — ${novoEstado?'INDISPONÍVEL':'DISPONÍVEL novamente'}`);
                 showToast(novoEstado?`🔴 ${placa} marcado como INDISPONÍVEL`:`✅ ${placa} disponível novamente`, novoEstado?'erro':'ok');
                 carregarDados();
             } else throw new Error();
