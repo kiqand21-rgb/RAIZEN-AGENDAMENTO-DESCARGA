@@ -1235,8 +1235,8 @@
         }
         const tEl=document.getElementById('secao-pateo-titulo');
         const qEl=document.getElementById('qtd-pateo');
-        if(tEl){ tEl.style.display='flex'; }
-        if(qEl){ qEl.textContent=lista.length; }
+        if(tEl) tEl.style.display='flex';
+        if(qEl) qEl.textContent=lista.length;
         lista.forEach(item=>{
             const id=item.ID;
             const cor=corProduto(item.PRODUTO);
@@ -1246,10 +1246,8 @@
             const vol=item.VOLUME||0;
             const indisp=!!item.INDISPONIVEL;
 
-            // Badge de status no topo do card
             const statusBadge=getCardStatusBadge(item, t, livre);
 
-            // Botões ícone: WhatsApp / Saída / Excluir
             let waBtn, waTitle, waDisabled;
             if(!t||!temAtivo||livre<=0){
                 waBtn=`btn-icon-wa btn-icon-action`;
@@ -1292,9 +1290,7 @@
                 </div>
                 <div>
                     <div class="fila-label">Telefone</div>
-                    <div style="display:flex;gap:6px;">
-                        <input type="text" id="tel-${id}"value="${item.TELEFONE}"class="input-edit-table"style="flex:1;"onkeydown="if(event.key==='Enter'){ event.preventDefault(); salvarCampo(${id},'TELEFONE'); }">
-                    </div>
+                    <input type="text" id="tel-${id}"value="${item.TELEFONE}"class="input-edit-table"onkeydown="if(event.key==='Enter'){ event.preventDefault(); salvarCampo(${id},'TELEFONE'); }">
                 </div>
                 <div class="fila-card-bot">
                     <button class="${waBtn}" ${waDisabled} style="flex:1;max-width:80px;" title="${waTitle}">
@@ -1382,8 +1378,12 @@
                 await registrarLog('STATUS MOTORISTA',`Placa: ${placa} — ${novoEstado?'INDISPONÍVEL':'DISPONÍVEL novamente'}`);
                 showToast(novoEstado?`🔴 ${placa} marcado como INDISPONÍVEL`:`✅ ${placa} disponível novamente`, novoEstado?'erro':'ok');
                 carregarDados();
-            } else throw new Error();
-        }catch{ showToast('ERRO AO ATUALIZAR STATUS','erro'); }
+            } else {
+                const txt=await r.text();
+                console.error('Erro toggleIndisponivel:',r.status,txt);
+                showToast('ERRO AO ATUALIZAR STATUS — verifique o console','erro');
+            }
+        }catch(e){ console.error(e); showToast('ERRO AO ATUALIZAR STATUS','erro'); }
         finally{setLoader(false);}
     }
 
