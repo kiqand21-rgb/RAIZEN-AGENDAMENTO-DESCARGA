@@ -644,45 +644,65 @@
         }
     };
 
-    // ── MARGEM DE SEGURANÇA POR PRODUTO ──────────────────
+    // ── MARGEM DE SEGURANÇA POR PRODUTO (salvo no banco) ──
     const PRODUTOS_MARGEM = ['ETANOL HIDRATADO','ETANOL ANIDRO','BIODIESEL (B100)','GASOLINA','DIESEL S10'];
 
-    function carregarMargens(){
-        const obj = {};
-        PRODUTOS_MARGEM.forEach(p=>{
-            const key = 'raizen_margem_' + p.replace(/[^A-Za-z0-9]/g,'_');
-            obj[p] = parseInt(localStorage.getItem(key) || '120000');
-        });
-        return obj;
+    let MARGENS = {};
+    PRODUTOS_MARGEM.forEach(p => MARGENS[p] = 120000); // defaults
+
+    async function carregarMargens(){
+        try{
+            const r = await fetch(`${DB.URL}/rest/v1/configuracoes?chave=like.margem_%&select=chave,valor`, {headers:DB.H});
+            if(r.ok){
+                const rows = await r.json();
+                rows.forEach(row=>{
+                    // chave = "margem_ETANOL_HIDRATADO" → produto
+                    const prod = PRODUTOS_MARGEM.find(p=>
+                        'margem_'+p.replace(/[^A-Za-z0-9]/g,'_') === row.chave
+                    );
+                    if(prod) MARGENS[prod] = parseInt(row.valor) || 120000;
+                });
+            }
+        }catch(e){ console.error('Erro ao carregar margens',e); }
     }
 
-    let MARGENS = carregarMargens();
-
-    // Compatibilidade: espacoOperador usa margem do produto
-    const SEGURANCA_L = 120000; // fallback legado (não usado diretamente mais)
     const getMargemProduto = p => {
         const found = PRODUTOS_MARGEM.find(x => (p||'').toUpperCase().includes(x.toUpperCase().split(' ')[0])) ||
                       PRODUTOS_MARGEM.find(x => x === p);
         return MARGENS[found] ?? 120000;
     };
 
-    function salvarMargemProduto(produto){
+    async function salvarMargemProduto(produto){
         const key_id = 'margem-input-' + produto.replace(/[^A-Za-z0-9]/g,'_');
         const input = document.getElementById(key_id);
         if(!input) return;
         const val = parseInt(input.value);
         if(isNaN(val) || val < 0){ showToast('Valor inválido.','erro'); return; }
-        const storKey = 'raizen_margem_' + produto.replace(/[^A-Za-z0-9]/g,'_');
-        MARGENS[produto] = val;
-        localStorage.setItem(storKey, String(val));
-        input.style.borderColor = '#86efac';
-        setTimeout(()=>{ input.style.borderColor='#fed7aa'; }, 1500);
-        showToast(`✅ Margem de ${produto}: ${Number(val).toLocaleString('pt-BR')} L`,'ok');
-        carregarTanques().then(()=>renderSupervisor());
+        const chave = 'margem_' + produto.replace(/[^A-Za-z0-9]/g,'_');
+        try{
+            // upsert na tabela configuracoes
+            const r = await fetch(`${DB.URL}/rest/v1/configuracoes`, {
+                method: 'POST',
+                headers: {...DB.H, 'Prefer': 'resolution=merge-duplicates,return=minimal'},
+                body: JSON.stringify({chave, valor: String(val)})
+            });
+            if(r.ok || r.status===201 || r.status===204){
+                MARGENS[produto] = val;
+                input.style.borderColor = '#86efac';
+                setTimeout(()=>{ input.style.borderColor='#fed7aa'; }, 1500);
+                showToast(`✅ Margem de ${produto}: ${Number(val).toLocaleString('pt-BR')} L`,'ok');
+                await registrarLog('MARGEM ALTERADA',`${produto}: ${Number(val).toLocaleString('pt-BR')} L`);
+                await carregarTanques();
+                renderSupervisor();
+                renderMargensPorProduto();
+            } else {
+                showToast('Erro ao salvar. Verifique se a tabela "configuracoes" existe.','erro');
+            }
+        }catch(e){ showToast('Erro de conexão ao salvar margem.','erro'); console.error(e); }
     }
 
-    function inicializarCampoMargem(){
-        MARGENS = carregarMargens();
+    async function inicializarCampoMargem(){
+        await carregarMargens();
         renderMargensPorProduto();
     }
 
@@ -711,7 +731,7 @@
         }).join('');
     }
 
-    // Função legada mantida por compatibilidade
+    // Legado
     function salvarMargemSeguranca(){ inicializarCampoMargem(); }
 
 
@@ -800,8 +820,9 @@
                 document.getElementById('secao-entrada').style.display='none';
                 document.getElementById('modulo-operador-full').style.display='block';
                 await pedirPermissaoNotificacao();
+                await carregarMargens();
                 await carregarDados();
-                setInterval(carregarDados, 30000);
+                setInterval(async()=>{ await carregarMargens(); await carregarDados(); }, 30000);
             } else {
                 document.getElementById('secao-entrada').style.display='none';
                 document.getElementById('modulo-supervisor').style.display='block';
@@ -945,6 +966,7 @@
                 document.getElementById('secao-entrada').style.display='none';
                 document.getElementById('modulo-operador-full').style.display='block';
                 await pedirPermissaoNotificacao();
+                await carregarMargens();
                 await carregarDados();
                 setInterval(carregarDados,30000);
             } else {
@@ -1025,6 +1047,7 @@
                 document.getElementById('secao-entrada').style.display='none';
                 document.getElementById('modulo-operador-full').style.display='block';
                 await pedirPermissaoNotificacao();
+                await carregarMargens();
                 await carregarDados();
                 setInterval(carregarDados,30000);
             } else {
