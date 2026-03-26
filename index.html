@@ -715,7 +715,7 @@
 
     async function restaurarSessao(){
         const usuario = carregarSessao();
-        if(!usuario) return false;
+        if(!usuario){ setLoader(false); return false; }
         usuarioLogado = usuario;
         mostrarBadge();
         try{
@@ -742,10 +742,13 @@
         return true;
     }
 
-    window.addEventListener('load', async()=>{
+     window.addEventListener('load', async()=>{
         setLoader(true);
-        try{ await restaurarSessao(); }
-        catch(e){ console.error(e); }
+        try{
+            const ok = await restaurarSessao();
+            if(!ok) setLoader(false);
+        }
+        catch(e){ console.error(e); localStorage.removeItem(SESSAO_KEY); setLoader(false); }
         finally{ setLoader(false); }
     });
 
